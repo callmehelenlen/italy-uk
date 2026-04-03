@@ -12,43 +12,29 @@
     <style>
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
-        body { background-color: #F9F7F2; font-family: -apple-system, sans-serif; margin: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; -webkit-tap-highlight-color: transparent; }
         
-        /* Banner 動態背景樣式 */
-        /* Banner 區域 */
         .banner { 
             height: 300px; 
-            /* 使用你提供的 Base64 代碼作為背景圖 */
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), 
-                        url('data:image/jpeg;base64,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');
+            /* 👇 請在下方的引號內貼上你轉換後的 Base64 超長代碼 👇 */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('在這裡貼上那一串 data:image/... 的代碼'); 
             background-size: cover; 
             background-position: center; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: white; 
-            text-align: center;   
-            
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 25px;
         }
-        /* 預設遮罩層 */
-        .banner::before {
-            content: ""; position: absolute; inset: 0;
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7));
-            z-index: 1;
-        }
-        .banner-content { position: relative; z-index: 2; }
 
         .nav-icons { position: absolute; bottom: 95px; right: 25px; display: flex; gap: 30px; z-index: 60; }
-        
         .main-card { 
             margin-top: -65px; border-radius: 45px 45px 0 0; background: white; 
             min-height: 100vh; position: relative; z-index: 10; padding: 25px;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.12);
         }
-
         .active-tab { color: #C5A059 !important; border-bottom: 2px solid #C5A059; transform: scale(1.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-
         .gap-time {
             position: relative; margin: 18px 0 18px 45px; padding-left: 20px;
             border-left: 2px dashed #eee; color: #b0b5bd; font-size: 13px; font-weight: 600;
@@ -58,30 +44,22 @@
             position: absolute; left: -7px; top: 50%; transform: translateY(-50%);
             background: white; padding: 2px 0; font-size: 10px;
         }
-
         .item-card { transition: all 0.2s ease; cursor: pointer; border-left: 6px solid #C5A059 !important; }
-        .item-card:active { background-color: #f9f9f9; transform: scale(0.98); }
-        
         .fab { 
             position: fixed; bottom: 30px; right: 20px; width: 64px; height: 64px; 
             background: var(--italy-red); border-radius: 50%; color: white; 
             display: flex; align-items: center; justify-content: center; 
             font-size: 24px; box-shadow: 0 8px 25px rgba(139,0,0,0.4); z-index: 100;
         }
-
-        /* 輸入框微調 */
-        .input-minimal { border: none; background: #f3f4f6; border-radius: 12px; padding: 8px 15px; font-size: 12px; width: 100%; outline: none; }
     </style>
 </head>
 <body>
 
 <div id="app" v-cloak>
-    <div class="banner" :style="{ backgroundImage: 'url(' + settings.bannerUrl + ')' }">
-        <div class="banner-content">
-            <h1 class="text-white text-3xl font-black tracking-tight leading-tight mb-1 italic">Sweet as Tiramisu</h1>
-            <p class="text-white/90 text-sm font-medium leading-snug max-w-[70%]">Helen & Ryan’s Romantic Italy + UK Getaway</p>
-            <p class="text-white/60 text-[10px] tracking-[0.3em] uppercase mt-3 font-bold">14 - 25 May 2026</p>
-        </div>
+    <div class="banner">
+        <h1 class="text-white text-3xl font-black tracking-tight leading-tight mb-1 italic">Sweet as Tiramisu</h1>
+        <p class="text-white/90 text-sm font-medium leading-snug max-w-[70%]">Helen & Ryan’s Romantic Italy + UK Getaway</p>
+        <p class="text-white/60 text-[10px] tracking-[0.3em] uppercase mt-3 font-bold">14 - 25 May 2026</p>
 
         <div class="nav-icons">
             <button @click="currentTab = 'itinerary'" :class="{'active-tab': currentTab === 'itinerary'}" class="text-white/60 text-3xl transition-all"><i class="fa-solid fa-route"></i></button>
@@ -93,7 +71,7 @@
         <div v-if="currentTab === 'itinerary'">
             <div class="flex space-x-3 overflow-x-auto mb-8 pb-2 no-scrollbar">
                 <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
-                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white shadow-lg' : 'bg-gray-100 text-gray-400'"
+                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400'"
                      class="flex-shrink-0 w-14 py-4 rounded-2xl text-center transition-all cursor-pointer">
                     <div class="text-[10px] font-bold uppercase mb-1">{{ day.weekday }}</div>
                     <div class="text-xl font-bold">{{ day.date }}</div>
@@ -118,41 +96,37 @@
                 </div>
                 <div @click="editItem(item)" class="item-card mb-2 p-6 bg-white border border-gray-100 rounded-[30px] shadow-sm flex justify-between items-center relative z-10">
                     <div class="flex-1">
-                        <div class="text-[12px] font-extrabold text-red-900 uppercase mb-2 tracking-wider">
-                             {{ item.time }} <span class="mx-2 opacity-10">|</span> {{ item.type }}
+                        <div class="text-[12px] font-extrabold text-red-900 uppercase mb-2 tracking-wider flex items-center">
+                             <i class="fa-regular fa-clock mr-1.5 opacity-40"></i>{{ item.time }} 
+                             <span class="mx-2 opacity-10">|</span> {{ item.type }}
                         </div>
                         <div class="font-black text-gray-900 text-xl leading-tight">{{ item.name }}</div>
                         <div v-if="item.note" class="text-sm text-gray-500 mt-2 font-medium bg-gray-50 p-2 px-3 rounded-xl inline-block">{{ item.note }}</div>
                     </div>
-                    <button @click.stop="removeItem(item.id)" class="text-gray-200 p-3 ml-2"><i class="fa-solid fa-trash-can text-lg"></i></button>
+                    <button @click.stop="removeItem(item.id)" class="text-gray-200 hover:text-red-800 p-3 ml-2 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
                 </div>
             </template>
-            <div v-if="filteredItinerary.length === 0" class="py-24 text-center text-gray-300 italic text-lg font-light">No plans for May {{ days[selectedDayIndex].date }}</div>
         </div>
 
         <div v-if="currentTab === 'expense'">
             <div class="bg-gray-900 text-white p-10 rounded-[45px] mb-8 shadow-xl text-center">
-                <div class="text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2 font-bold">Total Budget HKD</div>
+                <div class="text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2 font-bold">Trip Budget Tracker</div>
                 <div class="text-5xl font-black text-[#C5A059]">HK$ {{ totalHKD }}</div>
                 <div class="flex justify-center gap-8 mt-8 opacity-60 text-xs font-bold border-t border-white/10 pt-5">
-                    <span>€ {{ totalEUR }}</span>
-                    <span>£ {{ totalGBP }}</span>
+                    <div class="flex flex-col">
+                        <span class="opacity-50 text-[9px] mb-1">EUR TOTAL</span>
+                        <span class="text-base text-white">€ {{ totalEUR }}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="opacity-50 text-[9px] mb-1">GBP TOTAL</span>
+                        <span class="text-base text-white">£ {{ totalGBP }}</span>
+                    </div>
                 </div>
             </div>
-            
-            <div class="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm mb-6">
-                <div class="flex items-center mb-4">
-                    <i class="fa-solid fa-image text-[#C5A059] mr-3"></i>
-                    <h3 class="font-bold text-gray-800">Banner Image URL</h3>
-                </div>
-                <p class="text-[10px] text-gray-400 mb-3">Paste your image link here (supports Imgur, Cloudinary, etc.)</p>
-                <input v-model="settings.bannerUrl" class="input-minimal mb-2" placeholder="https://example.com/banner.jpg">
-                <p class="text-[9px] text-gray-300 italic text-center">Tip: Use your collage image link to see it instantly!</p>
-            </div>
-
-            <div class="bg-gray-50 p-8 rounded-[40px] text-center">
-                <p class="text-gray-400 text-xs leading-relaxed px-4">Expenses are added via the <span class="text-red-800 font-bold">+</span> button.</p>
-                <button @click="clearExpenses" class="mt-8 text-red-800/20 text-[10px] font-black tracking-widest uppercase">Clear All Data</button>
+            <div class="bg-white p-12 rounded-[40px] border border-gray-100 text-center shadow-inner">
+                <h3 class="text-gray-800 font-black text-xl mb-3">Simple Mode</h3>
+                <p class="text-gray-400 text-sm leading-relaxed px-4">Expenses are added directly to the total sum.</p>
+                <button @click="clearExpenses" class="mt-12 text-red-800/20 text-[10px] font-black tracking-widest uppercase">Clear All Expense Data</button>
             </div>
         </div>
     </div>
@@ -162,12 +136,12 @@
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end justify-center">
         <div class="absolute inset-0 bg-black/75 backdrop-blur-md" @click="showModal = false"></div>
         <div class="bg-white w-full max-w-md p-8 rounded-t-[50px] shadow-2xl relative z-[210] max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-black text-gray-900">{{ isEditing ? 'Edit' : 'Add' }}</h3>
+            <div class="flex justify-between items-center mb-10">
+                <h3 class="text-2xl font-black text-gray-900">{{ isEditing ? 'Edit' : 'Add' }} Entry</h3>
                 <button @click="showModal = false" class="text-4xl text-gray-300">×</button>
             </div>
             <div class="space-y-6">
-                <input v-model="form.name" placeholder="Description" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-lg">
+                <input v-model="form.name" placeholder="Name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-lg">
                 <div v-if="currentTab === 'itinerary'" class="grid grid-cols-2 gap-4">
                     <input v-model="form.time" type="time" class="p-5 bg-gray-50 rounded-2xl outline-none">
                     <select v-model="form.type" class="p-5 bg-gray-50 rounded-2xl outline-none">
@@ -184,8 +158,8 @@
                         <option value="GBP">Pound (£)</option>
                     </select>
                 </div>
-                <textarea v-model="form.note" placeholder="Notes" rows="2" class="w-full p-5 bg-gray-50 rounded-2xl outline-none resize-none"></textarea>
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-3xl font-black text-xl tracking-widest uppercase shadow-lg">Save</button>
+                <textarea v-model="form.note" placeholder="Notes" class="w-full p-5 bg-gray-50 rounded-2xl outline-none resize-none"></textarea>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-3xl font-black text-xl uppercase tracking-widest">Save</button>
             </div>
         </div>
     </div>
@@ -193,17 +167,16 @@
     <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showHotelModal = false"></div>
         <div class="bg-white w-full max-w-sm p-10 rounded-[50px] shadow-2xl relative z-[210]">
-            <h3 class="text-2xl font-black mb-8 text-gray-900">Hotel</h3>
-            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none font-bold mb-4">
+            <h3 class="text-2xl font-black mb-8 text-gray-900">Hotel Details</h3>
+            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none font-bold text-lg mb-4">
             <input v-model="hotelForm.note" placeholder="Note" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-sm">
-            <button @click="saveHotel" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-bold uppercase mt-8 tracking-widest">Update</button>
+            <button @click="saveHotel" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-bold uppercase mt-10 tracking-widest">Update</button>
         </div>
     </div>
 </div>
 
 <script>
     const { createApp, ref, computed, watch, onMounted } = Vue;
-
     createApp({
         setup() {
             const currentTab = ref('itinerary');
@@ -211,105 +184,58 @@
             const showHotelModal = ref(false);
             const isEditing = ref(false);
             const selectedDayIndex = ref(0);
-            
             const form = ref({ id: null, name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '', note: '' });
             const hotelForm = ref({ name: '', map: '', note: '' });
-
-            // 新增設定儲存
-            const settings = ref({
-                bannerUrl: 'banner.jpg' // 預設值
-            });
-
             const days = [
                 { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' }, { date: '16', weekday: 'SAT' },
                 { date: '17', weekday: 'SUN' }, { date: '18', weekday: 'MON' }, { date: '19', weekday: 'TUE' },
                 { date: '20', weekday: 'WED' }, { date: '21', weekday: 'THU' }, { date: '22', weekday: 'FRI' },
                 { date: '23', weekday: 'SAT' }, { date: '24', weekday: 'SUN' }, { date: '25', weekday: 'MON' }
             ];
-
             const itinerary = ref([]);
             const expenses = ref([]);
             const hotels = ref({});
-
             onMounted(() => {
                 itinerary.value = JSON.parse(localStorage.getItem('italy_v3_itinerary')) || [];
                 expenses.value = JSON.parse(localStorage.getItem('italy_v3_expense')) || [];
                 hotels.value = JSON.parse(localStorage.getItem('italy_v3_hotels')) || {};
-                const savedSettings = JSON.parse(localStorage.getItem('italy_v3_settings'));
-                if (savedSettings) settings.value = savedSettings;
             });
-
-            watch([itinerary, expenses, hotels, settings], () => {
+            watch([itinerary, expenses, hotels], () => {
                 localStorage.setItem('italy_v3_itinerary', JSON.stringify(itinerary.value));
                 localStorage.setItem('italy_v3_expense', JSON.stringify(expenses.value));
                 localStorage.setItem('italy_v3_hotels', JSON.stringify(hotels.value));
-                localStorage.setItem('italy_v3_settings', JSON.stringify(settings.value));
             }, { deep: true });
-
             const filteredItinerary = computed(() => {
                 const targetDate = days[selectedDayIndex.value].date;
                 return itinerary.value.filter(i => i.dayDate === targetDate).sort((a, b) => a.time.localeCompare(b.time));
             });
-
             const calculateGap = (start, end) => {
                 const [h1, m1] = start.split(':').map(Number);
                 const [h2, m2] = end.split(':').map(Number);
                 let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
                 if (diff < 0) return "Next Event";
-                const h = Math.floor(diff / 60);
-                const m = diff % 60;
+                const h = Math.floor(diff / 60); const m = diff % 60;
                 return h > 0 ? `${h}h ${m}m gap` : `${m}m gap`;
             };
-
             const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', map: '', note: '' });
             const shouldShowHotel = computed(() => !['14', '25'].includes(days[selectedDayIndex.value].date));
-
             const totalEUR = computed(() => expenses.value.filter(e => e.currency === 'EUR').reduce((sum, i) => sum + Number(i.amount || 0), 0));
             const totalGBP = computed(() => expenses.value.filter(e => e.currency === 'GBP').reduce((sum, i) => sum + Number(i.amount || 0), 0));
             const totalHKD = computed(() => (totalEUR.value * 8.5 + totalGBP.value * 10.2).toFixed(0));
-
-            const openAddModal = () => {
-                isEditing.value = false;
-                form.value = { id: null, name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '', note: '' };
-                showModal.value = true;
-            };
-
-            const editItem = (item) => {
-                isEditing.value = true;
-                form.value = { ...item };
-                showModal.value = true;
-            };
-
+            const openAddModal = () => { isEditing.value = false; form.value = { id: null, name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '', note: '' }; showModal.value = true; };
+            const editItem = (item) => { isEditing.value = true; form.value = { ...item }; showModal.value = true; };
             const handleSave = () => {
-                if (!form.value.name && currentTab.value === 'itinerary') return;
                 const list = currentTab.value === 'itinerary' ? itinerary : expenses;
-                if (isEditing.value) {
-                    const idx = list.value.findIndex(i => i.id === form.value.id);
-                    list.value[idx] = { ...form.value };
-                } else {
-                    const id = Date.now();
-                    const entry = { ...form.value, id };
-                    if (currentTab.value === 'itinerary') entry.dayDate = days[selectedDayIndex.value].date;
-                    list.value.push(entry);
-                }
+                if (isEditing.value) { const idx = list.value.findIndex(i => i.id === form.value.id); list.value[idx] = { ...form.value }; } 
+                else { const entry = { ...form.value, id: Date.now() }; if (currentTab.value === 'itinerary') entry.dayDate = days[selectedDayIndex.value].date; list.value.push(entry); }
                 showModal.value = false;
             };
-
-            const saveHotel = () => {
-                hotels.value[days[selectedDayIndex.value].date] = { ...hotelForm.value };
-                showHotelModal.value = false;
-            };
-
-            const openHotelModal = () => {
-                hotelForm.value = { ...currentDayHotel.value };
-                showHotelModal.value = true;
-            };
-
+            const saveHotel = () => { hotels.value[days[selectedDayIndex.value].date] = { ...hotelForm.value }; showHotelModal.value = false; };
+            const openHotelModal = () => { hotelForm.value = { ...currentDayHotel.value }; showHotelModal.value = true; };
             const clearExpenses = () => { if(confirm('Clear all?')) expenses.value = []; };
             const removeItem = (id) => itinerary.value = itinerary.value.filter(i => i.id !== id);
-
             return {
-                currentTab, showModal, showHotelModal, isEditing, selectedDayIndex, days, form, hotelForm, settings,
+                currentTab, showModal, showHotelModal, isEditing, selectedDayIndex, days, form, hotelForm,
                 filteredItinerary, currentDayHotel, shouldShowHotel, totalHKD, totalEUR, totalGBP,
                 calculateGap, openAddModal, editItem, handleSave, openHotelModal, saveHotel, removeItem, clearExpenses
             }
