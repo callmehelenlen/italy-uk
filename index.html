@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Italy+UK 2026 Ultimate</title>
+    <title>Italy+UK 2026 Ultimate v2.1</title>
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,10 +18,10 @@
             background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1200&q=80'); 
             background-size: cover; background-position: center; position: relative;
         }
-        .nav-icons { position: absolute; bottom: 80px; right: 25px; display: flex; gap: 25px; z-index: 60; }
+        .nav-icons { position: absolute; bottom: 85px; right: 25px; display: flex; gap: 25px; z-index: 60; }
         .main-card { 
             margin-top: -50px; border-radius: 40px 40px 0 0; background: white; 
-            min-height: 600px; position: relative; z-index: 10; padding: 25px;
+            min-height: 100vh; position: relative; z-index: 10; padding: 25px;
             box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
         }
         .active-tab { color: #C5A059 !important; border-bottom: 2px solid #C5A059; transform: scale(1.1); }
@@ -43,9 +43,9 @@
     <div class="banner p-6">
         <h1 class="text-white text-3xl font-bold pt-4">Italy+UK 2026</h1>
         <div class="nav-icons">
-            <button @click="currentTab = 'itinerary'" :class="{'active-tab': currentTab === 'itinerary'}" class="text-white/60 text-2xl"><i class="fa-solid fa-route"></i></button>
-            <button @click="currentTab = 'shop'" :class="{'active-tab': currentTab === 'shop'}" class="text-white/60 text-2xl"><i class="fa-solid fa-cart-shopping"></i></button>
-            <button @click="currentTab = 'expense'" :class="{'active-tab': currentTab === 'expense'}" class="text-white/60 text-2xl"><i class="fa-solid fa-wallet"></i></button>
+            <button @click="currentTab = 'itinerary'" :class="{'active-tab': currentTab === 'itinerary'}" class="text-white/60 text-2xl transition-all"><i class="fa-solid fa-route"></i></button>
+            <button @click="currentTab = 'shop'" :class="{'active-tab': currentTab === 'shop'}" class="text-white/60 text-2xl transition-all"><i class="fa-solid fa-cart-shopping"></i></button>
+            <button @click="currentTab = 'expense'" :class="{'active-tab': currentTab === 'expense'}" class="text-white/60 text-2xl transition-all"><i class="fa-solid fa-wallet"></i></button>
         </div>
     </div>
 
@@ -53,19 +53,22 @@
         <div v-if="currentTab === 'itinerary'">
             <div class="flex space-x-3 overflow-x-auto mb-6 pb-2 no-scrollbar">
                 <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
-                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white' : 'bg-gray-100 text-gray-400'"
+                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white shadow-lg' : 'bg-gray-100 text-gray-400'"
                      class="flex-shrink-0 w-14 py-4 rounded-2xl text-center transition-all cursor-pointer">
                     <div class="text-[10px] font-bold uppercase mb-1">{{ day.weekday }}</div>
                     <div class="text-xl font-bold">{{ day.date }}</div>
                 </div>
             </div>
 
-            <div class="hotel-tag p-4 rounded-2xl mb-6 flex items-center justify-between" @click="openHotelModal">
+            <div v-if="shouldShowHotel" class="hotel-tag p-5 rounded-2xl mb-6 flex items-center justify-between" @click="openHotelModal">
                 <div class="flex items-center flex-1">
-                    <i class="fa-solid fa-hotel text-[#8B0000] mr-3"></i>
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-4 shadow-sm">
+                        <i class="fa-solid fa-hotel text-[#8B0000]"></i>
+                    </div>
                     <div class="flex-1">
-                        <div class="text-[10px] font-bold text-[#8B0000]/60 uppercase tracking-wider">Tonight's Stay</div>
-                        <div class="font-bold text-gray-800">{{ currentDayHotel.name || 'Set Hotel Name' }}</div>
+                        <div class="text-[10px] font-bold text-[#8B0000]/60 uppercase tracking-widest">Tonight's Accommodation</div>
+                        <div class="font-bold text-gray-800">{{ currentDayHotel.name || 'Tap to set Hotel' }}</div>
+                        <div v-if="currentDayHotel.note" class="text-[10px] text-gray-400 mt-1 italic">{{ currentDayHotel.note }}</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -76,43 +79,46 @@
                 </div>
             </div>
 
-            <div v-for="item in filteredItinerary" :key="item.id" @click="editItem(item)" class="item-card mb-4 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm border-l-4 border-l-[#C5A059] flex justify-between items-center">
+            <div v-for="item in filteredItinerary" :key="item.id" @click="editItem(item)" class="item-card mb-4 p-5 bg-white border border-gray-100 rounded-3xl shadow-sm border-l-4 border-l-[#C5A059] flex justify-between items-center">
                 <div class="flex-1">
-                    <div class="text-[10px] font-bold text-red-800 uppercase mb-1">{{ item.time }} • {{ item.type }}</div>
+                    <div class="text-[10px] font-bold text-red-800 uppercase mb-1 tracking-tighter">{{ item.time }} • {{ item.type }}</div>
                     <div class="font-bold text-gray-800 text-lg flex items-center">
                         {{ item.name }}
                         <span v-if="item.mapLink" class="ml-2 text-blue-400 text-sm"><i class="fa-solid fa-location-dot"></i></span>
                     </div>
+                    <div v-if="item.note" class="text-xs text-gray-400 mt-1 leading-relaxed">{{ item.note }}</div>
                 </div>
-                <button @click.stop="removeItem(item.id)" class="text-gray-200 hover:text-red-500 p-2"><i class="fa-solid fa-trash-can"></i></button>
+                <button @click.stop="removeItem(item.id)" class="text-gray-200 hover:text-red-500 p-2 ml-2"><i class="fa-solid fa-trash-can"></i></button>
             </div>
             
-            <div v-if="filteredItinerary.length === 0" class="py-20 text-center text-gray-300 italic">No plans yet.</div>
+            <div v-if="filteredItinerary.length === 0" class="py-20 text-center text-gray-300 italic font-light">No plans for May {{ days[selectedDayIndex].date }}</div>
         </div>
 
         <div v-if="currentTab === 'shop'">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800 italic">Wishlist</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <div v-for="item in shoppingList" :key="item.id" @click="editItem(item)" class="item-card bg-gray-50 rounded-2xl p-4 border border-gray-100 flex justify-between items-start">
-                    <div class="font-bold text-gray-700 leading-tight">{{ item.name }}</div>
-                    <button @click.stop="removeShopItem(item.id)" class="text-red-200"><i class="fa-solid fa-circle-xmark"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 px-1 italic">Wishlist</h2>
+            <div class="grid grid-cols-1 gap-4">
+                <div v-for="item in shoppingList" :key="item.id" @click="editItem(item)" class="item-card bg-gray-50 rounded-2xl p-5 border border-gray-100 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-gray-700">{{ item.name }}</div>
+                        <div v-if="item.note" class="text-[11px] text-gray-400 mt-1">{{ item.note }}</div>
+                    </div>
+                    <button @click.stop="removeShopItem(item.id)" class="text-red-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
                 </div>
             </div>
         </div>
 
         <div v-if="currentTab === 'expense'">
-            <div class="bg-gray-900 text-white p-8 rounded-3xl mb-8 shadow-xl text-center">
-                <div class="text-xs uppercase tracking-widest opacity-40 mb-1">Est. HKD Total</div>
-                <div class="text-4xl font-bold text-[#C5A059]">HK$ {{ totalHKD }}</div>
+            <div class="bg-gray-900 text-white p-8 rounded-[40px] mb-8 shadow-xl text-center">
+                <div class="text-xs uppercase tracking-widest opacity-40 mb-1 font-bold">Estimated Total HKD</div>
+                <div class="text-5xl font-extrabold text-[#C5A059]">HK$ {{ totalHKD }}</div>
             </div>
-            
             <div v-for="exp in expenses" :key="exp.id" @click="editItem(exp)" class="item-card flex justify-between items-center p-5 bg-white rounded-2xl border border-gray-50 shadow-sm mb-3">
                 <div class="flex-1">
                     <div class="font-bold text-gray-800">{{ exp.name }}</div>
-                    <div class="text-[10px] text-gray-400">≈ HK$ {{ (exp.amount * (exp.currency === 'EUR' ? 8.5 : 10.2)).toFixed(0) }}</div>
-                </div>
-                <div class="font-bold text-red-800 text-lg">
-                    {{ exp.currency === 'EUR' ? '€' : '£' }} {{ exp.amount }}
+                    <div class="text-[10px] text-gray-400 font-bold">
+                        {{ exp.currency === 'EUR' ? '€' : '£' }} {{ exp.amount }} | HK$ {{ (exp.amount * (exp.currency === 'EUR' ? 8.5 : 10.2)).toFixed(0) }}
+                    </div>
+                    <div v-if="exp.note" class="text-[10px] text-gray-300 italic mt-1">{{ exp.note }}</div>
                 </div>
                 <button @click.stop="removeExpense(exp.id)" class="ml-4 text-gray-200"><i class="fa-solid fa-trash-can text-sm"></i></button>
             </div>
@@ -122,28 +128,30 @@
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end justify-center">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showModal = false"></div>
-        <div class="bg-white w-full max-w-md p-8 rounded-t-[40px] shadow-2xl relative z-[210]">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-800">{{ isEditing ? 'Edit' : 'Add' }} {{ currentTab }}</h3>
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="showModal = false"></div>
+        <div class="bg-white w-full max-w-md p-8 rounded-t-[50px] shadow-2xl relative z-[210] max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-800">{{ isEditing ? 'Edit' : 'Add' }} Entry</h3>
                 <button @click="showModal = false" class="text-3xl text-gray-300">×</button>
             </div>
             
-            <div class="space-y-4">
-                <div class="text-[10px] font-bold text-gray-400 uppercase ml-1">Title / Name</div>
-                <input v-model="form.name" class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 ring-[#C5A059]">
+            <div class="space-y-5">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">Name / Title</label>
+                    <input v-model="form.name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none focus:ring-2 ring-[#C5A059]">
+                </div>
                 
                 <div v-if="currentTab === 'itinerary'">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase ml-1 mb-1">Google Maps Link</div>
-                    <input v-model="form.mapLink" placeholder="https://maps.app.goo.gl/..." class="w-full p-4 bg-gray-50 rounded-xl mb-4 outline-none">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">Google Maps Link</label>
+                    <input v-model="form.mapLink" placeholder="Paste link..." class="w-full p-5 bg-gray-50 rounded-2xl outline-none mb-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <div class="text-[10px] font-bold text-gray-400 uppercase ml-1 mb-1">Time</div>
-                            <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-xl outline-none">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">Time</label>
+                            <input v-model="form.time" type="time" class="w-full p-5 bg-gray-50 rounded-2xl outline-none">
                         </div>
                         <div>
-                            <div class="text-[10px] font-bold text-gray-400 uppercase ml-1 mb-1">Category</div>
-                            <select v-model="form.type" class="w-full p-4 bg-gray-50 rounded-xl outline-none">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">Type</label>
+                            <select v-model="form.type" class="w-full p-5 bg-gray-50 rounded-2xl outline-none">
                                 <option value="Attraction">Sightseeing</option>
                                 <option value="Food">Dining</option>
                                 <option value="Transport">Transport</option>
@@ -155,49 +163,46 @@
 
                 <div v-if="currentTab === 'expense'" class="grid grid-cols-2 gap-4">
                     <div>
-                        <div class="text-[10px] font-bold text-gray-400 uppercase ml-1 mb-1">Amount</div>
-                        <input v-model="form.amount" type="number" class="w-full p-4 bg-gray-50 rounded-xl outline-none">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">Amount</label>
+                        <input v-model="form.amount" type="number" class="w-full p-5 bg-gray-50 rounded-2xl outline-none">
                     </div>
                     <div>
-                        <div class="text-[10px] font-bold text-gray-400 uppercase ml-1 mb-1">Currency</div>
-                        <select v-model="form.currency" class="w-full p-4 bg-gray-50 rounded-xl outline-none">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">Currency</label>
+                        <select v-model="form.currency" class="w-full p-5 bg-gray-50 rounded-2xl outline-none">
                             <option value="EUR">Euro (€)</option>
                             <option value="GBP">Pound (£)</option>
                         </select>
                     </div>
                 </div>
 
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-bold text-lg shadow-lg mt-4 uppercase tracking-widest">
-                    {{ isEditing ? 'Update Entry' : 'Save Entry' }}
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1 block mb-1">Notes / Remarks</label>
+                    <textarea v-model="form.note" rows="2" class="w-full p-5 bg-gray-50 rounded-2xl outline-none resize-none"></textarea>
+                </div>
+
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-2xl font-bold text-lg">
+                    {{ isEditing ? 'UPDATE' : 'SAVE' }}
                 </button>
             </div>
         </div>
     </div>
 
     <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6">
-        <div class="absolute inset-0 bg-black/60" @click="showHotelModal = false"></div>
-        <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl relative z-[210]">
-            <h3 class="text-xl font-bold mb-2">Set Hotel Info</h3>
-            <p class="text-[10px] text-gray-400 mb-6 uppercase tracking-widest">May {{ days[selectedDayIndex].date }} Stay</p>
-            
-            <div class="space-y-4">
-                <div>
-                    <div class="text-[10px] font-bold text-gray-400 uppercase ml-1 mb-1">Hotel Name</div>
-                    <input v-model="hotelForm.name" placeholder="Grand Hotel Roma" class="w-full p-4 bg-gray-50 rounded-xl outline-none border-2 border-transparent focus:border-[#C5A059]">
-                </div>
-                <div>
-                    <div class="text-[10px] font-bold text-gray-400 uppercase ml-1 mb-1">Google Maps Link</div>
-                    <input v-model="hotelForm.map" placeholder="Paste link here" class="w-full p-4 bg-gray-50 rounded-xl outline-none border-2 border-transparent focus:border-[#C5A059]">
-                </div>
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showHotelModal = false"></div>
+        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl relative z-[210]">
+            <h3 class="text-xl font-bold mb-6">Hotel Details</h3>
+            <div class="space-y-4 text-left">
+                <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-xl outline-none">
+                <input v-model="hotelForm.map" placeholder="Map Link" class="w-full p-4 bg-gray-50 rounded-xl outline-none">
+                <input v-model="hotelForm.note" placeholder="Note (e.g. Booking ID)" class="w-full p-4 bg-gray-50 rounded-xl outline-none">
             </div>
-            
-            <button @click="saveHotel" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold mt-8">UPDATE HOTEL</button>
+            <button @click="saveHotel" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold mt-8 uppercase">Update</button>
         </div>
     </div>
 </div>
 
 <script>
-    const { createApp, ref, computed, watch } = Vue;
+    const { createApp, ref, computed, watch, onMounted } = Vue;
 
     createApp({
         setup() {
@@ -207,8 +212,8 @@
             const isEditing = ref(false);
             const selectedDayIndex = ref(0);
             
-            const form = ref({ id: null, name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '' });
-            const hotelForm = ref({ name: '', map: '' });
+            const form = ref({ id: null, name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '', note: '' });
+            const hotelForm = ref({ name: '', map: '', note: '' });
 
             const days = [
                 { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' }, { date: '16', weekday: 'SAT' },
@@ -217,16 +222,23 @@
                 { date: '23', weekday: 'SAT' }, { date: '24', weekday: 'SUN' }, { date: '25', weekday: 'MON' }
             ];
 
-            const itinerary = ref(JSON.parse(localStorage.getItem('italy_itinerary')) || []);
-            const shoppingList = ref(JSON.parse(localStorage.getItem('italy_shop')) || []);
-            const expenses = ref(JSON.parse(localStorage.getItem('italy_expense')) || []);
-            const hotels = ref(JSON.parse(localStorage.getItem('italy_hotels')) || {});
+            const itinerary = ref([]);
+            const shoppingList = ref([]);
+            const expenses = ref([]);
+            const hotels = ref({});
+
+            onMounted(() => {
+                itinerary.value = JSON.parse(localStorage.getItem('italy_v2_itinerary')) || [];
+                shoppingList.value = JSON.parse(localStorage.getItem('italy_v2_shop')) || [];
+                expenses.value = JSON.parse(localStorage.getItem('italy_v2_expense')) || [];
+                hotels.value = JSON.parse(localStorage.getItem('italy_v2_hotels')) || {};
+            });
 
             watch([itinerary, shoppingList, expenses, hotels], () => {
-                localStorage.setItem('italy_itinerary', JSON.stringify(itinerary.value));
-                localStorage.setItem('italy_shop', JSON.stringify(shoppingList.value));
-                localStorage.setItem('italy_expense', JSON.stringify(expenses.value));
-                localStorage.setItem('italy_hotels', JSON.stringify(hotels.value));
+                localStorage.setItem('italy_v2_itinerary', JSON.stringify(itinerary.value));
+                localStorage.setItem('italy_v2_shop', JSON.stringify(shoppingList.value));
+                localStorage.setItem('italy_v2_expense', JSON.stringify(expenses.value));
+                localStorage.setItem('italy_v2_hotels', JSON.stringify(hotels.value));
             }, { deep: true });
 
             const filteredItinerary = computed(() => {
@@ -234,7 +246,13 @@
                 return itinerary.value.filter(i => i.dayDate === targetDate).sort((a, b) => a.time.localeCompare(b.time));
             });
 
-            const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', map: '' });
+            const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', map: '', note: '' });
+
+            // 判斷是否應該顯示酒店
+            const shouldShowHotel = computed(() => {
+                const date = days[selectedDayIndex.value].date;
+                return date !== '14' && date !== '25';
+            });
 
             const totalHKD = computed(() => {
                 const eur = expenses.value.filter(e => e.currency === 'EUR').reduce((sum, i) => sum + Number(i.amount || 0), 0);
@@ -244,7 +262,7 @@
 
             const openAddModal = () => {
                 isEditing.value = false;
-                form.value = { id: null, name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '' };
+                form.value = { id: null, name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '', note: '' };
                 showModal.value = true;
             };
 
@@ -256,34 +274,25 @@
 
             const handleSave = () => {
                 if (!form.value.name) return;
-                
                 if (isEditing.value) {
-                    if (currentTab.value === 'itinerary') {
-                        const idx = itinerary.value.findIndex(i => i.id === form.value.id);
-                        itinerary.value[idx] = { ...form.value };
-                    } else if (currentTab.value === 'shop') {
-                        const idx = shoppingList.value.findIndex(i => i.id === form.value.id);
-                        shoppingList.value[idx] = { ...form.value };
-                    } else if (currentTab.value === 'expense') {
-                        const idx = expenses.value.findIndex(i => i.id === form.value.id);
-                        expenses.value[idx] = { ...form.value };
-                    }
+                    const list = currentTab.value === 'itinerary' ? itinerary : currentTab.value === 'shop' ? shoppingList : expenses;
+                    const idx = list.value.findIndex(i => i.id === form.value.id);
+                    list.value[idx] = { ...form.value };
                 } else {
                     const id = Date.now();
-                    if (currentTab.value === 'itinerary') {
-                        itinerary.value.push({ ...form.value, id, dayDate: days[selectedDayIndex.value].date });
-                    } else if (currentTab.value === 'shop') {
-                        shoppingList.value.push({ id, ...form.value });
-                    } else if (currentTab.value === 'expense') {
-                        expenses.value.push({ id, ...form.value });
-                    }
+                    const entry = { ...form.value, id };
+                    if (currentTab.value === 'itinerary') entry.dayDate = days[selectedDayIndex.value].date;
+                    
+                    if (currentTab.value === 'itinerary') itinerary.value.push(entry);
+                    else if (currentTab.value === 'shop') shoppingList.value.push(entry);
+                    else expenses.value.push(entry);
                 }
                 showModal.value = false;
             };
 
             const openHotelModal = () => {
                 const h = currentDayHotel.value;
-                hotelForm.value = { name: h.name, map: h.map };
+                hotelForm.value = { name: h.name, map: h.map, note: h.note };
                 showHotelModal.value = true;
             };
 
@@ -298,7 +307,7 @@
 
             return {
                 currentTab, showModal, showHotelModal, isEditing, selectedDayIndex, days, form, hotelForm,
-                filteredItinerary, currentDayHotel, totalHKD,
+                filteredItinerary, currentDayHotel, shouldShowHotel, totalHKD,
                 openAddModal, editItem, handleSave, openHotelModal, saveHotel, removeItem, removeShopItem, removeExpense
             }
         }
