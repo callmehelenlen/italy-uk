@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,153 +12,133 @@
     <style>
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
-        body { background-color: #F9F7F2; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        body { background-color: #F9F7F2; font-family: sans-serif; margin: 0; }
         
-        /* 調整 Banner 高度與圖片層級，防止遮擋 */
         .banner { 
-            height: 240px; 
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1200&q=80'); 
-            background-size: cover; 
-            background-position: center;
-            z-index: 1;
+            height: 260px; 
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1200&q=80'); 
+            background-size: cover; background-position: center; position: relative;
         }
 
-        /* 內容容器向上移動並確保在最上層 */
+        /* 導覽圖示：確保不被擋住 */
+        .nav-icons {
+            position: absolute; bottom: 80px; right: 25px;
+            display: flex; gap: 25px; z-index: 60;
+        }
+
         .main-card { 
-            margin-top: -50px; 
-            border-radius: 40px 40px 0 0; 
-            background: white; 
-            min-height: calc(100vh - 190px); 
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.1); 
-            padding: 24px;
-            position: relative;
-            z-index: 10;
+            margin-top: -50px; border-radius: 40px 40px 0 0; background: white; 
+            min-height: 600px; position: relative; z-index: 10; padding: 25px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
         }
 
-        .active-tab { color: white !important; border-bottom: 3px solid var(--italy-gold); }
-        
+        .active-tab { color: #C5A059 !important; border-bottom: 2px solid #C5A059; transform: scale(1.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .fab { 
             position: fixed; bottom: 30px; right: 20px; width: 64px; height: 64px; 
             background: var(--italy-red); border-radius: 50%; color: white; 
             display: flex; align-items: center; justify-content: center; 
-            font-size: 24px; box-shadow: 0 8px 20px rgba(139,0,0,0.4); 
-            z-index: 100; border: none; cursor: pointer;
+            font-size: 24px; box-shadow: 0 8px 20px rgba(139,0,0,0.4); z-index: 100;
         }
     </style>
 </head>
 <body>
 
 <div id="app" v-cloak>
-    <div class="banner relative flex flex-col justify-end p-6 pb-20">
-        <h1 class="text-white text-3xl font-bold mb-1">Italy+UK 2026</h1>
-        <p class="text-white/80 text-xs tracking-widest uppercase font-semibold">14 - 25 May • Helen & Ryan</p>
+    <div class="banner p-6">
+        <h1 class="text-white text-3xl font-bold pt-4">Italy+UK 2026</h1>
+        <p class="text-white/80 text-xs tracking-widest uppercase mt-1">14 - 25 May • Helen & Ryan</p>
 
-        <div class="absolute bottom-8 right-6 flex space-x-6">
-            <button @click="currentTab = 'itinerary'" :class="{'active-tab': currentTab === 'itinerary'}" class="text-white/50 pb-1 text-xl"><i class="fa-solid fa-route"></i></button>
-            <button @click="currentTab = 'shop'" :class="{'active-tab': currentTab === 'shop'}" class="text-white/50 pb-1 text-xl"><i class="fa-solid fa-cart-shopping"></i></button>
-            <button @click="currentTab = 'expense'" :class="{'active-tab': currentTab === 'expense'}" class="text-white/50 pb-1 text-xl"><i class="fa-solid fa-wallet"></i></button>
+        <div class="nav-icons">
+            <button @click="currentTab = 'itinerary'" :class="{'active-tab': currentTab === 'itinerary'}" class="text-white/60 text-2xl"><i class="fa-solid fa-route"></i></button>
+            <button @click="currentTab = 'shop'" :class="{'active-tab': currentTab === 'shop'}" class="text-white/60 text-2xl"><i class="fa-solid fa-cart-shopping"></i></button>
+            <button @click="currentTab = 'expense'" :class="{'active-tab': currentTab === 'expense'}" class="text-white/60 text-2xl"><i class="fa-solid fa-wallet"></i></button>
         </div>
     </div>
 
     <div class="main-card">
-        
         <div v-if="currentTab === 'itinerary'">
             <div class="flex space-x-3 overflow-x-auto mb-8 pb-4 no-scrollbar">
                 <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
-                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400'"
+                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white shadow-md' : 'bg-gray-100 text-gray-400'"
                      class="flex-shrink-0 w-14 py-4 rounded-2xl text-center transition-all cursor-pointer">
                     <div class="text-[10px] font-bold uppercase mb-1">{{ day.weekday }}</div>
                     <div class="text-xl font-bold">{{ day.date }}</div>
                 </div>
             </div>
 
-            <div v-for="item in filteredItinerary" :key="item.id" class="mb-4 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm flex justify-between items-center border-l-4 border-l-[#C5A059]">
+            <div v-for="item in filteredItinerary" :key="item.id" class="mb-4 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm border-l-4 border-l-[#C5A059] flex justify-between items-center">
                 <div>
-                    <div class="text-[10px] font-extrabold text-red-800 uppercase tracking-tighter mb-1">{{ item.time }} • {{ item.type }}</div>
-                    <div class="font-bold text-gray-800 text-lg leading-tight">{{ item.name }}</div>
+                    <div class="text-[10px] font-bold text-red-800 uppercase mb-1">{{ item.time }} • {{ item.type }}</div>
+                    <div class="font-bold text-gray-800 text-lg">{{ item.name }}</div>
                 </div>
-                <button @click="removeItem(item.id)" class="text-gray-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                <button @click="removeItem(item.id)" class="text-gray-300 hover:text-red-500 p-2"><i class="fa-solid fa-trash-can"></i></button>
             </div>
             
             <div v-if="filteredItinerary.length === 0" class="py-20 text-center text-gray-300 italic">
-                <p>No plans for May {{ days[selectedDayIndex].date }} yet.</p>
+                No plans for May {{ days[selectedDayIndex].date }}.
             </div>
         </div>
 
         <div v-if="currentTab === 'shop'">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800">Shopping Wishlist</h2>
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Wishlist</h2>
             <div class="grid grid-cols-2 gap-4">
-                <div v-for="item in shoppingList" :key="item.id" class="bg-gray-50 rounded-2xl p-4 border border-gray-100 relative">
+                <div v-for="item in shoppingList" :key="item.id" class="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex justify-between items-start">
                     <div class="font-bold text-gray-700">{{ item.name }}</div>
-                    <button @click="removeShopItem(item.id)" class="mt-4 text-[10px] font-bold text-red-400">REMOVE</button>
+                    <button @click="removeShopItem(item.id)" class="text-red-300"><i class="fa-solid fa-circle-xmark"></i></button>
                 </div>
             </div>
         </div>
 
         <div v-if="currentTab === 'expense'">
-            <div class="bg-gray-900 text-white p-8 rounded-3xl mb-8 shadow-xl">
-                <div class="text-xs uppercase tracking-widest opacity-40 mb-2">Total Budgeting</div>
+            <div class="bg-gray-900 text-white p-8 rounded-3xl mb-8 shadow-xl text-center">
+                <div class="text-xs uppercase tracking-widest opacity-40 mb-2">Current Total</div>
                 <div class="text-4xl font-bold text-[#C5A059]">€ {{ totalSpent }}</div>
             </div>
-            <div class="space-y-4">
-                <div v-for="exp in expenses" :key="exp.id" class="flex justify-between items-center p-5 bg-white rounded-2xl border border-gray-50 shadow-sm">
-                    <div class="font-bold text-gray-700">{{ exp.name }}</div>
-                    <div class="font-bold text-red-800 text-lg">€ {{ exp.amount }}</div>
-                </div>
+            <div v-for="exp in expenses" :key="exp.id" class="flex justify-between items-center p-5 bg-white rounded-2xl border border-gray-50 shadow-sm mb-3">
+                <div class="font-bold text-gray-700">{{ exp.name }}</div>
+                <div class="font-bold text-red-800">€ {{ exp.amount }}</div>
+                <button @click="removeExpense(exp.id)" class="text-gray-300 ml-2"><i class="fa-solid fa-trash-can text-xs"></i></button>
             </div>
         </div>
     </div>
 
-    <button class="fab" @click="showModal = true">
-        <i class="fa-solid fa-plus"></i>
-    </button>
+    <button class="fab" @click="showModal = true"><i class="fa-solid fa-plus"></i></button>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end justify-center">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showModal = false"></div>
         <div class="bg-white w-full max-w-md p-8 rounded-t-[40px] shadow-2xl relative z-[210]">
             <div class="flex justify-between items-center mb-8">
                 <h3 class="text-2xl font-bold text-gray-800">Add to {{ currentTab }}</h3>
-                <button @click="showModal = false" class="bg-gray-100 w-10 h-10 rounded-full text-gray-400 text-xl">×</button>
+                <button @click="showModal = false" class="text-3xl text-gray-300">×</button>
             </div>
             
-            <div class="space-y-4">
-                <div class="text-xs font-bold text-gray-400 uppercase ml-1">Name / Title</div>
-                <input v-model="form.name" placeholder="Enter here..." class="w-full p-5 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-[#C5A059]">
+            <div class="space-y-5">
+                <input v-model="form.name" placeholder="Title / Name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none focus:ring-2 ring-[#C5A059]">
                 
                 <div v-if="currentTab === 'itinerary'" class="grid grid-cols-2 gap-4">
-                    <div>
-                        <div class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1">Time</div>
-                        <input v-model="form.time" type="time" class="w-full p-5 bg-gray-50 rounded-2xl outline-none">
-                    </div>
-                    <div>
-                        <div class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1">Category</div>
-                        <select v-model="form.type" class="w-full p-5 bg-gray-50 rounded-2xl outline-none appearance-none">
-                            <option value="Attraction">Sightseeing</option>
-                            <option value="Food">Dining</option>
-                            <option value="Flight">Flight</option>
-                            <option value="Hotel">Hotel</option>
-                        </select>
-                    </div>
+                    <input v-model="form.time" type="time" class="p-5 bg-gray-50 rounded-2xl outline-none">
+                    <select v-model="form.type" class="p-5 bg-gray-50 rounded-2xl outline-none">
+                        <option value="Attraction">Sightseeing</option>
+                        <option value="Food">Dining</option>
+                        <option value="Hotel">Hotel</option>
+                        <option value="Transport">Transport</option>
+                    </select>
                 </div>
 
                 <div v-if="currentTab === 'expense'">
-                    <div class="text-xs font-bold text-gray-400 uppercase ml-1 mb-1">Amount (€)</div>
-                    <input v-model="form.amount" type="number" class="w-full p-5 bg-gray-50 rounded-2xl outline-none">
+                    <input v-model="form.amount" type="number" placeholder="Amount (€)" class="w-full p-5 bg-gray-50 rounded-2xl outline-none">
                 </div>
 
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-all mt-4">
-                    CONFIRM & SAVE
-                </button>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-bold text-lg shadow-lg">SAVE NOW</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const { createApp, ref, computed } = Vue;
+    const { createApp, ref, computed, watch, onMounted } = Vue;
 
     createApp({
         setup() {
@@ -167,7 +147,6 @@
             const selectedDayIndex = ref(0);
             const form = ref({ name: '', time: '12:00', type: 'Attraction', amount: '' });
 
-            // 完整日期 14-25
             const days = [
                 { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' },
                 { date: '16', weekday: 'SAT' }, { date: '17', weekday: 'SUN' },
@@ -177,13 +156,15 @@
                 { date: '24', weekday: 'SUN' }, { date: '25', weekday: 'MON' }
             ];
 
-            const itinerary = ref([
-                { id: 1, dayDate: '14', type: 'Flight', name: 'Fly to London', time: '23:55' },
-                { id: 2, dayDate: '17', type: 'Hotel', name: 'Rome Check-in', time: '14:00' }
-            ]);
+            // 初始資料從 LocalStorage 讀取，如果沒有就用空陣列
+            const itinerary = ref(JSON.parse(localStorage.getItem('italy_itinerary')) || []);
+            const shoppingList = ref(JSON.parse(localStorage.getItem('italy_shop')) || []);
+            const expenses = ref(JSON.parse(localStorage.getItem('italy_expense')) || []);
 
-            const shoppingList = ref([{ id: 1, name: 'Sample Wishlist' }]);
-            const expenses = ref([{ id: 1, name: 'Flight Ticket', amount: 800 }]);
+            // 監聽資料變化，自動存檔
+            watch(itinerary, (newVal) => localStorage.setItem('italy_itinerary', JSON.stringify(newVal)), { deep: true });
+            watch(shoppingList, (newVal) => localStorage.setItem('italy_shop', JSON.stringify(newVal)), { deep: true });
+            watch(expenses, (newVal) => localStorage.setItem('italy_expense', JSON.stringify(newVal)), { deep: true });
 
             const filteredItinerary = computed(() => {
                 const targetDate = days[selectedDayIndex.value].date;
@@ -192,19 +173,13 @@
                     .sort((a, b) => a.time.localeCompare(b.time));
             });
 
-            const totalSpent = computed(() => {
-                return expenses.value.reduce((sum, i) => sum + Number(i.amount || 0), 0);
-            });
+            const totalSpent = computed(() => expenses.value.reduce((sum, i) => sum + Number(i.amount || 0), 0));
 
             const handleSave = () => {
                 if (!form.value.name) return;
                 const id = Date.now();
                 if (currentTab.value === 'itinerary') {
-                    itinerary.value.push({ 
-                        ...form.value, 
-                        id, 
-                        dayDate: days[selectedDayIndex.value].date 
-                    });
+                    itinerary.value.push({ ...form.value, id, dayDate: days[selectedDayIndex.value].date });
                 } else if (currentTab.value === 'shop') {
                     shoppingList.value.push({ id, name: form.value.name });
                 } else if (currentTab.value === 'expense') {
@@ -214,17 +189,17 @@
                 form.value = { name: '', time: '12:00', type: 'Attraction', amount: '' };
             };
 
-            const removeItem = (id) => { itinerary.value = itinerary.value.filter(i => i.id !== id); };
-            const removeShopItem = (id) => { shoppingList.value = shoppingList.value.filter(i => i.id !== id); };
+            const removeItem = (id) => itinerary.value = itinerary.value.filter(i => i.id !== id);
+            const removeShopItem = (id) => shoppingList.value = shoppingList.value.filter(i => i.id !== id);
+            const removeExpense = (id) => expenses.value = expenses.value.filter(i => i.id !== id);
 
             return {
                 currentTab, showModal, selectedDayIndex, days,
                 itinerary, shoppingList, expenses, filteredItinerary, totalSpent,
-                form, handleSave, removeItem, removeShopItem
+                form, handleSave, removeItem, removeShopItem, removeExpense
             }
         }
     }).mount('#app');
 </script>
-
 </body>
 </html>
