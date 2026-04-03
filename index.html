@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Italy+UK 2026</title>
+    <title>Italy+UK 2026 Pro</title>
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,34 +13,26 @@
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
         body { background-color: #F9F7F2; font-family: sans-serif; margin: 0; }
-        
         .banner { 
             height: 260px; 
             background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1200&q=80'); 
             background-size: cover; background-position: center; position: relative;
         }
-
-        /* 導覽圖示：確保不被擋住 */
-        .nav-icons {
-            position: absolute; bottom: 80px; right: 25px;
-            display: flex; gap: 25px; z-index: 60;
-        }
-
+        .nav-icons { position: absolute; bottom: 80px; right: 25px; display: flex; gap: 25px; z-index: 60; }
         .main-card { 
             margin-top: -50px; border-radius: 40px 40px 0 0; background: white; 
             min-height: 600px; position: relative; z-index: 10; padding: 25px;
             box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
         }
-
         .active-tab { color: #C5A059 !important; border-bottom: 2px solid #C5A059; transform: scale(1.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-
         .fab { 
             position: fixed; bottom: 30px; right: 20px; width: 64px; height: 64px; 
             background: var(--italy-red); border-radius: 50%; color: white; 
             display: flex; align-items: center; justify-content: center; 
             font-size: 24px; box-shadow: 0 8px 20px rgba(139,0,0,0.4); z-index: 100;
         }
+        .hotel-tag { background: #fdf2f2; border: 1px dashed #8B0000; }
     </style>
 </head>
 <body>
@@ -48,8 +40,6 @@
 <div id="app" v-cloak>
     <div class="banner p-6">
         <h1 class="text-white text-3xl font-bold pt-4">Italy+UK 2026</h1>
-        <p class="text-white/80 text-xs tracking-widest uppercase mt-1">14 - 25 May • Helen & Ryan</p>
-
         <div class="nav-icons">
             <button @click="currentTab = 'itinerary'" :class="{'active-tab': currentTab === 'itinerary'}" class="text-white/60 text-2xl"><i class="fa-solid fa-route"></i></button>
             <button @click="currentTab = 'shop'" :class="{'active-tab': currentTab === 'shop'}" class="text-white/60 text-2xl"><i class="fa-solid fa-cart-shopping"></i></button>
@@ -59,47 +49,75 @@
 
     <div class="main-card">
         <div v-if="currentTab === 'itinerary'">
-            <div class="flex space-x-3 overflow-x-auto mb-8 pb-4 no-scrollbar">
+            <div class="flex space-x-3 overflow-x-auto mb-6 pb-2 no-scrollbar">
                 <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
-                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white shadow-md' : 'bg-gray-100 text-gray-400'"
+                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white' : 'bg-gray-100 text-gray-400'"
                      class="flex-shrink-0 w-14 py-4 rounded-2xl text-center transition-all cursor-pointer">
                     <div class="text-[10px] font-bold uppercase mb-1">{{ day.weekday }}</div>
                     <div class="text-xl font-bold">{{ day.date }}</div>
                 </div>
             </div>
 
-            <div v-for="item in filteredItinerary" :key="item.id" class="mb-4 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm border-l-4 border-l-[#C5A059] flex justify-between items-center">
-                <div>
-                    <div class="text-[10px] font-bold text-red-800 uppercase mb-1">{{ item.time }} • {{ item.type }}</div>
-                    <div class="font-bold text-gray-800 text-lg">{{ item.name }}</div>
+            <div class="hotel-tag p-4 rounded-2xl mb-6 flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-hotel text-[#8B0000] mr-3"></i>
+                    <div>
+                        <div class="text-[10px] font-bold text-[#8B0000]/60 uppercase">Tonight's Stay</div>
+                        <div class="font-bold text-gray-800">{{ currentDayHotel || 'Not set yet' }}</div>
+                    </div>
                 </div>
-                <button @click="removeItem(item.id)" class="text-gray-300 hover:text-red-500 p-2"><i class="fa-solid fa-trash-can"></i></button>
+                <button @click="openHotelModal" class="text-xs font-bold text-[#8B0000] underline">EDIT</button>
             </div>
-            
-            <div v-if="filteredItinerary.length === 0" class="py-20 text-center text-gray-300 italic">
-                No plans for May {{ days[selectedDayIndex].date }}.
+
+            <div v-for="item in filteredItinerary" :key="item.id" class="mb-4 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm border-l-4 border-l-[#C5A059] flex justify-between items-center">
+                <div class="flex-1">
+                    <div class="text-[10px] font-bold text-red-800 uppercase mb-1">{{ item.time }} • {{ item.type }}</div>
+                    <div class="font-bold text-gray-800 text-lg flex items-center">
+                        {{ item.name }}
+                        <a v-if="item.mapLink" :href="item.mapLink" target="_blank" class="ml-2 text-blue-500 text-sm"><i class="fa-solid fa-location-dot"></i></a>
+                    </div>
+                </div>
+                <button @click="removeItem(item.id)" class="text-gray-200 hover:text-red-500 ml-2"><i class="fa-solid fa-trash-can"></i></button>
             </div>
         </div>
 
         <div v-if="currentTab === 'shop'">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800">Wishlist</h2>
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 italic">Wishlist</h2>
             <div class="grid grid-cols-2 gap-4">
                 <div v-for="item in shoppingList" :key="item.id" class="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex justify-between items-start">
-                    <div class="font-bold text-gray-700">{{ item.name }}</div>
-                    <button @click="removeShopItem(item.id)" class="text-red-300"><i class="fa-solid fa-circle-xmark"></i></button>
+                    <div class="font-bold text-gray-700 leading-tight">{{ item.name }}</div>
+                    <button @click="removeShopItem(item.id)" class="text-red-200"><i class="fa-solid fa-circle-xmark"></i></button>
                 </div>
             </div>
         </div>
 
         <div v-if="currentTab === 'expense'">
-            <div class="bg-gray-900 text-white p-8 rounded-3xl mb-8 shadow-xl text-center">
-                <div class="text-xs uppercase tracking-widest opacity-40 mb-2">Current Total</div>
-                <div class="text-4xl font-bold text-[#C5A059]">€ {{ totalSpent }}</div>
+            <div class="bg-gray-900 text-white p-8 rounded-3xl mb-8 shadow-xl">
+                <div class="grid grid-cols-2 gap-4 border-b border-white/10 pb-4 mb-4">
+                    <div>
+                        <div class="text-[10px] uppercase opacity-40">Total EUR</div>
+                        <div class="text-xl font-bold text-white">€ {{ totalEUR }}</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] uppercase opacity-40">Total GBP</div>
+                        <div class="text-xl font-bold text-white">£ {{ totalGBP }}</div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs uppercase tracking-widest opacity-40 mb-1">Est. HKD Total</div>
+                    <div class="text-4xl font-bold text-[#C5A059]">HK$ {{ totalHKD }}</div>
+                </div>
             </div>
+            
             <div v-for="exp in expenses" :key="exp.id" class="flex justify-between items-center p-5 bg-white rounded-2xl border border-gray-50 shadow-sm mb-3">
-                <div class="font-bold text-gray-700">{{ exp.name }}</div>
-                <div class="font-bold text-red-800">€ {{ exp.amount }}</div>
-                <button @click="removeExpense(exp.id)" class="text-gray-300 ml-2"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                <div class="flex-1">
+                    <div class="font-bold text-gray-800">{{ exp.name }}</div>
+                    <div class="text-[10px] text-gray-400">≈ HK$ {{ convertToHKD(exp.amount, exp.currency) }}</div>
+                </div>
+                <div class="font-bold text-red-800 text-lg">
+                    {{ exp.currency === 'EUR' ? '€' : '£' }} {{ exp.amount }}
+                </div>
+                <button @click="removeExpense(exp.id)" class="ml-4 text-gray-200"><i class="fa-solid fa-trash-can text-sm"></i></button>
             </div>
         </div>
     </div>
@@ -109,71 +127,97 @@
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end justify-center">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showModal = false"></div>
         <div class="bg-white w-full max-w-md p-8 rounded-t-[40px] shadow-2xl relative z-[210]">
-            <div class="flex justify-between items-center mb-8">
+            <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-gray-800">Add to {{ currentTab }}</h3>
                 <button @click="showModal = false" class="text-3xl text-gray-300">×</button>
             </div>
             
-            <div class="space-y-5">
-                <input v-model="form.name" placeholder="Title / Name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none focus:ring-2 ring-[#C5A059]">
+            <div class="space-y-4">
+                <input v-model="form.name" placeholder="Title / Name" class="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 ring-[#C5A059]">
                 
-                <div v-if="currentTab === 'itinerary'" class="grid grid-cols-2 gap-4">
-                    <input v-model="form.time" type="time" class="p-5 bg-gray-50 rounded-2xl outline-none">
-                    <select v-model="form.type" class="p-5 bg-gray-50 rounded-2xl outline-none">
-                        <option value="Attraction">Sightseeing</option>
-                        <option value="Food">Dining</option>
-                        <option value="Hotel">Hotel</option>
-                        <option value="Transport">Transport</option>
+                <div v-if="currentTab === 'itinerary'">
+                    <input v-model="form.mapLink" placeholder="Google Maps Link (Optional)" class="w-full p-4 bg-gray-50 rounded-xl mb-4 outline-none">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-xl outline-none">
+                        <select v-model="form.type" class="p-4 bg-gray-50 rounded-xl outline-none">
+                            <option value="Attraction">Sightseeing</option>
+                            <option value="Food">Dining</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Shopping">Shopping</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div v-if="currentTab === 'expense'" class="grid grid-cols-2 gap-4">
+                    <input v-model="form.amount" type="number" placeholder="Amount" class="p-4 bg-gray-50 rounded-xl outline-none">
+                    <select v-model="form.currency" class="p-4 bg-gray-50 rounded-xl outline-none">
+                        <option value="EUR">Euro (€)</option>
+                        <option value="GBP">Pound (£)</option>
                     </select>
                 </div>
 
-                <div v-if="currentTab === 'expense'">
-                    <input v-model="form.amount" type="number" placeholder="Amount (€)" class="w-full p-5 bg-gray-50 rounded-2xl outline-none">
-                </div>
-
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-bold text-lg shadow-lg">SAVE NOW</button>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-bold text-lg shadow-lg">SAVE DATA</button>
             </div>
+        </div>
+    </div>
+
+    <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/60" @click="showHotelModal = false"></div>
+        <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl relative z-[210]">
+            <h3 class="text-xl font-bold mb-4">Set Hotel</h3>
+            <p class="text-xs text-gray-400 mb-4 italic">Hotel for May {{ days[selectedDayIndex].date }}</p>
+            <input v-model="hotelInput" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-xl mb-6 outline-none border-2 border-[#C5A059]/20">
+            <button @click="saveHotel" class="w-full bg-gray-800 text-white py-4 rounded-xl font-bold">UPDATE HOTEL</button>
         </div>
     </div>
 </div>
 
 <script>
-    const { createApp, ref, computed, watch, onMounted } = Vue;
+    const { createApp, ref, computed, watch } = Vue;
 
     createApp({
         setup() {
             const currentTab = ref('itinerary');
             const showModal = ref(false);
+            const showHotelModal = ref(false);
             const selectedDayIndex = ref(0);
-            const form = ref({ name: '', time: '12:00', type: 'Attraction', amount: '' });
+            const hotelInput = ref('');
+            const form = ref({ name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '' });
+
+            // 匯率設定 (可自行微調)
+            const rates = { EUR: 8.5, GBP: 10.2 };
 
             const days = [
-                { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' },
-                { date: '16', weekday: 'SAT' }, { date: '17', weekday: 'SUN' },
-                { date: '18', weekday: 'MON' }, { date: '19', weekday: 'TUE' },
-                { date: '20', weekday: 'WED' }, { date: '21', weekday: 'THU' },
-                { date: '22', weekday: 'FRI' }, { date: '23', weekday: 'SAT' },
-                { date: '24', weekday: 'SUN' }, { date: '25', weekday: 'MON' }
+                { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' }, { date: '16', weekday: 'SAT' },
+                { date: '17', weekday: 'SUN' }, { date: '18', weekday: 'MON' }, { date: '19', weekday: 'TUE' },
+                { date: '20', weekday: 'WED' }, { date: '21', weekday: 'THU' }, { date: '22', weekday: 'FRI' },
+                { date: '23', weekday: 'SAT' }, { date: '24', weekday: 'SUN' }, { date: '25', weekday: 'MON' }
             ];
 
-            // 初始資料從 LocalStorage 讀取，如果沒有就用空陣列
             const itinerary = ref(JSON.parse(localStorage.getItem('italy_itinerary')) || []);
             const shoppingList = ref(JSON.parse(localStorage.getItem('italy_shop')) || []);
             const expenses = ref(JSON.parse(localStorage.getItem('italy_expense')) || []);
+            const hotels = ref(JSON.parse(localStorage.getItem('italy_hotels')) || {});
 
-            // 監聽資料變化，自動存檔
-            watch(itinerary, (newVal) => localStorage.setItem('italy_itinerary', JSON.stringify(newVal)), { deep: true });
-            watch(shoppingList, (newVal) => localStorage.setItem('italy_shop', JSON.stringify(newVal)), { deep: true });
-            watch(expenses, (newVal) => localStorage.setItem('italy_expense', JSON.stringify(newVal)), { deep: true });
+            watch([itinerary, shoppingList, expenses, hotels], () => {
+                localStorage.setItem('italy_itinerary', JSON.stringify(itinerary.value));
+                localStorage.setItem('italy_shop', JSON.stringify(shoppingList.value));
+                localStorage.setItem('italy_expense', JSON.stringify(expenses.value));
+                localStorage.setItem('italy_hotels', JSON.stringify(hotels.value));
+            }, { deep: true });
 
             const filteredItinerary = computed(() => {
                 const targetDate = days[selectedDayIndex.value].date;
-                return itinerary.value
-                    .filter(i => i.dayDate === targetDate)
-                    .sort((a, b) => a.time.localeCompare(b.time));
+                return itinerary.value.filter(i => i.dayDate === targetDate).sort((a, b) => a.time.localeCompare(b.time));
             });
 
-            const totalSpent = computed(() => expenses.value.reduce((sum, i) => sum + Number(i.amount || 0), 0));
+            const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || '');
+
+            const totalEUR = computed(() => expenses.value.filter(e => e.currency === 'EUR').reduce((sum, i) => sum + Number(i.amount || 0), 0));
+            const totalGBP = computed(() => expenses.value.filter(e => e.currency === 'GBP').reduce((sum, i) => sum + Number(i.amount || 0), 0));
+            const totalHKD = computed(() => (totalEUR.value * rates.EUR + totalGBP.value * rates.GBP).toFixed(0));
+
+            const convertToHKD = (amount, currency) => (amount * rates[currency]).toFixed(0);
 
             const handleSave = () => {
                 if (!form.value.name) return;
@@ -183,10 +227,20 @@
                 } else if (currentTab.value === 'shop') {
                     shoppingList.value.push({ id, name: form.value.name });
                 } else if (currentTab.value === 'expense') {
-                    expenses.value.push({ id, name: form.value.name, amount: form.value.amount });
+                    expenses.value.push({ id, name: form.value.name, amount: form.value.amount, currency: form.value.currency });
                 }
                 showModal.value = false;
-                form.value = { name: '', time: '12:00', type: 'Attraction', amount: '' };
+                form.value = { name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '' };
+            };
+
+            const openHotelModal = () => {
+                hotelInput.value = currentDayHotel.value;
+                showHotelModal.value = true;
+            };
+
+            const saveHotel = () => {
+                hotels.value[days[selectedDayIndex.value].date] = hotelInput.value;
+                showHotelModal.value = false;
             };
 
             const removeItem = (id) => itinerary.value = itinerary.value.filter(i => i.id !== id);
@@ -194,9 +248,10 @@
             const removeExpense = (id) => expenses.value = expenses.value.filter(i => i.id !== id);
 
             return {
-                currentTab, showModal, selectedDayIndex, days,
-                itinerary, shoppingList, expenses, filteredItinerary, totalSpent,
-                form, handleSave, removeItem, removeShopItem, removeExpense
+                currentTab, showModal, showHotelModal, selectedDayIndex, days, hotelInput,
+                itinerary, shoppingList, expenses, hotels, filteredItinerary, currentDayHotel,
+                totalEUR, totalGBP, totalHKD, convertToHKD,
+                form, handleSave, saveHotel, openHotelModal, removeItem, removeShopItem, removeExpense
             }
         }
     }).mount('#app');
