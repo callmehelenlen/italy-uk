@@ -12,13 +12,11 @@
     <style>
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
-        body { background-color: #F9F7F2; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #F9F7F2; font-family: -apple-system, sans-serif; margin: 0; -webkit-tap-highlight-color: transparent; }
         
-        /* Banner 設定 */
+        /* Banner 動態背景樣式 */
         .banner { 
             height: 300px; 
-            /* 請確保圖片與 HTML 在同一資料夾並命名為 banner.jpg */
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('banner.jpg'); 
             background-size: cover; 
             background-position: center 30%; 
             position: relative;
@@ -26,7 +24,15 @@
             flex-direction: column;
             justify-content: center;
             padding: 0 25px;
+            transition: background-image 0.5s ease;
         }
+        /* 預設遮罩層 */
+        .banner::before {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7));
+            z-index: 1;
+        }
+        .banner-content { position: relative; z-index: 2; }
 
         .nav-icons { position: absolute; bottom: 95px; right: 25px; display: flex; gap: 30px; z-index: 60; }
         
@@ -39,7 +45,6 @@
         .active-tab { color: #C5A059 !important; border-bottom: 2px solid #C5A059; transform: scale(1.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* 相隔時間樣式 */
         .gap-time {
             position: relative; margin: 18px 0 18px 45px; padding-left: 20px;
             border-left: 2px dashed #eee; color: #b0b5bd; font-size: 13px; font-weight: 600;
@@ -59,15 +64,20 @@
             display: flex; align-items: center; justify-content: center; 
             font-size: 24px; box-shadow: 0 8px 25px rgba(139,0,0,0.4); z-index: 100;
         }
+
+        /* 輸入框微調 */
+        .input-minimal { border: none; background: #f3f4f6; border-radius: 12px; padding: 8px 15px; font-size: 12px; width: 100%; outline: none; }
     </style>
 </head>
 <body>
 
 <div id="app" v-cloak>
-    <div class="banner">
-        <h1 class="text-white text-3xl font-black tracking-tight leading-tight mb-1 italic">Sweet as Tiramisu</h1>
-        <p class="text-white/90 text-sm font-medium leading-snug max-w-[70%]">Helen & Ryan’s Romantic Italy + UK Getaway</p>
-        <p class="text-white/60 text-[10px] tracking-[0.3em] uppercase mt-3 font-bold">14 - 25 May 2026</p>
+    <div class="banner" :style="{ backgroundImage: 'url(' + settings.bannerUrl + ')' }">
+        <div class="banner-content">
+            <h1 class="text-white text-3xl font-black tracking-tight leading-tight mb-1 italic">Sweet as Tiramisu</h1>
+            <p class="text-white/90 text-sm font-medium leading-snug max-w-[70%]">Helen & Ryan’s Romantic Italy + UK Getaway</p>
+            <p class="text-white/60 text-[10px] tracking-[0.3em] uppercase mt-3 font-bold">14 - 25 May 2026</p>
+        </div>
 
         <div class="nav-icons">
             <button @click="currentTab = 'itinerary'" :class="{'active-tab': currentTab === 'itinerary'}" class="text-white/60 text-3xl transition-all"><i class="fa-solid fa-route"></i></button>
@@ -79,7 +89,7 @@
         <div v-if="currentTab === 'itinerary'">
             <div class="flex space-x-3 overflow-x-auto mb-8 pb-2 no-scrollbar">
                 <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
-                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400'"
+                     :class="selectedDayIndex === index ? 'bg-[#8B0000] text-white shadow-lg' : 'bg-gray-100 text-gray-400'"
                      class="flex-shrink-0 w-14 py-4 rounded-2xl text-center transition-all cursor-pointer">
                     <div class="text-[10px] font-bold uppercase mb-1">{{ day.weekday }}</div>
                     <div class="text-xl font-bold">{{ day.date }}</div>
@@ -104,45 +114,41 @@
                 </div>
                 <div @click="editItem(item)" class="item-card mb-2 p-6 bg-white border border-gray-100 rounded-[30px] shadow-sm flex justify-between items-center relative z-10">
                     <div class="flex-1">
-                        <div class="text-[12px] font-extrabold text-red-900 uppercase mb-2 tracking-wider flex items-center">
-                             <i class="fa-regular fa-clock mr-1.5 opacity-40"></i>{{ item.time }} 
-                             <span class="mx-2 opacity-10">|</span> {{ item.type }}
+                        <div class="text-[12px] font-extrabold text-red-900 uppercase mb-2 tracking-wider">
+                             {{ item.time }} <span class="mx-2 opacity-10">|</span> {{ item.type }}
                         </div>
-                        <div class="font-black text-gray-900 text-xl leading-tight">
-                            {{ item.name }}
-                        </div>
+                        <div class="font-black text-gray-900 text-xl leading-tight">{{ item.name }}</div>
                         <div v-if="item.note" class="text-sm text-gray-500 mt-2 font-medium bg-gray-50 p-2 px-3 rounded-xl inline-block">{{ item.note }}</div>
                     </div>
-                    <button @click.stop="removeItem(item.id)" class="text-gray-200 hover:text-red-800 p-3 ml-2 transition-colors"><i class="fa-solid fa-trash-can text-lg"></i></button>
+                    <button @click.stop="removeItem(item.id)" class="text-gray-200 p-3 ml-2"><i class="fa-solid fa-trash-can text-lg"></i></button>
                 </div>
             </template>
-            
             <div v-if="filteredItinerary.length === 0" class="py-24 text-center text-gray-300 italic text-lg font-light">No plans for May {{ days[selectedDayIndex].date }}</div>
         </div>
 
         <div v-if="currentTab === 'expense'">
             <div class="bg-gray-900 text-white p-10 rounded-[45px] mb-8 shadow-xl text-center">
-                <div class="text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2 font-bold">Trip Budget Tracker</div>
+                <div class="text-[10px] uppercase tracking-[0.2em] opacity-40 mb-2 font-bold">Total Budget HKD</div>
                 <div class="text-5xl font-black text-[#C5A059]">HK$ {{ totalHKD }}</div>
                 <div class="flex justify-center gap-8 mt-8 opacity-60 text-xs font-bold border-t border-white/10 pt-5">
-                    <div class="flex flex-col">
-                        <span class="opacity-50 text-[9px] mb-1">EUR TOTAL</span>
-                        <span class="text-base text-white">€ {{ totalEUR }}</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="opacity-50 text-[9px] mb-1">GBP TOTAL</span>
-                        <span class="text-base text-white">£ {{ totalGBP }}</span>
-                    </div>
+                    <span>€ {{ totalEUR }}</span>
+                    <span>£ {{ totalGBP }}</span>
                 </div>
             </div>
             
-            <div class="bg-white p-12 rounded-[40px] border border-gray-100 text-center shadow-inner">
-                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fa-solid fa-receipt text-2xl text-gray-200"></i>
+            <div class="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm mb-6">
+                <div class="flex items-center mb-4">
+                    <i class="fa-solid fa-image text-[#C5A059] mr-3"></i>
+                    <h3 class="font-bold text-gray-800">Banner Image URL</h3>
                 </div>
-                <h3 class="text-gray-800 font-black text-xl mb-3">Simple Mode</h3>
-                <p class="text-gray-400 text-sm leading-relaxed px-4">Expenses are added directly to the total. No clutter, just the numbers that matter.</p>
-                <button @click="clearExpenses" class="mt-12 text-red-800/20 text-[10px] font-black tracking-widest uppercase hover:text-red-600 transition-all">Clear All Expense Data</button>
+                <p class="text-[10px] text-gray-400 mb-3">Paste your image link here (supports Imgur, Cloudinary, etc.)</p>
+                <input v-model="settings.bannerUrl" class="input-minimal mb-2" placeholder="https://example.com/banner.jpg">
+                <p class="text-[9px] text-gray-300 italic text-center">Tip: Use your collage image link to see it instantly!</p>
+            </div>
+
+            <div class="bg-gray-50 p-8 rounded-[40px] text-center">
+                <p class="text-gray-400 text-xs leading-relaxed px-4">Expenses are added via the <span class="text-red-800 font-bold">+</span> button.</p>
+                <button @click="clearExpenses" class="mt-8 text-red-800/20 text-[10px] font-black tracking-widest uppercase">Clear All Data</button>
             </div>
         </div>
     </div>
@@ -152,55 +158,30 @@
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end justify-center">
         <div class="absolute inset-0 bg-black/75 backdrop-blur-md" @click="showModal = false"></div>
         <div class="bg-white w-full max-w-md p-8 rounded-t-[50px] shadow-2xl relative z-[210] max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-10">
-                <h3 class="text-2xl font-black text-gray-900">{{ isEditing ? 'Edit' : 'Add' }} Entry</h3>
-                <button @click="showModal = false" class="text-4xl text-gray-300 leading-none">×</button>
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-black text-gray-900">{{ isEditing ? 'Edit' : 'Add' }}</h3>
+                <button @click="showModal = false" class="text-4xl text-gray-300">×</button>
             </div>
-            
             <div class="space-y-6">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-2 block mb-2 tracking-widest">Description</label>
-                    <input v-model="form.name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none focus:ring-2 ring-[#C5A059] text-lg font-medium">
+                <input v-model="form.name" placeholder="Description" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-lg">
+                <div v-if="currentTab === 'itinerary'" class="grid grid-cols-2 gap-4">
+                    <input v-model="form.time" type="time" class="p-5 bg-gray-50 rounded-2xl outline-none">
+                    <select v-model="form.type" class="p-5 bg-gray-50 rounded-2xl outline-none">
+                        <option value="Attraction">Sightseeing</option>
+                        <option value="Food">Dining</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Flight">Flight</option>
+                    </select>
                 </div>
-                
-                <div v-if="currentTab === 'itinerary'">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-2 block mb-2 tracking-widest">Time</label>
-                            <input v-model="form.time" type="time" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-lg">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-2 block mb-2 tracking-widest">Type</label>
-                            <select v-model="form.type" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-lg">
-                                <option value="Attraction">Sightseeing</option>
-                                <option value="Food">Dining</option>
-                                <option value="Transport">Transport</option>
-                                <option value="Flight">Flight</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
                 <div v-if="currentTab === 'expense'" class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2 block mb-2 tracking-widest">Amount</label>
-                        <input v-model="form.amount" type="number" placeholder="0.00" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-lg font-bold">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2 block mb-2 tracking-widest">Currency</label>
-                        <select v-model="form.currency" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-lg">
-                            <option value="EUR">Euro (€)</option>
-                            <option value="GBP">Pound (£)</option>
-                        </select>
-                    </div>
+                    <input v-model="form.amount" type="number" placeholder="0.00" class="p-5 bg-gray-50 rounded-2xl outline-none font-bold">
+                    <select v-model="form.currency" class="p-5 bg-gray-50 rounded-2xl outline-none">
+                        <option value="EUR">Euro (€)</option>
+                        <option value="GBP">Pound (£)</option>
+                    </select>
                 </div>
-
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-2 block mb-2 tracking-widest">Notes</label>
-                    <textarea v-model="form.note" rows="2" class="w-full p-5 bg-gray-50 rounded-2xl outline-none resize-none"></textarea>
-                </div>
-
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-3xl font-black text-xl uppercase tracking-widest shadow-lg active:scale-95 transition-transform">Save Everything</button>
+                <textarea v-model="form.note" placeholder="Notes" rows="2" class="w-full p-5 bg-gray-50 rounded-2xl outline-none resize-none"></textarea>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-3xl font-black text-xl tracking-widest uppercase shadow-lg">Save</button>
             </div>
         </div>
     </div>
@@ -208,12 +189,10 @@
     <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="showHotelModal = false"></div>
         <div class="bg-white w-full max-w-sm p-10 rounded-[50px] shadow-2xl relative z-[210]">
-            <h3 class="text-2xl font-black mb-8 text-gray-900">Hotel Details</h3>
-            <div class="space-y-4">
-                <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none font-bold text-lg">
-                <input v-model="hotelForm.note" placeholder="Check-in Note" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-sm">
-            </div>
-            <button @click="saveHotel" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-bold uppercase mt-10 tracking-widest">Update</button>
+            <h3 class="text-2xl font-black mb-8 text-gray-900">Hotel</h3>
+            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-5 bg-gray-50 rounded-2xl outline-none font-bold mb-4">
+            <input v-model="hotelForm.note" placeholder="Note" class="w-full p-5 bg-gray-50 rounded-2xl outline-none text-sm">
+            <button @click="saveHotel" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-bold uppercase mt-8 tracking-widest">Update</button>
         </div>
     </div>
 </div>
@@ -232,6 +211,11 @@
             const form = ref({ id: null, name: '', time: '12:00', type: 'Attraction', amount: '', currency: 'EUR', mapLink: '', note: '' });
             const hotelForm = ref({ name: '', map: '', note: '' });
 
+            // 新增設定儲存
+            const settings = ref({
+                bannerUrl: 'banner.jpg' // 預設值
+            });
+
             const days = [
                 { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' }, { date: '16', weekday: 'SAT' },
                 { date: '17', weekday: 'SUN' }, { date: '18', weekday: 'MON' }, { date: '19', weekday: 'TUE' },
@@ -247,12 +231,15 @@
                 itinerary.value = JSON.parse(localStorage.getItem('italy_v3_itinerary')) || [];
                 expenses.value = JSON.parse(localStorage.getItem('italy_v3_expense')) || [];
                 hotels.value = JSON.parse(localStorage.getItem('italy_v3_hotels')) || {};
+                const savedSettings = JSON.parse(localStorage.getItem('italy_v3_settings'));
+                if (savedSettings) settings.value = savedSettings;
             });
 
-            watch([itinerary, expenses, hotels], () => {
+            watch([itinerary, expenses, hotels, settings], () => {
                 localStorage.setItem('italy_v3_itinerary', JSON.stringify(itinerary.value));
                 localStorage.setItem('italy_v3_expense', JSON.stringify(expenses.value));
                 localStorage.setItem('italy_v3_hotels', JSON.stringify(hotels.value));
+                localStorage.setItem('italy_v3_settings', JSON.stringify(settings.value));
             }, { deep: true });
 
             const filteredItinerary = computed(() => {
@@ -318,7 +305,7 @@
             const removeItem = (id) => itinerary.value = itinerary.value.filter(i => i.id !== id);
 
             return {
-                currentTab, showModal, showHotelModal, isEditing, selectedDayIndex, days, form, hotelForm,
+                currentTab, showModal, showHotelModal, isEditing, selectedDayIndex, days, form, hotelForm, settings,
                 filteredItinerary, currentDayHotel, shouldShowHotel, totalHKD, totalEUR, totalGBP,
                 calculateGap, openAddModal, editItem, handleSave, openHotelModal, saveHotel, removeItem, clearExpenses
             }
