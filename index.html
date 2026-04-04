@@ -50,14 +50,19 @@
             </div>
 
             <div v-if="shouldShowHotel" class="hotel-box flex items-center justify-between" @click="openHotelModal">
-                <div class="flex items-center">
-                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center mr-3 shadow-sm text-stone-300"><i class="fa-solid fa-bed"></i></div>
-                    <div>
+                <div class="flex items-center flex-1 pr-4">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center mr-3 shadow-sm text-[#C5A059]"><i class="fa-solid fa-bed"></i></div>
+                    <div class="overflow-hidden">
                         <div class="text-[9px] font-black text-stone-400 uppercase tracking-widest">Accommodation</div>
-                        <div class="font-bold text-gray-800">{{ currentDayHotel.name || 'Set Hotel' }}</div>
+                        <div class="font-bold text-gray-800 truncate">{{ currentDayHotel.name || 'Set Hotel' }}</div>
                     </div>
                 </div>
-                <i class="fa-solid fa-pen text-stone-300 text-[10px]"></i>
+                <div class="flex items-center gap-2">
+                    <a v-if="currentDayHotel.link" :href="currentDayHotel.link" target="_blank" @click.stop class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center border border-amber-100">
+                        <i class="fa-solid fa-location-arrow text-xs"></i>
+                    </a>
+                    <i class="fa-solid fa-pen text-stone-300 text-[10px]"></i>
+                </div>
             </div>
 
             <div class="space-y-4">
@@ -77,28 +82,23 @@
                         <i class="fa-solid fa-location-dot"></i> GOOGLE MAPS
                     </a>
                 </div>
-
-                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 italic font-bold text-stone-400">
-                    No plans for May {{ days[selectedDayIndex].date }}
-                </div>
+                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 italic font-bold text-stone-400">No plans yet</div>
             </div>
         </div>
-
-        <div v-if="currentTab === 'expense'" class="text-center py-20 text-stone-300 font-bold">Expense tracking coming soon</div>
     </div>
 
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/60 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[90vh] overflow-y-auto">
-            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit' : 'Add' }} Plan (May {{ days[selectedDayIndex].date }})</h3>
+            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit' : 'Add' }} Plan</h3>
             <div class="space-y-4">
                 <input v-model="form.name" placeholder="Location Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
                 <div class="grid grid-cols-2 gap-3">
                     <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
                     <input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
                 </div>
-                <input v-model="form.category" placeholder="Category (Flight, Food...)" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
+                <input v-model="form.category" placeholder="Category" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
                 <input v-model="form.link" placeholder="Google Maps URL" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
                 <textarea v-model="form.note" placeholder="Notes..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none"></textarea>
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-xl">SAVE</button>
@@ -110,9 +110,18 @@
     <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60">
         <div class="bg-white w-full max-w-sm p-8 rounded-[30px]">
             <h3 class="font-black text-xl mb-4">Set Accommodation</h3>
-            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-xl mb-4 font-bold outline-none">
-            <button @click="saveHotel" class="w-full bg-black text-white py-4 rounded-xl font-black">Confirm</button>
-            <button @click="showHotelModal = false" class="w-full py-2 mt-2 text-stone-400 font-bold text-sm">Cancel</button>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-stone-400 ml-1">HOTEL NAME</label>
+                    <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-stone-400 ml-1">GOOGLE MAPS LINK</label>
+                    <input v-model="hotelForm.link" placeholder="Paste URL here" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none text-blue-600 text-sm">
+                </div>
+                <button @click="saveHotel" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-lg">Confirm</button>
+                <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold text-sm">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
@@ -125,7 +134,7 @@
             const showModal = ref(false);
             const showHotelModal = ref(false);
             const isEditing = ref(false);
-            const selectedDayIndex = ref(1); // 預設 5/15
+            const selectedDayIndex = ref(1); 
             
             const days = [
                 { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' }, { date: '16', weekday: 'SAT' },
@@ -137,16 +146,15 @@
             const itinerary = ref([]);
             const hotels = ref({});
             const form = ref({ id: null, name: '', time: '12:00', endTime: '', category: '', link: '', note: '', dayDate: '' });
-            const hotelForm = ref({ name: '' });
+            const hotelForm = ref({ name: '', link: '' });
 
             onMounted(() => {
-                const savedPlans = localStorage.getItem('tiramisu_vFinal_plans');
-                const savedHotels = localStorage.getItem('tiramisu_vFinal_hotels');
+                const savedPlans = localStorage.getItem('tiramisu_vF2_plans');
+                const savedHotels = localStorage.getItem('tiramisu_vF2_hotels');
                 if (savedPlans) itinerary.value = JSON.parse(savedPlans);
                 if (savedHotels) hotels.value = JSON.parse(savedHotels);
             });
 
-            // 重要：過濾並排序當前日期的行程
             const currentDayPlans = computed(() => {
                 const activeDate = days[selectedDayIndex.value].date;
                 return itinerary.value.filter(p => p.dayDate === activeDate).sort((a, b) => a.time.localeCompare(b.time));
@@ -159,7 +167,7 @@
 
             const currentDayHotel = computed(() => {
                 const activeDate = days[selectedDayIndex.value].date;
-                return hotels.value[activeDate] || { name: '' };
+                return hotels.value[activeDate] || { name: '', link: '' };
             });
 
             const openAddModal = () => {
@@ -182,24 +190,24 @@
                 } else {
                     itinerary.value.push({ ...form.value, id: Date.now() });
                 }
-                localStorage.setItem('tiramisu_vFinal_plans', JSON.stringify(itinerary.value));
+                localStorage.setItem('tiramisu_vF2_plans', JSON.stringify(itinerary.value));
                 showModal.value = false;
             };
 
             const removeItem = (id) => {
                 itinerary.value = itinerary.value.filter(p => p.id !== id);
-                localStorage.setItem('tiramisu_vFinal_plans', JSON.stringify(itinerary.value));
+                localStorage.setItem('tiramisu_vF2_plans', JSON.stringify(itinerary.value));
             };
 
             const openHotelModal = () => {
-                hotelForm.value = { name: currentDayHotel.value.name };
+                hotelForm.value = { ...currentDayHotel.value };
                 showHotelModal.value = true;
             };
 
             const saveHotel = () => {
                 const activeDate = days[selectedDayIndex.value].date;
                 hotels.value[activeDate] = { ...hotelForm.value };
-                localStorage.setItem('tiramisu_vFinal_hotels', JSON.stringify(hotels.value));
+                localStorage.setItem('tiramisu_vF2_hotels', JSON.stringify(hotels.value));
                 showHotelModal.value = false;
             };
 
