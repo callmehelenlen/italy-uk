@@ -17,17 +17,18 @@
         .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.95) 100%); }
         .tz-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 8px 12px; display: inline-flex; gap: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .tz-time { font-size: 11px; font-weight: 800; color: white; font-variant-numeric: tabular-nums; }
-        .tab-btn { padding: 12px 14px; border-radius: 16px; font-weight: 800; font-size: 9px; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); border: none; white-space: nowrap; }
-        .tab-btn.active { background: white; color: var(--italy-red); }
+        .tab-btn { padding: 12px 14px; border-radius: 16px; font-weight: 800; font-size: 9px; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); border: none; white-space: nowrap; transition: all 0.3s; }
+        .tab-btn.active { background: white; color: var(--italy-red); transform: scale(1.05); }
         .main-card { margin-top: -35px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 20; padding: 25px 20px 120px 20px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
         .day-pill.active { background: var(--italy-red); color: white; transform: scale(1.05); }
-        .item-card { border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .item-card { border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 15px; }
         .cat-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
-        .transit-container { margin-left: 35px; border-left: 2px dashed #E5E7EB; padding: 12px 0 12px 25px; display: flex; align-items: center; }
-        .transit-badge { background: #F8FAFC; border: 1px solid #F1F5F9; padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 800; color: #64748B; display: inline-flex; align-items: center; gap: 6px; }
+        .transit-container { margin-left: 35px; border-left: 2px dashed #E5E7EB; padding: 12px 0 12px 25px; display: flex; align-items: center; margin-bottom: 15px; }
+        .transit-badge { background: #F8FAFC; border: 1px solid #F1F5F9; padding: 6px 14px; border-radius: 12px; font-size: 10px; font-weight: 800; color: #64748B; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
         .fab { position: fixed; bottom: 30px; right: 25px; width: 68px; height: 68px; background: var(--italy-red); border-radius: 24px; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 100; box-shadow: 0 12px 30px rgba(139,0,0,0.4); border: none; }
-        .city-tag { padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 800; background: #F3F4F6; color: #9CA3AF; flex-shrink: 0; cursor: pointer; }
+        .city-tag { padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 800; background: #F3F4F6; color: #9CA3AF; flex-shrink: 0; cursor: pointer; transition: all 0.2s; }
         .city-tag.active { background: #1F2937; color: white; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
@@ -56,21 +57,24 @@
             <div class="flex space-x-3 overflow-x-auto mb-6 pb-2 no-scrollbar">
                 <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" :class="['day-pill shrink-0 w-[55px] py-4 rounded-[22px] text-center transition-all', selectedDayIndex === index ? 'active' : 'bg-[#F9F8F6] text-[#D1D5DB]']">
                     <div class="text-[9px] font-bold uppercase">{{ day.weekday }}</div><div class="text-xl font-black">{{ day.date }}</div>
-                    <div v-if="day.date == '22'" class="text-[8px] mt-1">🎂</div>
                 </div>
             </div>
-            <div v-if="currentStay" class="item-card bg-[#FFF9F9] border-dashed border-red-800 border-2 mb-6 flex justify-between items-center" @click="editItem(currentStay)">
+            <div v-if="currentStay" class="item-card bg-[#FFF9F9] border-dashed border-red-800 border-2 flex justify-between items-center" @click="editItem(currentStay)">
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 bg-white rounded-full flex items-center justify-center text-red-800 shadow-sm"><i class="fa-solid fa-hotel"></i></div>
-                    <div><div class="text-[9px] font-black text-red-500 uppercase tracking-widest">Accommodation</div><div class="font-black text-gray-800 text-lg leading-tight">{{ currentStay.name }}</div><div class="text-[10px] text-gray-400 font-bold italic">{{ currentStay.note }}</div></div>
+                    <div>
+                        <div class="text-[9px] font-black text-red-500 uppercase tracking-widest">Accommodation</div>
+                        <div class="font-black text-gray-800 text-lg leading-tight">{{ currentStay.name }}</div>
+                        <div class="text-[10px] text-gray-400 font-bold italic">{{ currentStay.note }}</div>
+                    </div>
                 </div>
-                <a v-if="currentStay.link" :href="currentStay.link" target="_blank" @click.stop class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 border border-blue-100 shadow-sm"><i class="fa-solid fa-location-dot"></i></a>
+                <a v-if="currentStay.link" :href="currentStay.link" target="_blank" @click.stop class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 border border-blue-100"><i class="fa-solid fa-location-dot"></i></a>
             </div>
             <div class="space-y-0">
                 <template v-for="(item, index) in currentDayPlans" :key="item.id">
                     <div @click="editItem(item)" class="item-card">
                         <div class="flex justify-between items-start mb-2">
-                            <span class="bg-stone-100 text-stone-600 px-3 py-1 rounded-full font-black text-[10px]">{{ item.time }} <span v-if="item.endTime"> - {{ item.endTime }}</span></span>
+                            <span class="bg-stone-100 text-stone-600 px-3 py-1 rounded-full font-black text-[10px]">{{ item.time }} <span v-if="item.endTime">- {{ item.endTime }}</span></span>
                             <button @click.stop="removeItem(item.id, 'plans')" class="text-stone-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
                         </div>
                         <div :class="['cat-badge', getCatClass(item.category)]"><i :class="['fa-solid', getCategoryIcon(item.category)]"></i> {{ item.category }}</div>
@@ -79,7 +83,10 @@
                         <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="inline-flex items-center gap-2 text-blue-600 font-black text-[10px] bg-blue-50 px-3 py-2 rounded-xl border border-blue-100"><i class="fa-solid fa-map-pin"></i> MAP</a>
                     </div>
                     <div v-if="index < currentDayPlans.length - 1" class="transit-container">
-                        <div @click="openTransitModal(item)" class="transit-badge shadow-sm"><i :class="['fa-solid', getTransitIcon(item.transitMode || 'walk')]"></i><span>{{ item.transitRemark || 'Add Route Info' }}</span></div>
+                        <div @click="openTransitModal(item)" class="transit-badge shadow-sm">
+                            <i :class="['fa-solid', getTransitIcon(item.transitMode || 'walk')]"></i>
+                            <span>{{ item.transitRemark || 'Add Route Info' }}</span>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -95,7 +102,7 @@
                 <div class="text-5xl font-black italic">HK$ {{ totalSpentHKD }}</div>
             </div>
             <div class="space-y-4">
-                <div v-for="ex in sortedExpenses" :key="ex.id" @click="editExpense(ex)" class="flex justify-between items-center bg-white p-6 rounded-3xl border border-stone-50 shadow-sm transition-all active:scale-[0.98]">
+                <div v-for="ex in sortedExpenses" :key="ex.id" @click="editExpense(ex)" class="item-card flex justify-between items-center transition-all active:scale-[0.98]">
                     <div><div class="font-black text-gray-800 text-lg">{{ ex.name }}</div><div class="text-[11px] font-bold text-stone-300 uppercase tracking-wider">{{ getCurrencySymbol(ex.currency) }}{{ ex.amount }}</div></div>
                     <div class="flex items-center gap-4"><div class="text-right font-black text-emerald-600 text-xl">≈ HK${{ convertToHKD(ex.amount, ex.currency) }}</div><button @click.stop="removeItem(ex.id, 'expenses')" class="text-stone-200"><i class="fa-solid fa-circle-xmark"></i></button></div>
                 </div>
@@ -106,22 +113,17 @@
             <div class="flex gap-2 overflow-x-auto mb-6 no-scrollbar pb-2">
                 <div v-for="city in cities" :key="city" @click="selectedCity = city" :class="['city-tag', selectedCity === city ? 'active' : '']">{{ city }}</div>
             </div>
-            <div class="w-full h-40 bg-gray-100 rounded-[30px] mb-8 overflow-hidden relative shadow-inner border-4 border-white">
-                <iframe class="w-full h-full opacity-70 grayscale" :src="`https://www.google.com/maps/embed/v1/search?key=YOUR_API_KEY&q=${selectedCity}`" frameborder="0"></iframe>
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none font-black text-white text-xs uppercase tracking-widest bg-black/10">{{ selectedCity }} Map</div>
+            <div class="w-full h-48 bg-gray-100 rounded-[30px] mb-8 overflow-hidden relative shadow-inner border-4 border-white">
+                <iframe class="w-full h-full" :src="`https://maps.google.com/maps?q=${selectedCity}+attractions&t=&z=13&ie=UTF8&iwloc=&output=embed`" frameborder="0"></iframe>
             </div>
             <div class="space-y-4">
                 <div v-for="bm in filteredBookmarks" :key="bm.id" class="item-card flex justify-between items-center">
-                    <div>
-                        <div class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">{{ bm.category }}</div>
-                        <div class="font-black text-gray-800 text-lg">{{ bm.name }}</div>
-                    </div>
+                    <div><div class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1">{{ bm.category }}</div><div class="font-black text-gray-800 text-lg">{{ bm.name }}</div></div>
                     <div class="flex gap-3">
-                        <a v-if="bm.link" :href="bm.link" target="_blank" class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 shadow-sm border border-indigo-100"><i class="fa-solid fa-map-pin"></i></a>
-                        <button @click="removeItem(bm.id, 'bookmarks')" class="text-stone-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                        <a v-if="bm.link" :href="bm.link" target="_blank" class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 border border-indigo-100"><i class="fa-solid fa-map-pin"></i></a>
+                        <button @click="removeItem(bm.id, 'bookmarks')" class="text-stone-200 text-lg"><i class="fa-solid fa-circle-xmark"></i></button>
                     </div>
                 </div>
-                <div v-if="filteredBookmarks.length === 0" class="text-center py-20 text-gray-300 font-bold uppercase text-xs tracking-widest">No bookmarks yet</div>
             </div>
         </div>
 
@@ -131,11 +133,11 @@
                 <button @click="activeUser='Ryan'" :class="['flex-1 py-4 rounded-2xl font-black transition-all', activeUser==='Ryan' ? 'bg-blue-500 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-400']">RYAN</button>
             </div>
             <div class="flex gap-2 mb-8">
-                <input v-model="newCheckItem" @keyup.enter="addCheckItem" placeholder="Add to my list..." class="flex-1 bg-gray-50 p-5 rounded-2xl font-bold outline-none border border-gray-100 shadow-inner">
+                <input v-model="newCheckItem" @keyup.enter="addCheckItem" placeholder="Add to my list..." class="flex-1 bg-gray-50 p-5 rounded-2xl font-bold outline-none border border-gray-100">
                 <button @click="addCheckItem" class="bg-black text-white px-7 rounded-2xl shadow-lg"><i class="fa-solid fa-plus text-xl"></i></button>
             </div>
             <div class="space-y-3">
-                <div v-for="(item, idx) in currentUserChecklist" :key="idx" @click="toggleCheck(item.id)" class="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100" :class="{'opacity-50': item.done}">
+                <div v-for="item in currentUserChecklist" :key="item.id" @click="toggleCheck(item.id)" class="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100" :class="{'opacity-50': item.done}">
                     <div class="flex items-center gap-4">
                         <i :class="['fa-regular text-2xl', item.done ? 'fa-square-check text-emerald-500' : 'fa-square text-stone-300']"></i>
                         <span :class="{'line-through text-stone-400 font-normal': item.done, 'font-black text-gray-700': !item.done}">{{ item.text }}</span>
@@ -148,38 +150,23 @@
 
     <button class="fab" @click="handleFabAction"><i class="fa-solid fa-plus"></i></button>
 
-    <div v-if="showBookmarkModal" class="fixed inset-0 z-[300] flex items-end bg-black/70 backdrop-blur-sm">
-        <div class="bg-white w-full p-8 rounded-t-[45px] pb-12 shadow-2xl">
-            <h3 class="font-black text-2xl mb-8 text-center">New Bookmark</h3>
-            <div class="space-y-5">
-                <div class="flex overflow-x-auto gap-2 no-scrollbar mb-2">
-                    <div v-for="cat in ['Food', 'Bar', 'Shop', 'View', 'Souvenir']" :key="cat" @click="bmForm.category = cat" :class="['px-5 py-3 rounded-xl border-2 text-[10px] font-black', bmForm.category === cat ? 'border-black bg-black text-white' : 'border-gray-50 text-gray-300']">{{ cat }}</div>
-                </div>
-                <input v-model="bmForm.name" placeholder="Name" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border-none">
-                <input v-model="bmForm.link" placeholder="Map Link" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border-none text-xs">
-                <button @click="saveBookmark" class="w-full bg-black text-white py-6 rounded-2xl font-black shadow-xl uppercase">Add to {{ selectedCity }}</button>
-                <button @click="showBookmarkModal = false" class="w-full py-2 text-stone-300 font-black text-center text-sm">Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <div v-if="showModal" class="fixed inset-0 z-[300] flex items-end bg-black/70 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[45px] max-h-[90vh] overflow-y-auto pb-12 shadow-2xl">
-            <h3 class="font-black text-2xl mb-8 text-center text-gray-800">Plan Detail</h3>
+            <h3 class="font-black text-2xl mb-8 text-center">Plan Detail</h3>
             <div class="space-y-5">
                 <div class="grid grid-cols-6 gap-2">
-                    <div v-for="cat in ['Spot', 'Food', 'Shop', 'Flight', 'Stay', 'Train']" :key="cat" @click="form.category = cat" :class="['p-3 rounded-xl border-2 text-center transition-all', form.category === cat ? 'border-indigo-600 bg-indigo-50 text-indigo-600 font-black' : 'border-gray-50 text-gray-300 font-bold']"><i :class="['fa-solid', getCategoryIcon(cat)]" class="text-lg"></i></div>
+                    <div v-for="cat in ['Spot', 'Food', 'Shop', 'Flight', 'Stay', 'Train']" :key="cat" @click="form.category = cat" :class="['p-3 rounded-xl border-2 text-center', form.category === cat ? 'border-indigo-600 bg-indigo-50 text-indigo-600 font-black' : 'border-gray-50 text-gray-300']"><i :class="['fa-solid', getCategoryIcon(cat)]"></i></div>
                 </div>
-                <input v-model="form.category" placeholder="Custom category..." class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 shadow-inner">
+                <input v-model="form.category" placeholder="Custom category..." class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100">
                 <input v-model="form.name" placeholder="Title" class="w-full p-5 bg-gray-100 rounded-2xl font-black outline-none text-lg">
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="text-[9px] font-black ml-2 text-gray-400">START</label><input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100"></div>
                     <div><label class="text-[9px] font-black ml-2 text-gray-400">END</label><input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100"></div>
                 </div>
-                <textarea v-model="form.note" placeholder="Notes... (15-24 for range)" class="w-full p-5 bg-gray-50 rounded-2xl h-24 font-bold text-sm outline-none border border-gray-100"></textarea>
+                <textarea v-model="form.note" placeholder="Notes... (15-24 for range)" class="w-full p-5 bg-gray-50 rounded-2xl h-24 font-bold outline-none border border-gray-100"></textarea>
                 <input v-model="form.link" placeholder="Map URL" class="w-full p-5 bg-gray-50 rounded-2xl text-xs outline-none border border-gray-100">
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-2xl font-black shadow-xl mt-4 uppercase">Save Plan</button>
-                <button @click="showModal = false" class="w-full py-2 text-stone-300 font-black text-center text-sm">Cancel</button>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-2xl font-black shadow-xl uppercase mt-4">Save Plan</button>
+                <button @click="showModal = false" class="w-full py-2 text-stone-300 font-black text-sm">Cancel</button>
             </div>
         </div>
     </div>
@@ -189,10 +176,25 @@
             <h3 class="font-black text-2xl mb-8 text-center">Expense Detail</h3>
             <div class="space-y-5">
                 <div class="grid grid-cols-3 gap-3"><button v-for="c in ['HKD', 'EUR', 'GBP']" :key="c" @click="exForm.currency = c" :class="['py-4 rounded-2xl font-black text-xs border-2', exForm.currency === c ? 'border-black bg-black text-white' : 'border-gray-50 text-gray-400']">{{ c }}</button></div>
-                <input v-model.number="exForm.amount" type="number" placeholder="0.00" class="w-full p-5 bg-gray-50 rounded-2xl font-black text-3xl text-center outline-none border border-gray-100 shadow-inner">
-                <input v-model="exForm.name" placeholder="What did we buy?" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 shadow-inner">
-                <button @click="handleSaveExpense" class="w-full bg-black text-white py-6 rounded-2xl font-black shadow-xl uppercase tracking-widest mt-4">Save Expense</button>
-                <button @click="showExpenseModal = false" class="w-full py-2 text-stone-300 font-black text-center text-sm">Cancel</button>
+                <input v-model.number="exForm.amount" type="number" placeholder="0.00" class="w-full p-5 bg-gray-50 rounded-2xl font-black text-3xl text-center outline-none border border-gray-100">
+                <input v-model="exForm.name" placeholder="Description" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100">
+                <button @click="handleSaveExpense" class="w-full bg-black text-white py-6 rounded-2xl font-black shadow-xl uppercase mt-4">Save Expense</button>
+                <button @click="showExpenseModal = false" class="w-full py-2 text-stone-300 font-black text-sm">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="showBookmarkModal" class="fixed inset-0 z-[300] flex items-end bg-black/70 backdrop-blur-sm">
+        <div class="bg-white w-full p-8 rounded-t-[45px] pb-12 shadow-2xl">
+            <h3 class="font-black text-2xl mb-8 text-center">New Bookmark</h3>
+            <div class="space-y-5">
+                <div class="flex overflow-x-auto gap-2 no-scrollbar mb-2">
+                    <div v-for="cat in ['Food', 'Bar', 'Shop', 'View', 'Souvenir']" :key="cat" @click="bmForm.category = cat" :class="['px-5 py-3 rounded-xl border-2 text-[10px] font-black', bmForm.category === cat ? 'border-black bg-black text-white' : 'border-gray-50 text-gray-300']">{{ cat }}</div>
+                </div>
+                <input v-model="bmForm.name" placeholder="Name" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100">
+                <input v-model="bmForm.link" placeholder="Map Link" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 text-xs">
+                <button @click="saveBookmark" class="w-full bg-black text-white py-6 rounded-2xl font-black shadow-xl uppercase">Add to {{ selectedCity }}</button>
+                <button @click="showBookmarkModal = false" class="w-full py-2 text-stone-300 font-black text-sm">Cancel</button>
             </div>
         </div>
     </div>
@@ -203,8 +205,7 @@
             <div class="grid grid-cols-5 gap-2 mb-6">
                 <div v-for="m in ['walk', 'bus', 'train', 'taxi', 'plane']" :key="m" @click="transitForm.mode = m" :class="['p-4 rounded-2xl border-2 text-center transition-all', transitForm.mode === m ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-gray-50 text-gray-400']"><i :class="['fa-solid', getTransitIcon(m)]" class="text-xl"></i></div>
             </div>
-            <input v-model="transitForm.remark" placeholder="e.g. 15 mins Walk" class="w-full p-5 bg-gray-50 rounded-2xl font-bold mb-4 text-center outline-none border border-gray-100 shadow-inner">
-            <input v-model="transitForm.link" placeholder="Map Link" class="w-full p-5 bg-gray-50 rounded-2xl text-[10px] mb-8 outline-none text-center border border-gray-100 shadow-inner">
+            <input v-model="transitForm.remark" placeholder="e.g. 15 mins Walk" class="w-full p-5 bg-gray-50 rounded-2xl font-bold mb-4 text-center border border-gray-100 outline-none">
             <button @click="saveTransit" class="w-full bg-black text-white py-5 rounded-2xl font-black shadow-xl">Update Route</button>
         </div>
     </div>
@@ -283,8 +284,8 @@
                 getCatClass: (cat) => ({ Spot:'bg-orange-100 text-orange-600', Food:'bg-emerald-100 text-emerald-600', Shop:'bg-pink-100 text-pink-600', Flight:'bg-blue-100 text-blue-600', Stay:'bg-indigo-100 text-indigo-600', Train:'bg-amber-100 text-amber-600' }[cat] || 'bg-gray-100 text-gray-600'),
                 getTransitIcon: (m) => ({ walk:'fa-person-walking', bus:'fa-bus', train:'fa-train', taxi:'fa-taxi', plane:'fa-plane' }[m] || 'fa-person-walking'),
                 getCurrencySymbol: (c) => ({ HKD: 'HK$', EUR: '€', GBP: '£' }[c]),
-                openTransitModal: (item) => { activeTransitItem.value = item; transitForm.value = { mode: item.transitMode || 'walk', remark: item.transitRemark || '', link: item.transitLink || '' }; showTransitModal.value = true; },
-                saveTransit: () => { db.ref('plans/'+activeTransitItem.value.id).update({ transitMode: transitForm.value.mode, transitRemark: transitForm.value.remark, transitLink: transitForm.value.link }); showTransitModal.value = false; },
+                openTransitModal: (item) => { activeTransitItem.value = item; transitForm.value = { mode: item.transitMode || 'walk', remark: item.transitRemark || '' }; showTransitModal.value = true; },
+                saveTransit: () => { db.ref('plans/'+activeTransitItem.value.id).update({ transitMode: transitForm.value.mode, transitRemark: transitForm.value.remark }); showTransitModal.value = false; },
                 editItem: (item) => { form.value = {...item}; showModal.value = true; },
                 editExpense: (ex) => { exForm.value = {...ex}; showExpenseModal.value = true; },
                 convertToHKD
