@@ -13,21 +13,34 @@
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; }
         body { background-color: #FDFBF7; font-family: -apple-system, sans-serif; color: #1F2937; overflow-x: hidden; }
-        .banner { min-height: 380px; background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%), url('./cover.jpg') center center / cover no-repeat; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; background-color: #2c2c2c; }
+        
+        .banner { 
+            min-height: 380px; 
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%), 
+                        url('./cover.jpg') center center / cover no-repeat;
+            position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; background-color: #2c2c2c;
+        }
+        
         .tz-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 8px 12px; display: inline-flex; gap: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .tz-time { font-size: 11px; font-weight: 800; color: white; }
+        .tz-time { font-size: 11px; font-weight: 800; color: white; font-variant-numeric: tabular-nums; }
         .tab-btn { padding: 12px 14px; border-radius: 16px; font-weight: 800; font-size: 9px; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); border: none; white-space: nowrap; text-transform: uppercase; }
-        .tab-btn.active { background: white; color: var(--italy-red); }
+        .tab-btn.active { background: white; color: var(--italy-red); transform: scale(1.05); }
+        
         .main-card { margin-top: -35px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 20; padding: 25px 20px 120px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
         .day-pill.active { background: var(--italy-red); color: white; }
         .city-tag { padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 800; background: #F3F4F6; color: #9CA3AF; flex-shrink: 0; }
         .city-tag.active { background: #1F2937; color: white; }
-        .item-card { border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 15px; }
+        
+        .item-card { border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 15px; position: relative; }
         .cat-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
         .transit-container { margin-left: 35px; border-left: 2px dashed #E5E7EB; padding: 12px 0 12px 25px; margin-top: -5px; margin-bottom: 10px; }
-        .fab { position: fixed; bottom: 30px; right: 25px; width: 68px; height: 68px; background: var(--italy-red); border-radius: 24px; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 100; }
-        .rate-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 4px; width: 45px; text-align: center; color: white; font-weight: 900; }
+        
+        .fab { position: fixed; bottom: 30px; right: 25px; width: 68px; height: 68px; background: var(--italy-red); border-radius: 24px; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 100; box-shadow: 0 12px 30px rgba(139,0,0,0.4); }
+        .rate-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 6px; width: 45px; text-align: center; color: white; font-weight: 900; outline: none; }
+        
+        /* 特殊卡片 */
         .birthday-card { background: linear-gradient(135deg, #FFF5F5 0%, #FFF 100%); border: 2px solid #FEB2B2 !important; }
+        .stay-card { border: 2.5px solid var(--italy-red) !important; box-shadow: 0 8px 20px rgba(139,0,0,0.15); }
     </style>
 </head>
 <body>
@@ -57,9 +70,10 @@
             </div>
             <div class="space-y-0">
                 <template v-for="(item, index) in currentDayPlans" :key="item.id">
-                    <div @click="editItem(item, 'plans')" :class="['item-card', item.name.includes('Birthday') ? 'birthday-card' : '']">
+                    <div @click="editItem(item, 'plans')" :class="['item-card', item.category === 'Stay' ? 'stay-card' : '', item.name.includes('Birthday') ? 'birthday-card' : '']">
                         <div class="flex justify-between items-start mb-2">
-                            <span class="bg-stone-100 text-stone-600 px-3 py-1 rounded-full font-black text-[10px]">{{ item.time }} <span v-if="item.endTime">- {{ item.endTime }}</span></span>
+                            <span v-if="item.category !== 'Stay'" class="bg-stone-100 text-stone-600 px-3 py-1 rounded-full font-black text-[10px]">{{ item.time }} <span v-if="item.endTime">- {{ item.endTime }}</span></span>
+                            <div v-else class="h-6"></div>
                             <button @click.stop="removeItem(item.id, 'plans')" class="text-stone-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
                         </div>
                         <div :class="['cat-badge', getCatClass(item.category)]"><i :class="['fa-solid', getCategoryIcon(item.category)]"></i> {{ item.category }}</div>
@@ -76,9 +90,7 @@
                             <div @click="openTransitModal(item)" class="bg-[#F8FAFC] border border-[#F1F5F9] px-4 py-2 rounded-xl text-[10px] font-bold text-slate-400 inline-flex items-center gap-2 cursor-pointer">
                                 <i :class="['fa-solid', getTransitIcon(item.transitMode || 'walk')]"></i> {{ item.transitRemark || 'Add Route Info' }}
                             </div>
-                            <a v-if="item.transitLink" :href="item.transitLink" target="_blank" class="bg-blue-600 text-white text-[9px] font-black px-4 py-1.5 rounded-lg uppercase shadow-lg">
-                                <i class="fa-solid fa-diamond-turn-right mr-1"></i> Directions
-                            </a>
+                            <a v-if="item.transitLink" :href="item.transitLink" target="_blank" class="bg-blue-600 text-white text-[9px] font-black px-4 py-1.5 rounded-lg uppercase shadow-lg"><i class="fa-solid fa-diamond-turn-right mr-1"></i> Directions</a>
                         </div>
                     </div>
                 </template>
@@ -127,7 +139,7 @@
                     </div>
                     <button @click.stop="removeItem(item.id, 'checklist')" class="text-stone-200"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
-                <div class="flex gap-2 mt-8"><input v-model="newCheckItem" @keyup.enter="addCheckItem" placeholder="Add something..." class="flex-1 p-4 bg-gray-50 border-none rounded-2xl font-bold outline-none"><button @click="addCheckItem" class="bg-gray-900 text-white px-6 rounded-2xl font-black">ADD</button></div>
+                <div class="flex gap-2 mt-8"><input v-model="newCheckItem" @keyup.enter="addCheckItem" placeholder="Add..." class="flex-1 p-4 bg-gray-50 rounded-2xl font-bold outline-none"><button @click="addCheckItem" class="bg-gray-900 text-white px-6 rounded-2xl font-black">ADD</button></div>
             </div>
         </div>
     </div>
@@ -147,7 +159,7 @@
                 </div>
                 <div><label class="text-[9px] font-black uppercase text-gray-400 ml-1">Remark</label><textarea v-model="form.remark" placeholder="Add notes..." class="w-full p-4 bg-gray-50 rounded-xl font-bold border-none mt-1" rows="2"></textarea></div>
                 <input v-model="form.link" placeholder="Google Maps URL" class="w-full p-4 bg-gray-50 rounded-xl text-[10px] font-bold border">
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-lg uppercase mt-4">Save Information</button>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-lg uppercase mt-4">Save</button>
                 <button @click="showModal=false" class="w-full py-2 text-stone-300 font-bold text-xs uppercase text-center">Cancel</button>
             </div>
         </div>
@@ -195,13 +207,13 @@
                     const n = new Date(); const opt = { hour:'2-digit', minute:'2-digit', hour12:false };
                     times.value.hk = n.toLocaleTimeString('en-GB', { ...opt, timeZone:'Asia/Hong_Kong' });
                     times.value.it = n.toLocaleTimeString('en-GB', { ...opt, timeZone:'Europe/Rome' });
-                    times.value.uk = n.toLocaleTimeString('en-GB', { ...opt, timeZone:'Europe/London' });
+                    times.value_uk = n.toLocaleTimeString('en-GB', { ...opt, timeZone:'Europe/London' });
                 }, 1000);
             });
 
             return {
                 currentTab, days, selectedDayIndex, times, showModal, showTransitModal, form, transitForm, rates, activeUser, checklist, newCheckItem, cities, selectedCity, bookmarks, expenses,
-                // STAY & BIRTHDAY TOP SORTING
+                // 🔧 排序邏輯：Stay 第一，Birthday 第二，其餘按時間
                 currentDayPlans: computed(() => {
                     return itinerary.value
                         .filter(p => p.dayDate === days[selectedDayIndex.value].date)
@@ -213,7 +225,7 @@
                             };
                             const scoreA = getScore(a), scoreB = getScore(b);
                             if (scoreA !== scoreB) return scoreA - scoreB;
-                            return a.time.localeCompare(b.time);
+                            return (a.time || "00:00").localeCompare(b.time || "00:00");
                         });
                 }),
                 currentCityBookmarks: computed(() => bookmarks.value.filter(b => b.city === selectedCity.value)),
