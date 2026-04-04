@@ -73,13 +73,12 @@
             </div>
 
             <draggable 
-                v-model="itinerary" 
+                v-model="currentDayList" 
                 item-key="id"
                 handle=".item-card"
-                ghost-class="drag-ghost"
-                @end="saveToLocal">
+                ghost-class="drag-ghost">
                 <template #item="{element: item}">
-                    <div v-if="item.dayDate === days[selectedDayIndex].date" @click="editItem(item)" class="item-card p-5 border border-gray-100">
+                    <div @click="editItem(item)" class="item-card p-5 border border-gray-100">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex flex-wrap gap-2">
                                 <span class="bg-red-50 text-[#8B0000] px-2.5 py-1 rounded-lg font-black text-xs">
@@ -89,7 +88,7 @@
                             </div>
                             <button @click.stop="removeItem(item.id)" class="text-gray-200"><i class="fa-solid fa-xmark"></i></button>
                         </div>
-                        <div class="font-black text-gray-800 text-lg">{{ item.name }}</div>
+                        <div class="font-black text-gray-800 text-lg leading-tight">{{ item.name }}</div>
                         <div v-if="item.note" class="text-gray-400 text-xs mt-2">{{ item.note }}</div>
                         <a v-if="item.googleLink" :href="item.googleLink" target="_blank" @click.stop class="mt-4 inline-flex items-center gap-2 text-amber-600 font-bold text-xs bg-amber-50 px-3 py-2 rounded-xl">
                             <i class="fa-solid fa-map-pin"></i> Open Maps
@@ -98,7 +97,7 @@
                 </template>
             </draggable>
 
-            <div v-if="filteredItineraryCount === 0" class="text-center py-16 opacity-20 italic font-bold">No plans yet for this day</div>
+            <div v-if="currentDayList.length === 0" class="text-center py-16 opacity-20 italic font-bold">No plans yet for this day</div>
         </div>
 
         <div v-if="currentTab === 'expense'">
@@ -114,8 +113,8 @@
                     <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mr-3 text-amber-600"><i class="fa-solid fa-coins"></i></div>
                     <div><div class="font-bold text-gray-800">{{ ex.name }}</div><div class="text-[10px] text-gray-400 uppercase font-black">{{ ex.currency }}</div></div>
                 </div>
-                <div class="text-right">
-                    <div class="font-black text-gray-900">{{ ex.amount }}</div>
+                <div class="text-right font-black text-gray-900">
+                    <div>{{ ex.amount }}</div>
                     <button @click.stop="removeExpense(ex.id)" class="text-[9px] text-red-300 font-bold uppercase">Delete</button>
                 </div>
             </div>
@@ -138,28 +137,24 @@
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/70 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[90vh] overflow-y-auto">
-            <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-6"></div>
             <h3 class="font-black text-2xl mb-6">{{ isEditing ? 'Edit Item' : 'New Plan' }}</h3>
             <div class="space-y-4">
                 <input v-model="form.name" placeholder="Name / Location" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
-                
                 <div v-if="currentTab === 'itinerary'">
-                    <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="grid grid-cols-2 gap-3">
                         <input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-xl font-bold outline-none">
                         <input v-model="form.endTime" type="time" class="p-4 bg-gray-50 rounded-xl font-bold outline-none">
                     </div>
-                    <input v-model="form.type" placeholder="Category (e.g. Flight, Car Rent)" class="w-full p-4 bg-gray-50 rounded-xl font-bold mb-4 outline-none">
-                    <input v-model="form.googleLink" placeholder="Google Maps Link" class="w-full p-4 bg-blue-50/50 rounded-xl text-blue-600 text-sm outline-none">
+                    <input v-model="form.type" placeholder="Category (e.g. Flight, Car Rent)" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
+                    <input v-model="form.googleLink" placeholder="Google Maps Link" class="w-full p-4 bg-blue-50/50 rounded-xl text-blue-600 outline-none">
                 </div>
-
-                <div v-if="currentTab === 'expense'" class="grid grid-cols-2 gap-3 mb-4">
+                <div v-if="currentTab === 'expense'" class="grid grid-cols-2 gap-3">
                     <input v-model="form.amount" type="number" placeholder="Amount" class="p-4 bg-gray-50 rounded-xl font-bold outline-none">
                     <select v-model="form.currency" class="p-4 bg-gray-50 rounded-xl font-bold outline-none">
                         <option value="EUR">EUR (€)</option>
                         <option value="GBP">GBP (£)</option>
                     </select>
                 </div>
-
                 <textarea v-model="form.note" placeholder="Notes..." class="w-full p-4 bg-gray-50 rounded-xl h-24 outline-none"></textarea>
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black">Save Changes</button>
                 <button @click="showModal = false" class="w-full py-2 text-gray-400 font-bold">Cancel</button>
@@ -169,7 +164,7 @@
 </div>
 
 <script>
-    const { createApp, ref, computed, onMounted } = Vue;
+    const { createApp, ref, computed, watch, onMounted } = Vue;
 
     createApp({
         components: { 'draggable': window.vuedraggable },
@@ -191,10 +186,10 @@
             const expenses = ref([]);
             const hotels = ref({});
             
-            const form = ref({ id: null, name: '', time: '12:00', endTime: '', type: '', googleLink: '', amount: '', currency: 'EUR', note: '', dayDate: '' });
+            const form = ref({});
             const hotelForm = ref({ name: '', googleLink: '' });
 
-            const STORAGE_KEY = 'italy_final_fix_v1';
+            const STORAGE_KEY = 'italy_eng_v2_stable';
 
             onMounted(() => {
                 itinerary.value = JSON.parse(localStorage.getItem(STORAGE_KEY + '_i')) || [];
@@ -202,15 +197,20 @@
                 hotels.value = JSON.parse(localStorage.getItem(STORAGE_KEY + '_h')) || {};
             });
 
-            const saveToLocal = () => {
+            // Watchers for persistent storage
+            watch([itinerary, expenses, hotels], () => {
                 localStorage.setItem(STORAGE_KEY + '_i', JSON.stringify(itinerary.value));
                 localStorage.setItem(STORAGE_KEY + '_e', JSON.stringify(expenses.value));
                 localStorage.setItem(STORAGE_KEY + '_h', JSON.stringify(hotels.value));
-            };
+            }, { deep: true });
 
-            const filteredItineraryCount = computed(() => {
-                const currentDay = days[selectedDayIndex.value].date;
-                return itinerary.value.filter(i => i.dayDate === currentDay).length;
+            // CRITICAL FIX: Computed setter for draggable
+            const currentDayList = computed({
+                get: () => itinerary.value.filter(i => i.dayDate === days[selectedDayIndex.value].date),
+                set: (newList) => {
+                    const others = itinerary.value.filter(i => i.dayDate !== days[selectedDayIndex.value].date);
+                    itinerary.value = [...others, ...newList];
+                }
             });
 
             const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', googleLink: '' });
@@ -225,58 +225,34 @@
 
             const openAddModal = () => {
                 isEditing.value = false;
-                form.value = { id: null, name: '', time: '12:00', endTime: '', type: '', googleLink: '', amount: '', currency: 'EUR', note: '', dayDate: days[selectedDayIndex.value].date };
+                form.value = { id: Date.now(), name: '', time: '12:00', endTime: '', type: '', googleLink: '', amount: '', currency: 'EUR', note: '', dayDate: days[selectedDayIndex.value].date };
                 showModal.value = true;
             };
 
-            const editItem = (item) => {
-                isEditing.value = true;
-                form.value = { ...item };
-                showModal.value = true;
-            };
-
-            const editExpense = (ex) => {
-                currentTab.value = 'expense';
-                editItem(ex);
-            };
+            const editItem = (item) => { isEditing.value = true; form.value = { ...item }; showModal.value = true; };
+            const editExpense = (ex) => { currentTab.value = 'expense'; editItem(ex); };
 
             const handleSave = () => {
                 if (!form.value.name) return;
-                
-                if (currentTab.value === 'itinerary') {
-                    if (isEditing.value) {
-                        const idx = itinerary.value.findIndex(i => i.id === form.value.id);
-                        if (idx !== -1) itinerary.value[idx] = { ...form.value };
-                    } else {
-                        itinerary.value.push({ ...form.value, id: Date.now() });
-                    }
+                const list = currentTab.value === 'itinerary' ? itinerary : expenses;
+                const idx = list.value.findIndex(i => i.id === form.value.id);
+                if (idx !== -1) {
+                    list.value[idx] = { ...form.value };
                 } else {
-                    if (isEditing.value) {
-                        const idx = expenses.value.findIndex(i => i.id === form.value.id);
-                        if (idx !== -1) expenses.value[idx] = { ...form.value };
-                    } else {
-                        expenses.value.push({ ...form.value, id: Date.now() });
-                    }
+                    list.value.push({ ...form.value });
                 }
-                
                 showModal.value = false;
-                saveToLocal();
             };
 
             const openHotelModal = () => { hotelForm.value = { ...currentDayHotel.value }; showHotelModal.value = true; };
-            const saveHotel = () => {
-                hotels.value[days[selectedDayIndex.value].date] = { ...hotelForm.value };
-                showHotelModal.value = false;
-                saveToLocal();
-            };
-
-            const removeItem = (id) => { itinerary.value = itinerary.value.filter(i => i.id !== id); saveToLocal(); };
-            const removeExpense = (id) => { expenses.value = expenses.value.filter(e => e.id !== id); saveToLocal(); };
+            const saveHotel = () => { hotels.value[days[selectedDayIndex.value].date] = { ...hotelForm.value }; showHotelModal.value = false; };
+            const removeItem = (id) => itinerary.value = itinerary.value.filter(i => i.id !== id);
+            const removeExpense = (id) => expenses.value = expenses.value.filter(e => e.id !== id);
 
             return {
                 currentTab, days, selectedDayIndex, itinerary, expenses, hotels, shouldShowHotel, isEditing,
-                currentDayHotel, showModal, showHotelModal, form, hotelForm, filteredItineraryCount,
-                totalHKD, totalEUR, totalGBP, openAddModal, editItem, editExpense, handleSave, openHotelModal, saveHotel, removeItem, removeExpense, saveToLocal
+                currentDayHotel, showModal, showHotelModal, form, hotelForm, currentDayList,
+                totalHKD, totalEUR, totalGBP, openAddModal, editItem, editExpense, handleSave, openHotelModal, saveHotel, removeItem, removeExpense
             };
         }
     }).mount('#app');
