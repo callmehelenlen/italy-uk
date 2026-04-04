@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,20 +10,28 @@
     <style>
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
-        body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #FDFBF7; font-family: -apple-system, sans-serif; margin: 0; }
+        
         .banner { height: 320px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 30px 60px 30px; }
-        .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.7) 100%); }
-        .main-card { margin-top: -40px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 20px; box-shadow: 0 -15px 40px rgba(0,0,0,0.08); }
+        .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.8) 100%); }
+        
+        .main-card { margin-top: -45px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 20px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
+        
         .tab-btn { width: 58px; height: 58px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: white; color: #E5E7EB; box-shadow: 0 8px 20px rgba(0,0,0,0.06); font-size: 20px; }
         .tab-btn.active { background: var(--italy-red); color: white; }
-        .day-pill { flex-shrink: 0; width: 52px; padding: 12px 0; border-radius: 18px; text-align: center; cursor: pointer; }
-        .day-pill.active { background: var(--italy-red); color: white; box-shadow: 0 8px 15px rgba(139,0,0,0.25); }
+
+        .day-pill { flex-shrink: 0; width: 55px; padding: 12px 0; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .day-pill.active { background: var(--italy-red); color: white; box-shadow: 0 10px 20px rgba(139,0,0,0.3); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .item-card { border-left: 4px solid var(--italy-gold); border-radius: 20px; background: #fff; margin-bottom: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #F3F4F6; }
-        .fab { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: var(--italy-red); border-radius: 20px; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; box-shadow: 0 10px 25px rgba(139,0,0,0.3); border: none; }
+
+        .item-card { border-left: 5px solid var(--italy-gold); border-radius: 20px; background: #fff; margin-bottom: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #F3F4F6; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .fab { position: fixed; bottom: 35px; right: 25px; width: 65px; height: 65px; background: var(--italy-red); border-radius: 22px; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 100; box-shadow: 0 12px 30px rgba(139,0,0,0.4); border: none; outline: none; }
     </style>
 </head>
 <body>
+
 <div id="app" v-cloak>
     <div class="banner">
         <div class="relative z-10">
@@ -33,87 +41,115 @@
     </div>
 
     <div class="main-card">
-        <div class="flex justify-center gap-5 -mt-12 mb-8 relative z-20">
+        <div class="flex justify-center gap-6 -mt-12 mb-10 relative z-20">
             <button @click="currentTab = 'itinerary'" :class="{active: currentTab === 'itinerary'}" class="tab-btn"><i class="fa-solid fa-map"></i></button>
             <button @click="currentTab = 'expense'" :class="{active: currentTab === 'expense'}" class="tab-btn"><i class="fa-solid fa-receipt"></i></button>
         </div>
 
-        <div v-if="currentTab === 'itinerary'">
-            <div class="flex space-x-3 overflow-x-auto mb-8 pb-2 no-scrollbar">
-                <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
-                     :class="['day-pill', selectedDayIndex === index ? 'active' : 'bg-stone-50 text-stone-300']">
-                    <div class="text-[9px] font-bold">{{ day.weekday }}</div>
-                    <div class="text-lg font-black">{{ day.date }}</div>
+        <div v-if="currentTab === 'itinerary'" class="flex space-x-3 overflow-x-auto mb-10 pb-4 no-scrollbar">
+            <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
+                 :class="['day-pill', selectedDayIndex === index ? 'active' : 'bg-stone-50 text-stone-300']">
+                <div class="text-[10px] font-bold">{{ day.weekday }}</div>
+                <div class="text-xl font-black">{{ day.date }}</div>
+            </div>
+        </div>
+
+        <div v-if="currentTab === 'itinerary'" class="space-y-4">
+            <div v-for="item in currentDayPlans" :key="item.id" @click="editItem(item)" class="item-card">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="bg-red-50 text-[#8B0000] px-3 py-1 rounded-lg font-black text-xs">{{ item.time }}</span>
+                    <button @click.stop="removeItem(item.id)" class="text-stone-200 hover:text-red-500 transition-colors"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
                 </div>
+                <div class="font-black text-gray-800 text-xl leading-tight">{{ item.name }}</div>
+                <div v-if="item.note" class="text-gray-400 text-sm mt-3 border-t pt-3 border-gray-50">{{ item.note }}</div>
             </div>
 
-            <div class="space-y-4">
-                <div v-for="item in currentDayPlans" :key="item.id" @click="editItem(item)" class="item-card">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="bg-red-50 text-[#8B0000] px-2 py-0.5 rounded-lg font-black text-[11px]">{{ item.time }}</span>
-                        <button @click.stop="removeItem(item.id)" class="text-stone-200 hover:text-red-400"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                    <div class="font-black text-gray-800 text-lg">{{ item.name }}</div>
-                    <div v-if="item.note" class="text-gray-400 text-xs mt-2">{{ item.note }}</div>
-                </div>
-
-                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 italic font-bold text-stone-400">
-                    <i class="fa-solid fa-feather-pointed block text-3xl mb-2"></i>
-                    No plans for May {{ days[selectedDayIndex].date }}
-                </div>
+            <div v-if="currentDayPlans.length === 0" class="text-center py-24 opacity-30 italic font-bold text-stone-400">
+                <i class="fa-solid fa-feather-pointed block text-4xl mb-3"></i>
+                No plans for May {{ days[selectedDayIndex].date }}
             </div>
         </div>
     </div>
 
-    <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
+    <button class="fab active:scale-90 transition-transform" @click="openAddModal">
+        <i class="fa-solid fa-plus"></i>
+    </button>
 
-    <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/60 backdrop-blur-sm">
-        <div class="bg-white w-full p-8 rounded-t-[40px]">
-            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit' : 'Add' }} Plan (May {{ days[selectedDayIndex].date }})</h3>
-            <div class="space-y-4">
-                <input v-model="form.name" placeholder="Location Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
-                <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
-                <textarea v-model="form.note" placeholder="Notes" class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none"></textarea>
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black">SAVE</button>
-                <button @click="showModal = false" class="w-full py-2 text-stone-400 font-bold text-sm">Cancel</button>
+    <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/70 backdrop-blur-sm">
+        <div class="bg-white w-full p-8 rounded-t-[40px] shadow-2xl">
+            <div class="w-12 h-1.5 bg-gray-100 rounded-full mx-auto mb-8"></div>
+            <h3 class="font-black text-2xl mb-8 text-gray-800">
+                {{ isEditing ? 'Edit' : 'Add' }} Plan (May {{ days[selectedDayIndex].date }})
+            </h3>
+            
+            <div class="space-y-5">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-400 ml-2 uppercase">Location Name</label>
+                    <input v-model="form.name" placeholder="Where to go?" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-red-100 transition-all">
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-400 ml-2 uppercase">Arrival Time</label>
+                    <input v-model="form.time" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-400 ml-2 uppercase">Notes</label>
+                    <textarea v-model="form.note" placeholder="Any details..." class="w-full p-5 bg-gray-50 rounded-2xl h-32 outline-none"></textarea>
+                </div>
+
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">SAVE</button>
+                <button @click="showModal = false" class="w-full py-2 text-stone-300 font-bold text-sm uppercase tracking-widest">Dismiss</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const { createApp, ref, computed, onMounted } = Vue;
+    const { createApp, ref, computed, onMounted, watch } = Vue;
+
     createApp({
         setup() {
             const currentTab = ref('itinerary');
             const showModal = ref(false);
             const isEditing = ref(false);
-            const selectedDayIndex = ref(1); // 預設 5/15
+            const selectedDayIndex = ref(0); // 預設 5/14
             const itinerary = ref([]);
+            
             const days = [
                 { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' }, { date: '16', weekday: 'SAT' },
                 { date: '17', weekday: 'SUN' }, { date: '18', weekday: 'MON' }, { date: '19', weekday: 'TUE' },
                 { date: '20', weekday: 'WED' }, { date: '21', weekday: 'THU' }, { date: '22', weekday: 'FRI' },
                 { date: '23', weekday: 'SAT' }, { date: '24', weekday: 'SUN' }, { date: '25', weekday: 'MON' }
             ];
+
             const form = ref({ id: null, name: '', time: '12:00', note: '', dayDate: '' });
 
+            // 從瀏覽器載入資料
             onMounted(() => {
-                const saved = localStorage.getItem('tiramisu_v2');
-                if (saved) itinerary.value = JSON.parse(saved);
+                const saved = localStorage.getItem('tiramisu_final_v1');
+                if (saved) {
+                    itinerary.value = JSON.parse(saved);
+                }
             });
 
-            // 修正：確保 computed 屬性精確過濾
+            // 核心過濾器：只顯示選定日期的行程
             const currentDayPlans = computed(() => {
-                const activeDate = days[selectedDayIndex.value].date;
-                return itinerary.value.filter(p => p.dayDate === activeDate)
-                                     .sort((a, b) => a.time.localeCompare(b.time));
+                const targetDate = days[selectedDayIndex.value].date;
+                return itinerary.value
+                    .filter(p => p.dayDate === targetDate)
+                    .sort((a, b) => a.time.localeCompare(b.time));
             });
 
             const openAddModal = () => {
                 isEditing.value = false;
-                // 強制初始化時寫入當前日期
-                form.value = { id: null, name: '', time: '12:00', note: '', dayDate: days[selectedDayIndex.value].date };
+                form.value = { 
+                    id: null, 
+                    name: '', 
+                    time: '12:00', 
+                    note: '', 
+                    dayDate: days[selectedDayIndex.value].date 
+                };
                 showModal.value = true;
             };
 
@@ -124,29 +160,44 @@
             };
 
             const handleSave = () => {
-                if (!form.value.name) return;
-                
-                // 再次確認日期有被正確賦值
+                if (!form.value.name.trim()) {
+                    alert("Please enter a name!");
+                    return;
+                }
+
+                // 再次確保儲存時，日期標籤是正確的
                 form.value.dayDate = days[selectedDayIndex.value].date;
 
                 if (isEditing.value) {
                     const idx = itinerary.value.findIndex(p => p.id === form.value.id);
                     if (idx !== -1) itinerary.value[idx] = { ...form.value };
                 } else {
-                    itinerary.value.push({ ...form.value, id: Date.now() });
+                    itinerary.value.push({ 
+                        ...form.value, 
+                        id: Date.now() 
+                    });
                 }
+
+                // 關鍵：用解構賦值強制 Vue 更新
+                itinerary.value = [...itinerary.value];
                 
-                // 立即存檔並關閉彈窗
-                localStorage.setItem('tiramisu_v2', JSON.stringify(itinerary.value));
+                // 儲存到本地並關閉
+                localStorage.setItem('tiramisu_final_v1', JSON.stringify(itinerary.value));
                 showModal.value = false;
             };
 
             const removeItem = (id) => {
-                itinerary.value = itinerary.value.filter(p => p.id !== id);
-                localStorage.setItem('tiramisu_v2', JSON.stringify(itinerary.value));
+                if(confirm("Delete this plan?")) {
+                    itinerary.value = itinerary.value.filter(p => p.id !== id);
+                    localStorage.setItem('tiramisu_final_v1', JSON.stringify(itinerary.value));
+                }
             };
 
-            return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, form, isEditing, openAddModal, editItem, handleSave, removeItem };
+            return { 
+                currentTab, days, selectedDayIndex, currentDayPlans, 
+                showModal, form, isEditing, 
+                openAddModal, editItem, handleSave, removeItem 
+            };
         }
     }).mount('#app');
 </script>
