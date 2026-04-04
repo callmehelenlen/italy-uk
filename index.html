@@ -6,23 +6,21 @@
     <title>Sweet as Tiramisu</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuedraggable/4.1.0/vuedraggable.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
-        body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
         .banner { height: 320px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 30px 60px 30px; }
         .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.7) 100%); }
         .main-card { margin-top: -40px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 20px; box-shadow: 0 -15px 40px rgba(0,0,0,0.08); }
-        .tab-btn { width: 58px; height: 58px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: white; color: #E5E7EB; box-shadow: 0 8px 20px rgba(0,0,0,0.06); font-size: 20px; transition: all 0.3s ease; }
+        .tab-btn { width: 58px; height: 58px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: white; color: #E5E7EB; box-shadow: 0 8px 20px rgba(0,0,0,0.06); font-size: 20px; }
         .tab-btn.active { background: var(--italy-red); color: white; }
-        .day-pill { flex-shrink: 0; width: 52px; padding: 12px 0; border-radius: 18px; text-align: center; transition: all 0.2s ease; cursor: pointer; }
+        .day-pill { flex-shrink: 0; width: 52px; padding: 12px 0; border-radius: 18px; text-align: center; cursor: pointer; }
         .day-pill.active { background: var(--italy-red); color: white; box-shadow: 0 8px 15px rgba(139,0,0,0.25); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .item-card { border-left: 4px solid var(--italy-gold); border-radius: 20px; background: #fff; margin-bottom: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #F3F4F6; }
-        .fab { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: var(--italy-red); border-radius: 20px; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; box-shadow: 0 10px 25px rgba(139,0,0,0.3); border: none; outline: none; }
+        .fab { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: var(--italy-red); border-radius: 20px; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; box-shadow: 0 10px 25px rgba(139,0,0,0.3); border: none; }
     </style>
 </head>
 <body>
@@ -55,7 +53,7 @@
                         <span class="bg-red-50 text-[#8B0000] px-2 py-0.5 rounded-lg font-black text-[11px]">{{ item.time }}</span>
                         <button @click.stop="removeItem(item.id)" class="text-stone-200 hover:text-red-400"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="font-black text-gray-800 text-lg leading-tight">{{ item.name }}</div>
+                    <div class="font-black text-gray-800 text-lg">{{ item.name }}</div>
                     <div v-if="item.note" class="text-gray-400 text-xs mt-2">{{ item.note }}</div>
                 </div>
 
@@ -65,25 +63,18 @@
                 </div>
             </div>
         </div>
-
-        <div v-if="currentTab === 'expense'">
-            <div class="bg-stone-900 text-white p-8 rounded-[35px] mb-6 text-center">
-                <div class="text-[10px] uppercase opacity-40 mb-1 font-bold">Estimated Total</div>
-                <div class="text-4xl font-black italic">HK$ {{ totalHKD }}</div>
-            </div>
-            </div>
     </div>
 
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/60 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[40px]">
-            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit Plan' : 'Add Plan (May ' + days[selectedDayIndex].date + ')' }}</h3>
+            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit' : 'Add' }} Plan (May {{ days[selectedDayIndex].date }})</h3>
             <div class="space-y-4">
                 <input v-model="form.name" placeholder="Location Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
                 <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
                 <textarea v-model="form.note" placeholder="Notes" class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none"></textarea>
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-xl">SAVE</button>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black">SAVE</button>
                 <button @click="showModal = false" class="w-full py-2 text-stone-400 font-bold text-sm">Cancel</button>
             </div>
         </div>
@@ -108,39 +99,54 @@
             const form = ref({ id: null, name: '', time: '12:00', note: '', dayDate: '' });
 
             onMounted(() => {
-                itinerary.value = JSON.parse(localStorage.getItem('tiramisu_plans')) || [];
+                const saved = localStorage.getItem('tiramisu_v2');
+                if (saved) itinerary.value = JSON.parse(saved);
             });
 
-            // 重要：過濾當前選中日期的行程
+            // 修正：確保 computed 屬性精確過濾
             const currentDayPlans = computed(() => {
                 const activeDate = days[selectedDayIndex.value].date;
-                return itinerary.value.filter(p => p.dayDate === activeDate).sort((a, b) => a.time.localeCompare(b.time));
+                return itinerary.value.filter(p => p.dayDate === activeDate)
+                                     .sort((a, b) => a.time.localeCompare(b.time));
             });
 
             const openAddModal = () => {
                 isEditing.value = false;
+                // 強制初始化時寫入當前日期
                 form.value = { id: null, name: '', time: '12:00', note: '', dayDate: days[selectedDayIndex.value].date };
+                showModal.value = true;
+            };
+
+            const editItem = (item) => {
+                isEditing.value = true;
+                form.value = { ...item };
                 showModal.value = true;
             };
 
             const handleSave = () => {
                 if (!form.value.name) return;
+                
+                // 再次確認日期有被正確賦值
+                form.value.dayDate = days[selectedDayIndex.value].date;
+
                 if (isEditing.value) {
                     const idx = itinerary.value.findIndex(p => p.id === form.value.id);
-                    itinerary.value[idx] = { ...form.value };
+                    if (idx !== -1) itinerary.value[idx] = { ...form.value };
                 } else {
                     itinerary.value.push({ ...form.value, id: Date.now() });
                 }
-                localStorage.setItem('tiramisu_plans', JSON.stringify(itinerary.value));
+                
+                // 立即存檔並關閉彈窗
+                localStorage.setItem('tiramisu_v2', JSON.stringify(itinerary.value));
                 showModal.value = false;
             };
 
             const removeItem = (id) => {
                 itinerary.value = itinerary.value.filter(p => p.id !== id);
-                localStorage.setItem('tiramisu_plans', JSON.stringify(itinerary.value));
+                localStorage.setItem('tiramisu_v2', JSON.stringify(itinerary.value));
             };
 
-            return { currentTab, days, selectedDayIndex, itinerary, currentDayPlans, showModal, form, isEditing, openAddModal, handleSave, removeItem };
+            return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, form, isEditing, openAddModal, editItem, handleSave, removeItem };
         }
     }).mount('#app');
 </script>
