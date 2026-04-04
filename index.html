@@ -64,7 +64,7 @@
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 bg-white rounded-full flex items-center justify-center text-red-800 shadow-sm"><i class="fa-solid fa-hotel"></i></div>
                     <div>
-                        <div class="text-[9px] font-black text-red-500 uppercase tracking-widest">Tonight's Accommodation</div>
+                        <div class="text-[9px] font-black text-red-500 uppercase tracking-widest">Accommodation</div>
                         <div class="font-black text-gray-800 text-lg leading-tight">{{ currentStay.name }}</div>
                     </div>
                 </div>
@@ -113,10 +113,10 @@
             <div class="flex gap-2 overflow-x-auto mb-6 no-scrollbar pb-2">
                 <div v-for="city in cities" :key="city" @click="selectedCity = city" :class="['city-tag', selectedCity === city ? 'active' : '']">{{ city }}</div>
             </div>
-            <div class="w-full h-56 bg-gray-100 rounded-[30px] mb-8 overflow-hidden relative shadow-inner border-4 border-white">
+            <div class="w-full h-64 bg-gray-100 rounded-[30px] mb-8 overflow-hidden relative shadow-inner border-4 border-white">
                 <iframe v-if="cityMapLinks[selectedCity]" class="w-full h-full" :src="cityMapLinks[selectedCity]" frameborder="0"></iframe>
                 <div v-else class="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300 font-black text-[10px] uppercase tracking-widest px-10 text-center italic">
-                    Map Preview for {{ selectedCity }} Loading...
+                    Loading Map...
                 </div>
             </div>
             <div class="space-y-4">
@@ -127,7 +127,7 @@
                         <button @click="removeItem(bm.id, 'bookmarks')" class="text-stone-200 text-lg"><i class="fa-solid fa-circle-xmark"></i></button>
                     </div>
                 </div>
-                <div v-if="filteredBookmarks.length === 0" class="text-center py-10 text-gray-300 font-bold uppercase text-[10px] tracking-widest">No list items for {{ selectedCity }}</div>
+                <div v-if="filteredBookmarks.length === 0" class="text-center py-10 text-gray-300 font-bold uppercase text-[10px] tracking-widest">Empty List</div>
             </div>
         </div>
 
@@ -161,14 +161,14 @@
                 <div class="grid grid-cols-6 gap-2">
                     <div v-for="cat in ['Spot', 'Food', 'Shop', 'Flight', 'Stay', 'Train']" :key="cat" @click="form.category = cat" :class="['p-3 rounded-xl border-2 text-center transition-all', form.category === cat ? 'border-indigo-600 bg-indigo-50 text-indigo-600 font-black' : 'border-gray-50 text-gray-300 font-bold']"><i :class="['fa-solid', getCategoryIcon(cat)]" class="text-lg"></i></div>
                 </div>
-                <input v-model="form.category" placeholder="Custom category..." class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 shadow-inner">
+                <input v-model="form.category" placeholder="Custom category..." class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100">
                 <input v-model="form.name" placeholder="Title" class="w-full p-5 bg-gray-100 rounded-2xl font-black outline-none text-lg">
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="text-[9px] font-black ml-2 text-gray-400">START</label><input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 shadow-inner"></div>
-                    <div><label class="text-[9px] font-black ml-2 text-gray-400">END</label><input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 shadow-inner"></div>
+                    <div><label class="text-[9px] font-black ml-2 text-gray-400">START</label><input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100"></div>
+                    <div><label class="text-[9px] font-black ml-2 text-gray-400">END</label><input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100"></div>
                 </div>
-                <textarea v-model="form.note" placeholder="Notes... (e.g. 15-24 for range)" class="w-full p-5 bg-gray-50 rounded-2xl h-24 font-bold text-sm outline-none border border-gray-100"></textarea>
-                <input v-model="form.link" placeholder="Map URL" class="w-full p-5 bg-gray-50 rounded-2xl text-xs outline-none border border-gray-100 shadow-inner">
+                <textarea v-model="form.note" placeholder="Notes..." class="w-full p-5 bg-gray-50 rounded-2xl h-24 font-bold text-sm outline-none border border-gray-100"></textarea>
+                <input v-model="form.link" placeholder="Map URL" class="w-full p-5 bg-gray-50 rounded-2xl text-xs outline-none border border-gray-100">
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-2xl font-black shadow-xl mt-4 uppercase">Save Plan</button>
                 <button @click="showModal = false" class="w-full py-2 text-stone-300 font-black text-center text-sm">Cancel</button>
             </div>
@@ -180,8 +180,8 @@
             <h3 class="font-black text-2xl mb-8 text-center">Expense Detail</h3>
             <div class="space-y-5">
                 <div class="grid grid-cols-3 gap-3"><button v-for="c in ['HKD', 'EUR', 'GBP']" :key="c" @click="exForm.currency = c" :class="['py-4 rounded-2xl font-black text-xs border-2', exForm.currency === c ? 'border-black bg-black text-white' : 'border-gray-50 text-gray-400']">{{ c }}</button></div>
-                <input v-model.number="exForm.amount" type="number" placeholder="0.00" class="w-full p-5 bg-gray-50 rounded-2xl font-black text-3xl text-center outline-none border border-gray-100 shadow-inner">
-                <input v-model="exForm.name" placeholder="What did we buy?" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 shadow-inner">
+                <input v-model.number="exForm.amount" type="number" placeholder="0.00" class="w-full p-5 bg-gray-50 rounded-2xl font-black text-3xl text-center outline-none border border-gray-100">
+                <input v-model="exForm.name" placeholder="Description" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100">
                 <button @click="handleSaveExpense" class="w-full bg-black text-white py-6 rounded-2xl font-black shadow-xl uppercase mt-4">Save Expense</button>
                 <button @click="showExpenseModal = false" class="w-full py-2 text-stone-300 font-black text-center text-sm">Cancel</button>
             </div>
@@ -195,9 +195,9 @@
                 <div class="flex overflow-x-auto gap-2 no-scrollbar mb-2">
                     <div v-for="cat in ['Food', 'Bar', 'Shop', 'View', 'Souvenir']" :key="cat" @click="bmForm.category = cat" :class="['px-5 py-3 rounded-xl border-2 text-[10px] font-black', bmForm.category === cat ? 'border-black bg-black text-white' : 'border-gray-50 text-gray-300']">{{ cat }}</div>
                 </div>
-                <input v-model="bmForm.name" placeholder="Store Name" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 shadow-inner">
-                <input v-model="bmForm.link" placeholder="Google Maps Link" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 text-xs shadow-inner">
-                <button @click="saveBookmark" class="w-full bg-black text-white py-6 rounded-2xl font-black shadow-xl uppercase">Add to {{ selectedCity }}</button>
+                <input v-model="bmForm.name" placeholder="Store Name" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100">
+                <input v-model="bmForm.link" placeholder="Map Link" class="w-full p-5 bg-gray-50 rounded-2xl font-black outline-none border border-gray-100 text-xs">
+                <button @click="saveBookmark" class="w-full bg-black text-white py-6 rounded-2xl font-black shadow-xl uppercase">Add Bookmark</button>
                 <button @click="showBookmarkModal = false" class="w-full py-2 text-stone-300 font-black text-center text-sm">Cancel</button>
             </div>
         </div>
@@ -209,7 +209,7 @@
             <div class="grid grid-cols-5 gap-2 mb-6">
                 <div v-for="m in ['walk', 'bus', 'train', 'taxi', 'plane']" :key="m" @click="transitForm.mode = m" :class="['p-4 rounded-2xl border-2 text-center transition-all', transitForm.mode === m ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-gray-50 text-gray-400']"><i :class="['fa-solid', getTransitIcon(m)]" class="text-xl"></i></div>
             </div>
-            <input v-model="transitForm.remark" placeholder="e.g. 15 mins Walk" class="w-full p-5 bg-gray-50 rounded-2xl font-bold mb-8 text-center outline-none border border-gray-100 shadow-inner">
+            <input v-model="transitForm.remark" placeholder="e.g. 15 mins Walk" class="w-full p-5 bg-gray-50 rounded-2xl font-bold mb-8 text-center outline-none border border-gray-100">
             <button @click="saveTransit" class="w-full bg-black text-white py-5 rounded-2xl font-black shadow-xl">Update Route</button>
         </div>
     </div>
@@ -228,11 +228,11 @@
             const days = [{ date:'14', weekday:'THU' },{ date:'15', weekday:'FRI' },{ date:'16', weekday:'SAT' },{ date:'17', weekday:'SUN' },{ date:'18', weekday:'MON' },{ date:'19', weekday:'TUE' },{ date:'20', weekday:'WED' },{ date:'21', weekday:'THU' },{ date:'22', weekday:'FRI' },{ date:'23', weekday:'SAT' },{ date:'24', weekday:'SUN' },{ date:'25', weekday:'MON' }];
             const cities = ['Rome', 'Florence', 'Tuscany', 'Pisa', 'La Spezia', 'Cinque Terre', 'Milan', 'York', 'London'];
             
-            // Your custom Map links
+            // Your Fixed Map Links
             const cityMapLinks = ref({
                 'Rome': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2969.833503259838!2d12.4963655!3d41.8902102!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132f604f67d3743b%3A0x62779836338d458c!2sColosseum!5e0!3m2!1sen!2shk!4v1712210000000!5m2!1sen!2shk',
                 'Florence': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2881.082531398865!2d11.2558888!3d43.7731451!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132a54030635905d%3A0xe541604a8b8f2c69!2sCathedral%20of%20Santa%20Maria%20del%20Fiore!5e0!3m2!1sen!2shk!4v1712210000001!5m2!1sen!2shk',
-                'Tuscany': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d184499.78204212582!2d11.1396825!3d43.4143243!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x13296068222638f3%3A0xa19c1e600570f7e6!2sVal%20d&#39;Orcia!5e0!3m2!1sen!2shk!4v1712210000002!5m2!1sen!2shk',
+                'Tuscany': 'https://www.google.com/maps/d/3',
                 'Pisa': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2881.9841804936357!2d10.3944083!3d43.722952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12d591a27e7f9f75%3A0x6b7713d80a1f057c!2sLeaning%20Tower%20of%20Pisa!5e0!3m2!1sen!2shk!4v1712210000003!5m2!1sen!2shk',
                 'La Spezia': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2864.44436585141!2d9.8240833!3d44.1105556!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12d4fb3a0c4f699d%3A0x10d10c0e5a8f4c0!2sLa%20Spezia%20Centrale!5e0!3m2!1sen!2shk!4v1712210000004!5m2!1sen!2shk',
                 'Cinque Terre': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d183884.22384212582!2d9.6963243!3d44.1275243!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12d4f0c7659695d7%3A0x10d10c0e5a8f4c0!2sCinque%20Terre!5e0!3m2!1sen!2shk!4v1712210000005!5m2!1sen!2shk',
