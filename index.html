@@ -23,10 +23,8 @@
         .day-pill.active { background: var(--italy-red); color: white; box-shadow: 0 8px 15px rgba(139,0,0,0.25); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Activity Card */
         .item-card { border-left: 4px solid var(--italy-gold); border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         
-        /* Transit Area */
         .transit-container { margin: 4px 0 4px 32px; padding: 4px 0 4px 20px; border-left: 2px dashed #F3F4F6; position: relative; min-height: 24px; display: flex; align-items: center; }
         .transit-trigger { opacity: 0.15; color: #9CA3AF; font-size: 12px; cursor: pointer; transition: 0.3s; padding: 5px; }
         .transit-text-badge { background: #F8FAFC; color: #64748b; padding: 6px 14px; border-radius: 12px; font-size: 11px; font-weight: 700; border: 1px solid #F1F5F9; display: flex; align-items: center; gap: 6px; }
@@ -35,7 +33,7 @@
         .hotel-box { background: #FAF9F6; border: 1px dashed #E5E0D8; padding: 18px; border-radius: 25px; margin-bottom: 25px; cursor: pointer; }
         .fab { position: fixed; bottom: 30px; right: 25px; width: 64px; height: 64px; background: var(--italy-red); border-radius: 22px; color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; z-index: 100; box-shadow: 0 10px 25px rgba(139,0,0,0.3); border: none; }
         
-        .cat-chip { border: 2px solid #F3F4F6; transition: 0.3s; cursor: pointer; }
+        .cat-chip { border: 2px solid #F3F4F6; transition: 0.2s; cursor: pointer; background: #fff; }
         .cat-chip.active { border-color: var(--italy-red); background: #FFF5F5; color: var(--italy-red); }
     </style>
 </head>
@@ -113,27 +111,35 @@
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/60 backdrop-blur-sm">
-        <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[95vh] overflow-y-auto">
             <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit Spot' : 'New Spot' }}</h3>
+            
             <div class="space-y-5">
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">Category</label>
-                    <div class="grid grid-cols-4 gap-2">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Category</label>
+                    <div class="grid grid-cols-4 gap-2 mb-3">
                         <div v-for="cat in ['Spot', 'Food', 'Shop', 'Flight']" :key="cat"
                              @click="form.category = cat"
-                             :class="['cat-chip py-3 rounded-2xl text-center transition-all', form.category === cat ? 'active' : 'bg-gray-50 text-gray-400']">
-                            <i :class="getCategoryIcon(cat)" class="block mb-1 text-sm"></i>
-                            <span class="text-[9px] font-black uppercase tracking-tighter">{{ cat }}</span>
+                             :class="['cat-chip py-2.5 rounded-xl text-center', form.category === cat ? 'active shadow-sm' : 'text-gray-400']">
+                            <i :class="getCategoryIcon(cat)" class="block mb-1 text-xs"></i>
+                            <span class="text-[8px] font-black uppercase tracking-tighter">{{ cat }}</span>
                         </div>
                     </div>
+                    <input v-model="form.category" placeholder="Or type custom category (e.g. Drop Bag)" 
+                           class="w-full p-3 bg-gray-50 rounded-xl font-bold border-none outline-none text-sm placeholder:text-gray-300 text-stone-600 italic">
                 </div>
-                <input v-model="form.name" placeholder="Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+
+                <input v-model="form.name" placeholder="Place Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+                
                 <div class="grid grid-cols-2 gap-3">
                     <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none">
                     <input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none">
                 </div>
+                
                 <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-blue-600 text-xs border-none">
-                <textarea v-model="form.note" placeholder="Note..." class="w-full p-4 bg-gray-50 rounded-2xl h-28 border-none"></textarea>
+                
+                <textarea v-model="form.note" placeholder="Note..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 border-none outline-none text-sm"></textarea>
+                
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black text-lg">CONFIRM</button>
                 <button @click="showModal = false" class="w-full py-2 text-stone-300 font-bold mt-2">Cancel</button>
             </div>
@@ -210,8 +216,7 @@
             });
 
             const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', link: '' });
-
-            const isGoogleMapsLink = (text) => text && (text.includes('maps.google.com') || text.includes('goo.gl/maps'));
+            const isGoogleMapsLink = (text) => text && (text.includes('maps.google.com') || text.includes('goo.gl/maps') || text.includes('maps.app.goo.gl'));
 
             const openAddModal = () => {
                 isEditing.value = false;
@@ -246,9 +251,16 @@
                 showHotelModal.value = false;
             };
 
+            // 圖標自動匹配邏輯
             const getCategoryIcon = (cat) => {
-                const icons = { 'Food': 'fa-solid fa-utensils', 'Flight': 'fa-solid fa-plane', 'Spot': 'fa-solid fa-camera', 'Shop': 'fa-solid fa-bag-shopping' };
-                return icons[cat] || 'fa-solid fa-location-dot';
+                if (!cat) return 'fa-solid fa-location-dot';
+                const lowerCat = cat.toLowerCase();
+                if (lowerCat.includes('food') || lowerCat.includes('eat') || lowerCat.includes('dinner')) return 'fa-solid fa-utensils';
+                if (lowerCat.includes('flight') || lowerCat.includes('fly') || lowerCat.includes('airport')) return 'fa-solid fa-plane';
+                if (lowerCat.includes('shop')) return 'fa-solid fa-bag-shopping';
+                if (lowerCat.includes('spot') || lowerCat.includes('visit')) return 'fa-solid fa-camera';
+                if (lowerCat.includes('bag') || lowerCat.includes('hotel') || lowerCat.includes('check')) return 'fa-solid fa-suitcase';
+                return 'fa-solid fa-location-dot';
             };
 
             return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, showHotelModal, showTransitModal, form, hotelForm, transitText, isEditing, currentDayHotel, openAddModal, handleSave, removeItem, editItem, openHotelModal, saveHotel, getCategoryIcon, openTransitModal, saveTransit, isGoogleMapsLink };
