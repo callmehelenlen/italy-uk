@@ -128,10 +128,8 @@
                     <div v-if="shouldShowTransit(index)" class="transit-connector">
                         <div @click="openRoute(item, currentDayPlans[index+1])" class="flex items-center justify-between bg-stone-50/80 rounded-2xl p-3 pr-4 border border-stone-100 active:bg-stone-100 transition-colors cursor-pointer">
                             <div class="flex flex-col">
-                                <div class="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-0.5">Route Guide</div>
-                                <div class="text-[11px] font-bold text-gray-500 flex items-center gap-1">
-                                    <span>Precise Link Navigation</span>
-                                </div>
+                                <div class="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-0.5">Precise Navigation</div>
+                                <div class="text-[11px] font-bold text-gray-500">Route from Link Locations</div>
                             </div>
                             <div class="flex items-center gap-2 text-[10px] font-black text-blue-600 bg-white px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm">
                                 <i class="fa-solid fa-route"></i> DIRECTIONS
@@ -139,7 +137,6 @@
                         </div>
                     </div>
                 </template>
-                
                 <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 italic font-bold uppercase tracking-widest">No plans yet</div>
             </div>
         </div>
@@ -170,28 +167,28 @@
 
     <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl">
-            <h3 class="font-black text-2xl mb-6 text-gray-800">Set Accommodation</h3>
+            <h3 class="font-black text-2xl mb-6">Set Accommodation</h3>
             <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none mb-4">
-            <input v-model="hotelForm.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none border-none text-blue-600 mb-6">
+            <input v-model="hotelForm.link" placeholder="Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none border-none text-blue-600 mb-6">
             <button @click="saveHotel" class="w-full bg-black text-white py-5 rounded-2xl font-black">CONFIRM</button>
-            <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold text-sm mt-2 text-center block">Cancel</button>
+            <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold mt-2">Cancel</button>
         </div>
     </div>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/70 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[50px] max-h-[92vh] overflow-y-auto">
-            <h3 class="font-black text-2xl mb-8 text-gray-800">{{ isEditing ? 'Edit Activity' : 'New Activity' }}</h3>
+            <h3 class="font-black text-2xl mb-8">{{ isEditing ? 'Edit Activity' : 'New Activity' }}</h3>
             <div class="space-y-5">
-                <input v-model="form.name" placeholder="Where to go?" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none text-lg">
+                <input v-model="form.name" placeholder="Where to go?" class="w-full p-5 bg-gray-50 rounded-2xl font-bold border-none text-lg">
                 <div class="grid grid-cols-2 gap-4">
-                    <input v-model="form.time" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none">
-                    <input v-model="form.endTime" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none">
+                    <input v-model="form.time" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold border-none">
+                    <input v-model="form.endTime" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold border-none">
                 </div>
-                <input v-model="form.category" placeholder="Category" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none">
-                <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none text-blue-600 text-sm">
-                <textarea v-model="form.note" placeholder="Notes..." class="w-full p-5 bg-gray-50 rounded-2xl h-32 outline-none border-none"></textarea>
+                <input v-model="form.category" placeholder="Category" class="w-full p-5 bg-gray-50 rounded-2xl font-bold border-none">
+                <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-5 bg-gray-50 rounded-2xl text-blue-600 text-sm border-none">
+                <textarea v-model="form.note" placeholder="Notes..." class="w-full p-5 bg-gray-50 rounded-2xl h-32 border-none"></textarea>
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-3xl font-black">SAVE</button>
-                <button @click="showModal = false" class="w-full py-4 text-stone-400 font-bold uppercase text-xs text-center block">Close</button>
+                <button @click="showModal = false" class="w-full py-4 text-stone-400 font-bold text-center block uppercase text-xs">Close</button>
             </div>
         </div>
     </div>
@@ -280,13 +277,13 @@
                 return current && next && (current.link || current.name) && (next.link || next.name);
             };
 
-            // 精確導航邏輯：優先使用 Link
+            // 關鍵修正：精確導航邏輯
             const openRoute = (from, to) => {
+                // 如果有 Link 就傳遞 Link，否則傳遞名稱
                 const origin = from.link ? from.link : from.name;
                 const destination = to.link ? to.link : to.name;
                 
-                // Google Maps Directions URL
-                // 如果是網址，它會嘗試解析地點；如果是文字，它會搜尋
+                // 使用 Google Maps Web 協議，這種方式最能相容長連結
                 const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
                 window.open(url, '_blank');
             };
