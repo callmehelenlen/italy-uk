@@ -14,28 +14,35 @@
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; --transit-blue: #4F46E5; }
         body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; color: #1F2937; }
         
-        .banner { height: 260px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 25px 50px 25px; }
+        /* Banner 修正 */
+        .banner { height: 280px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 25px 40px 25px; }
         .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
         
         .main-card { margin-top: -30px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 25px 20px 120px 20px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
         
-        .tab-btn { padding: 10px 24px; border-radius: 15px; font-weight: 800; font-size: 13px; transition: 0.3s; }
-        .tab-btn.active { background: var(--italy-red); color: white; box-shadow: 0 5px 15px rgba(139,0,0,0.2); }
+        /* 分頁按鈕樣式 */
+        .tab-btn { padding: 8px 20px; border-radius: 12px; font-weight: 800; font-size: 12px; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); }
+        .tab-btn.active { background: var(--italy-red); color: white; border-color: var(--italy-red); box-shadow: 0 5px 15px rgba(139,0,0,0.3); }
         
         .day-pill.active { background: var(--italy-red); color: white; box-shadow: 0 8px 15px rgba(139,0,0,0.25); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        .item-card { border-left: 4px solid var(--italy-gold); border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; }
+        /* 行程卡片 */
+        .item-card { border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; position: relative; }
+        .item-card::before { content: ''; position: absolute; left: 0; top: 20px; bottom: 20px; width: 4px; background: var(--italy-gold); border-radius: 0 4px 4px 0; }
 
-        /* Transit Styles */
-        .transit-container { margin: 8px 0 8px 35px; padding-left: 20px; border-left: 2px dashed #E5E7EB; display: flex; align-items: center; gap: 8px; min-height: 32px; }
+        /* 路程線條 */
+        .transit-container { margin: 8px 0 8px 35px; padding-left: 20px; border-left: 2px dashed #E5E7EB; display: flex; align-items: center; gap: 8px; min-height: 35px; }
         .transit-info-badge { background: #F8FAFC; border: 1px solid #F1F5F9; padding: 6px 14px; border-radius: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .transit-info-badge span { font-size: 11px; font-weight: 800; color: #64748B; text-transform: uppercase; }
         .transit-view-btn { background: #EEF2FF; color: var(--transit-blue); width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid #E0E7FF; }
+        .transit-trigger { opacity: 0.2; cursor: pointer; font-size: 14px; }
 
+        /* 浮動按鈕 */
         .fab { position: fixed; bottom: 30px; right: 25px; width: 64px; height: 64px; background: var(--italy-red); border-radius: 22px; color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; z-index: 100; box-shadow: 0 10px 25px rgba(139,0,0,0.3); border: none; }
         
-        .cat-chip, .mode-btn { border: 2px solid #F3F4F6; transition: 0.2s; cursor: pointer; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* 彈窗按鈕樣式 */
+        .cat-chip, .mode-btn { border: 2px solid #F3F4F6; transition: 0.2s; cursor: pointer; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; }
         .cat-chip.active { border-color: var(--italy-red); background: #FFF5F5; color: var(--italy-red); }
         .mode-btn.active { border-color: var(--transit-blue); background: #F5F7FF; color: var(--transit-blue); }
     </style>
@@ -45,10 +52,10 @@
 <div id="app" v-cloak>
     <div class="banner">
         <div class="relative z-10">
-            <h1 class="text-white text-4xl font-black italic mb-2">Sweet as Tiramisu</h1>
+            <h1 class="text-white text-3xl font-black italic mb-3">Sweet as Tiramisu</h1>
             <div class="flex gap-2">
-                <button @click="currentTab = 'itinerary'" :class="['tab-btn', currentTab === 'itinerary' ? 'active' : 'text-white/50']">ITINERARY</button>
-                <button @click="currentTab = 'expense'" :class="['tab-btn', currentTab === 'expense' ? 'active' : 'text-white/50']">EXPENSE</button>
+                <button @click="currentTab = 'itinerary'" :class="['tab-btn', currentTab === 'itinerary' ? 'active' : 'text-white/60']">ITINERARY</button>
+                <button @click="currentTab = 'expense'" :class="['tab-btn', currentTab === 'expense' ? 'active' : 'text-white/60']">EXPENSE</button>
             </div>
         </div>
     </div>
@@ -69,7 +76,7 @@
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center mr-3 text-[#C5A059] shadow-sm"><i class="fa-solid fa-hotel"></i></div>
                     <div>
                         <div class="text-[9px] font-bold text-stone-400 uppercase tracking-tighter">Stay at</div>
-                        <div class="font-bold text-gray-800 text-sm">{{ currentDayHotel.name || 'Set Hotel' }}</div>
+                        <div class="font-bold text-gray-800 text-sm truncate max-w-[150px]">{{ currentDayHotel.name || 'Set Hotel' }}</div>
                     </div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-stone-300 text-xs mr-2"></i>
@@ -77,10 +84,12 @@
 
             <div class="space-y-0">
                 <template v-for="(item, index) in currentDayPlans" :key="item.id">
-                    <div @click="editItem(item)" class="item-card">
+                    <div @click="editItem(item)" class="item-card shadow-sm mb-1">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex gap-2 items-center">
-                                <span class="bg-stone-100 text-stone-600 px-3 py-1 rounded-full font-black text-[10px]">{{ item.time }}</span>
+                                <span class="bg-stone-100 text-stone-600 px-3 py-1 rounded-full font-black text-[10px]">
+                                    {{ item.time }} <span v-if="item.endTime">- {{item.endTime}}</span>
+                                </span>
                                 <span v-if="item.category" class="text-[9px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-1">
                                     <i :class="getCategoryIcon(item.category)"></i> {{ item.category }}
                                 </span>
@@ -97,7 +106,7 @@
                     <div v-if="index < currentDayPlans.length - 1" class="transit-container">
                         <div v-if="!item.transitRemark && !item.transitLink" @click="openTransitModal(item)" class="transit-trigger"><i class="fa-solid fa-plus-circle"></i></div>
                         <div v-else @click="openTransitModal(item)" class="flex items-center gap-2">
-                            <div class="transit-info-badge">
+                            <div class="transit-info-badge shadow-sm">
                                 <i :class="getTransitIcon(item.transitMode || 'walk')" class="text-slate-400"></i>
                                 <span>{{ item.transitRemark || 'Route' }}</span>
                             </div>
@@ -109,25 +118,31 @@
         </div>
 
         <div v-if="currentTab === 'expense'">
-            <div class="bg-stone-900 text-white p-8 rounded-[35px] mb-8 shadow-xl">
-                <div class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1 text-center">Total Spent</div>
-                <div class="text-4xl font-black text-center mb-6">€ {{ totalSpent }}</div>
-                <div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
-                    <div class="text-center">
-                        <div class="text-[9px] font-bold text-white/40 uppercase mb-1">Food</div>
-                        <div class="font-bold">€ {{ categoryTotals.Food || 0 }}</div>
-                    </div>
-                    <div class="text-center border-l border-white/10">
-                        <div class="text-[9px] font-bold text-white/40 uppercase mb-1">Transport</div>
-                        <div class="font-bold">€ {{ categoryTotals.Transport || 0 }}</div>
+            <div class="bg-stone-900 text-white p-8 rounded-[35px] mb-8 shadow-xl relative overflow-hidden">
+                <div class="relative z-10 text-center">
+                    <div class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Total Expenses</div>
+                    <div class="text-4xl font-black mb-6">€ {{ totalSpent }}</div>
+                    <div class="grid grid-cols-3 gap-2 border-t border-white/10 pt-6">
+                        <div>
+                            <div class="text-[9px] font-bold text-white/40 uppercase mb-1">Food</div>
+                            <div class="font-bold text-sm">€ {{ categoryTotals.Food || 0 }}</div>
+                        </div>
+                        <div class="border-x border-white/10">
+                            <div class="text-[9px] font-bold text-white/40 uppercase mb-1">Trans</div>
+                            <div class="font-bold text-sm">€ {{ categoryTotals.Transport || 0 }}</div>
+                        </div>
+                        <div>
+                            <div class="text-[9px] font-bold text-white/40 uppercase mb-1">Shop</div>
+                            <div class="font-bold text-sm">€ {{ categoryTotals.Shop || 0 }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="space-y-4">
-                <div v-for="ex in expenses" :key="ex.id" @click="editExpense(ex)" class="flex justify-between items-center bg-white p-5 rounded-3xl border border-stone-100 shadow-sm">
+                <div v-for="ex in sortedExpenses" :key="ex.id" @click="editExpense(ex)" class="flex justify-between items-center bg-white p-5 rounded-3xl border border-stone-100 shadow-sm">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-stone-50 rounded-2xl flex items-center justify-center text-stone-400">
+                        <div class="w-12 h-12 bg-stone-50 rounded-2xl flex items-center justify-center text-stone-400 text-xl">
                             <i :class="getExpenseIcon(ex.category)"></i>
                         </div>
                         <div>
@@ -137,9 +152,10 @@
                     </div>
                     <div class="text-right">
                         <div class="font-black text-lg text-gray-800">€ {{ ex.amount }}</div>
-                        <button @click.stop="removeExpense(ex.id)" class="text-[10px] text-stone-200 font-bold uppercase mt-1">Delete</button>
+                        <button @click.stop="removeExpense(ex.id)" class="text-[10px] text-red-300 font-bold uppercase mt-1">Delete</button>
                     </div>
                 </div>
+                <div v-if="expenses.length === 0" class="text-center py-20 text-stone-300 font-bold italic">No expenses yet...</div>
             </div>
         </div>
     </div>
@@ -147,67 +163,82 @@
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/60 backdrop-blur-sm">
-        <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[95vh] overflow-y-auto">
-            <h3 class="font-black text-2xl mb-6">{{ isEditing ? 'Edit Spot' : 'New Spot' }}</h3>
-            <div class="space-y-5">
+        <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit Spot' : 'New Spot' }}</h3>
+            <div class="space-y-5 pb-8">
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Category</label>
                     <div class="grid grid-cols-4 gap-2 mb-3">
-                        <div v-for="cat in ['Spot', 'Food', 'Shop', 'Flight']" :key="cat" @click="form.category = cat" :class="['cat-chip py-3 rounded-2xl', form.category === cat ? 'active' : 'text-gray-400']">
+                        <div v-for="cat in ['Spot', 'Food', 'Shop', 'Flight']" :key="cat" @click="form.category = cat" :class="['cat-chip py-3', form.category === cat ? 'active' : 'text-gray-400']">
                             <i :class="getCategoryIcon(cat)" class="mb-1"></i>
                             <span class="text-[8px] font-black uppercase">{{ cat }}</span>
                         </div>
                     </div>
-                    <input v-model="form.category" placeholder="Custom category" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none text-sm italic">
+                    <input v-model="form.category" placeholder="Or custom: e.g. Museum" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none text-sm">
                 </div>
-                <input v-model="form.name" placeholder="Place Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+                <input v-model="form.name" placeholder="Name of the place" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
                 <div class="grid grid-cols-2 gap-3">
                     <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none">
                     <input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none">
                 </div>
-                <input v-model="form.link" placeholder="Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-blue-600 text-xs border-none">
-                <textarea v-model="form.note" placeholder="Note..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 border-none outline-none text-sm"></textarea>
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black text-lg">CONFIRM</button>
+                <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-blue-600 text-xs border-none outline-none">
+                <textarea v-model="form.note" placeholder="Note / Reservation details..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 border-none outline-none text-sm"></textarea>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black text-lg shadow-lg">CONFIRM</button>
                 <button @click="showModal = false" class="w-full py-2 text-stone-300 font-bold mt-2">Cancel</button>
             </div>
         </div>
     </div>
 
     <div v-if="showExpenseModal" class="fixed inset-0 z-[200] flex items-end bg-black/60 backdrop-blur-sm">
-        <div class="bg-white w-full p-8 rounded-t-[40px]">
-            <h3 class="font-black text-2xl mb-6">{{ isEditing ? 'Edit Expense' : 'Add Expense' }}</h3>
-            <div class="space-y-5">
-                <input v-model="exForm.name" placeholder="What did you buy?" class="w-full p-5 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+        <div class="bg-white w-full p-8 rounded-t-[40px] shadow-2xl">
+            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit Expense' : 'Add Expense' }}</h3>
+            <div class="space-y-5 pb-8">
+                <input v-model="exForm.name" placeholder="Item Name (e.g. Pasta Lunch)" class="w-full p-5 bg-gray-50 rounded-2xl font-bold border-none outline-none">
                 <div class="relative">
-                    <span class="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400">€</span>
-                    <input v-model.number="exForm.amount" type="number" placeholder="0.00" class="w-full p-5 pl-10 bg-gray-50 rounded-2xl font-black text-2xl border-none outline-none">
+                    <span class="absolute left-5 top-1/2 -translate-y-1/2 font-black text-gray-400 text-xl">€</span>
+                    <input v-model.number="exForm.amount" type="number" placeholder="0.00" class="w-full p-5 pl-12 bg-gray-50 rounded-2xl font-black text-2xl border-none outline-none">
                 </div>
                 <div class="grid grid-cols-3 gap-2">
                     <button v-for="c in ['Food', 'Transport', 'Shop']" :key="c" @click="exForm.category = c" :class="['py-3 rounded-xl font-bold text-[10px] uppercase border-2 transition-all', exForm.category === c ? 'border-[#8B0000] bg-[#FFF5F5] text-[#8B0000]' : 'border-gray-50 text-gray-400']">{{ c }}</button>
                 </div>
-                <button @click="handleSaveExpense" class="w-full bg-black text-white py-5 rounded-2xl font-black text-lg">SAVE EXPENSE</button>
+                <button @click="handleSaveExpense" class="w-full bg-black text-white py-5 rounded-2xl font-black text-lg shadow-lg">SAVE EXPENSE</button>
                 <button @click="showExpenseModal = false" class="w-full py-2 text-stone-300 font-bold">Cancel</button>
             </div>
         </div>
     </div>
 
     <div v-if="showTransitModal" class="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
-        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl">
-            <h3 class="font-black text-xl mb-6">Route Details</h3>
+        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl relative">
+            <h3 class="font-black text-xl mb-6 text-gray-800">Route Settings</h3>
             <div class="grid grid-cols-5 gap-2 mb-6">
-                <div v-for="m in ['walk', 'bus', 'train', 'taxi', 'plane']" :key="m" @click="transitForm.mode = m" :class="['mode-btn py-3 rounded-xl', transitForm.mode === m ? 'active' : 'text-gray-400']"><i :class="getTransitIcon(m)"></i></div>
+                <div v-for="m in ['walk', 'bus', 'train', 'taxi', 'plane']" :key="m" @click="transitForm.mode = m" :class="['mode-btn py-3', transitForm.mode === m ? 'active' : 'text-gray-400']"><i :class="getTransitIcon(m)"></i></div>
             </div>
-            <input v-model="transitForm.remark" placeholder="Remark (e.g. 10 mins walk)" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none mb-4 outline-none">
-            <input v-model="transitForm.link" placeholder="Google Maps Route Link" class="w-full p-4 bg-gray-50 rounded-2xl text-xs text-blue-600 border-none mb-8 outline-none">
+            <label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block tracking-widest">Remark</label>
+            <input v-model="transitForm.remark" placeholder="e.g. 15 mins walk" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none mb-4 outline-none">
+            <label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block tracking-widest">Maps Link</label>
+            <input v-model="transitForm.link" placeholder="Paste Google Route Link" class="w-full p-4 bg-gray-50 rounded-2xl text-xs text-blue-600 border-none mb-8 outline-none">
+            
             <div class="flex gap-2">
-                <button @click="saveTransit" class="flex-1 bg-black text-white py-4 rounded-2xl font-black">SAVE</button>
+                <button @click="saveTransit" class="flex-1 bg-black text-white py-4 rounded-2xl font-black shadow-md">SAVE</button>
                 <button @click="showTransitModal = false" class="px-6 py-4 text-stone-400 font-bold">Close</button>
             </div>
+            <button v-if="transitForm.remark || transitForm.link" @click="clearTransit" class="w-full mt-4 text-red-300 text-[10px] font-black uppercase">Clear Route</button>
+        </div>
+    </div>
+
+    <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl">
+            <h3 class="font-black text-xl mb-6 text-gray-800">Hotel Info</h3>
+            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none mb-4 outline-none">
+            <input v-model="hotelForm.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-xs border-none text-blue-600 mb-6 outline-none">
+            <button @click="saveHotel" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-lg">SAVE HOTEL</button>
+            <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold mt-2 text-xs uppercase">Cancel</button>
         </div>
     </div>
 </div>
 
 <script>
+    // Firebase 設定
     const firebaseConfig = {
         apiKey: "AIzaSyBrFeReAOrWqTnGCfFRVjLM1dZ09ar-OyE",
         authDomain: "italy-uk-trip.firebaseapp.com",
@@ -229,6 +260,7 @@
             const showModal = ref(false);
             const showExpenseModal = ref(false);
             const showTransitModal = ref(false);
+            const showHotelModal = ref(false);
             const isEditing = ref(false);
             
             const days = [
@@ -241,19 +273,24 @@
             const itinerary = ref([]);
             const expenses = ref([]);
             const hotels = ref({});
+            
             const form = ref({ id: null, name: '', time: '12:00', endTime: '', link: '', note: '', dayDate: '', category: 'Spot' });
             const exForm = ref({ id: null, name: '', amount: 0, category: 'Food' });
             const transitForm = ref({ mode: 'walk', remark: '', link: '' });
+            const hotelForm = ref({ name: '', link: '' });
             const activeTransitItem = ref(null);
 
             onMounted(() => {
-                db.ref('plans').on('value', s => itinerary.value = s.val() ? Object.values(s.val()) : []);
-                db.ref('expenses').on('value', s => expenses.value = s.val() ? Object.values(s.val()) : []);
-                db.ref('hotels').on('value', s => hotels.value = s.val() || {});
+                db.ref('plans').on('value', s => { itinerary.value = s.val() ? Object.values(s.val()) : []; });
+                db.ref('expenses').on('value', s => { expenses.value = s.val() ? Object.values(s.val()) : []; });
+                db.ref('hotels').on('value', s => { hotels.value = s.val() || {}; });
             });
 
-            // Itinerary Logic
-            const currentDayPlans = computed(() => itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date).sort((a,b) => a.time.localeCompare(b.time)));
+            // 行程邏輯
+            const currentDayPlans = computed(() => {
+                return itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date)
+                                      .sort((a,b) => a.time.localeCompare(b.time));
+            });
             const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', link: '' });
             
             const openAddModal = () => {
@@ -274,9 +311,9 @@
             };
 
             const editItem = (item) => { isEditing.value = true; form.value = { ...item }; showModal.value = true; };
-            const removeItem = (id) => { if(confirm('Delete?')) db.ref('plans/' + id).remove(); };
+            const removeItem = (id) => { if(confirm('Delete this spot?')) db.ref('plans/' + id).remove(); };
 
-            // Expense Logic
+            // 記帳邏輯
             const totalSpent = computed(() => expenses.value.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0).toFixed(2));
             const categoryTotals = computed(() => {
                 return expenses.value.reduce((acc, ex) => {
@@ -284,6 +321,7 @@
                     return acc;
                 }, {});
             });
+            const sortedExpenses = computed(() => [...expenses.value].sort((a,b) => b.id - a.id));
 
             const handleSaveExpense = () => {
                 const id = isEditing.value ? exForm.value.id : Date.now();
@@ -291,22 +329,40 @@
                 showExpenseModal.value = false;
             };
             const editExpense = (ex) => { isEditing.value = true; exForm.value = { ...ex }; showExpenseModal.value = true; };
-            const removeExpense = (id) => { if(confirm('Delete?')) db.ref('expenses/' + id).remove(); };
+            const removeExpense = (id) => { if(confirm('Delete this expense?')) db.ref('expenses/' + id).remove(); };
 
-            // Transit & Hotel (Same as before)
+            // 路程與住宿
             const openTransitModal = (item) => {
                 activeTransitItem.value = item;
                 transitForm.value = { mode: item.transitMode || 'walk', remark: item.transitRemark || '', link: item.transitLink || '' };
                 showTransitModal.value = true;
             };
             const saveTransit = () => {
-                db.ref('plans/' + activeTransitItem.value.id).update({ transitMode: transitForm.value.mode, transitRemark: transitForm.value.remark, transitLink: transitForm.value.link });
+                db.ref('plans/' + activeTransitItem.value.id).update({
+                    transitMode: transitForm.value.mode,
+                    transitRemark: transitForm.value.remark,
+                    transitLink: transitForm.value.link
+                });
                 showTransitModal.value = false;
             };
+            const clearTransit = () => {
+                db.ref('plans/' + activeTransitItem.value.id).update({ transitMode: null, transitRemark: null, transitLink: null });
+                showTransitModal.value = false;
+            };
+            const openHotelModal = () => { hotelForm.value = { ...currentDayHotel.value }; showHotelModal.value = true; };
+            const saveHotel = () => {
+                db.ref('hotels/' + days[selectedDayIndex.value].date).set({ ...hotelForm.value });
+                showHotelModal.value = false;
+            };
 
+            // 圖標小工具
             const getCategoryIcon = (cat) => {
-                const icons = { Food: 'fa-solid fa-utensils', Flight: 'fa-solid fa-plane', Shop: 'fa-solid fa-bag-shopping', Spot: 'fa-solid fa-camera' };
-                return icons[cat] || 'fa-solid fa-location-dot';
+                if(!cat) return 'fa-solid fa-camera';
+                const c = cat.toLowerCase();
+                if(c.includes('food')) return 'fa-solid fa-utensils';
+                if(c.includes('flight')) return 'fa-solid fa-plane';
+                if(c.includes('shop')) return 'fa-solid fa-bag-shopping';
+                return 'fa-solid fa-camera';
             };
             const getExpenseIcon = (cat) => {
                 const icons = { Food: 'fa-solid fa-burger', Transport: 'fa-solid fa-train-subway', Shop: 'fa-solid fa-gift' };
@@ -317,7 +373,7 @@
                 return icons[mode] || icons.walk;
             };
 
-            return { currentTab, days, selectedDayIndex, currentDayPlans, currentDayHotel, totalSpent, categoryTotals, expenses, showModal, showExpenseModal, showTransitModal, form, exForm, transitForm, isEditing, openAddModal, handleSave, editItem, removeItem, handleSaveExpense, editExpense, removeExpense, openTransitModal, saveTransit, getCategoryIcon, getExpenseIcon, getTransitIcon };
+            return { currentTab, days, selectedDayIndex, currentDayPlans, currentDayHotel, totalSpent, categoryTotals, sortedExpenses, expenses, showModal, showExpenseModal, showTransitModal, showHotelModal, form, exForm, transitForm, hotelForm, isEditing, openAddModal, handleSave, editItem, removeItem, handleSaveExpense, editExpense, removeExpense, openTransitModal, saveTransit, clearTransit, openHotelModal, saveHotel, getCategoryIcon, getExpenseIcon, getTransitIcon };
         }
     }).mount('#app');
 </script>
