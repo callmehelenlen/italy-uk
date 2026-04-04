@@ -13,7 +13,7 @@
         body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
         .banner { height: 320px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 30px 60px 30px; }
         .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.8) 100%); }
-        .main-card { margin-top: -45px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 20px; box-shadow: 0 -15px 40px rgba(0,0,0,0.08); }
+        .main-card { margin-top: -45px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 20px; padding-bottom: 100px; box-shadow: 0 -15px 40px rgba(0,0,0,0.08); }
         .tab-btn { width: 58px; height: 58px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: white; color: #E5E7EB; box-shadow: 0 8px 20px rgba(0,0,0,0.06); font-size: 20px; }
         .tab-btn.active { background: var(--italy-red); color: white; }
         .day-pill { flex-shrink: 0; width: 52px; padding: 12px 0; border-radius: 18px; text-align: center; cursor: pointer; transition: 0.2s; }
@@ -22,6 +22,8 @@
         .item-card { border-left: 4px solid var(--italy-gold); border-radius: 20px; background: #fff; margin-bottom: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #F3F4F6; }
         .hotel-box { background: #F9F8F6; border: 1px dashed #E5E0D8; padding: 18px; border-radius: 25px; margin-bottom: 25px; cursor: pointer; }
         .fab { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: var(--italy-red); border-radius: 20px; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; border:none; box-shadow: 0 10px 20px rgba(139,0,0,0.3); }
+        .sync-bar { position: fixed; bottom: 35px; left: 25px; display: flex; gap: 10px; z-index: 90; }
+        .sync-btn { background: #1f1f1f; color: white; padding: 10px 15px; border-radius: 12px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -58,9 +60,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a v-if="currentDayHotel.link" :href="currentDayHotel.link" target="_blank" @click.stop class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center border border-amber-100">
-                        <i class="fa-solid fa-location-arrow text-xs"></i>
-                    </a>
+                    <a v-if="currentDayHotel.link" :href="currentDayHotel.link" target="_blank" @click.stop class="w-9 h-9 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center border border-amber-100"><i class="fa-solid fa-location-arrow text-xs"></i></a>
                     <i class="fa-solid fa-pen text-stone-300 text-[10px]"></i>
                 </div>
             </div>
@@ -68,10 +68,8 @@
             <div class="space-y-4">
                 <div v-for="item in currentDayPlans" :key="item.id" @click="editItem(item)" class="item-card">
                     <div class="flex justify-between items-start mb-2">
-                        <div class="flex flex-wrap gap-2">
-                            <span class="bg-red-50 text-[#8B0000] px-2 py-0.5 rounded-lg font-black text-[11px]">
-                                {{ item.time }} <template v-if="item.endTime">- {{item.endTime}}</template>
-                            </span>
+                        <div class="flex gap-2">
+                            <span class="bg-red-50 text-[#8B0000] px-2 py-0.5 rounded-lg font-black text-[11px]">{{ item.time }} <template v-if="item.endTime">- {{item.endTime}}</template></span>
                             <span v-if="item.category" class="bg-stone-100 text-stone-500 px-2 py-0.5 rounded-lg font-bold text-[10px] uppercase">{{ item.category }}</span>
                         </div>
                         <button @click.stop="removeItem(item.id)" class="text-stone-200"><i class="fa-solid fa-xmark"></i></button>
@@ -82,45 +80,42 @@
                         <i class="fa-solid fa-location-dot"></i> GOOGLE MAPS
                     </a>
                 </div>
-                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 italic font-bold text-stone-400">No plans yet</div>
+                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 italic font-bold">No plans for today</div>
             </div>
         </div>
     </div>
 
+    <div class="sync-bar">
+        <button @click="exportData" class="sync-btn"><i class="fa-solid fa-upload mr-1"></i> Copy Link</button>
+        <button @click="importData" class="sync-btn"><i class="fa-solid fa-download mr-1"></i> Paste</button>
+    </div>
+
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
+
+    <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60">
+        <div class="bg-white w-full max-w-sm p-8 rounded-[30px]">
+            <h3 class="font-black text-xl mb-4">Set Accommodation</h3>
+            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-xl mb-4 font-bold outline-none border-none">
+            <input v-model="hotelForm.link" placeholder="Maps Link" class="w-full p-4 bg-gray-50 rounded-xl mb-4 text-sm outline-none border-none">
+            <button @click="saveHotel" class="w-full bg-black text-white py-4 rounded-xl font-black">Confirm</button>
+            <button @click="showHotelModal = false" class="w-full py-2 mt-2 text-stone-400 font-bold text-sm">Cancel</button>
+        </div>
+    </div>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/60 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[90vh] overflow-y-auto">
             <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit' : 'Add' }} Plan</h3>
             <div class="space-y-4">
-                <input v-model="form.name" placeholder="Location Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
+                <input v-model="form.name" placeholder="Location Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
                 <div class="grid grid-cols-2 gap-3">
-                    <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
-                    <input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
+                    <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
+                    <input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
                 </div>
-                <input v-model="form.category" placeholder="Category" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
-                <input v-model="form.link" placeholder="Google Maps URL" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
-                <textarea v-model="form.note" placeholder="Notes..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none"></textarea>
+                <input v-model="form.category" placeholder="Category" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
+                <input v-model="form.link" placeholder="Google Maps URL" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none text-blue-600 text-sm">
+                <textarea v-model="form.note" placeholder="Notes..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none border-none"></textarea>
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-xl">SAVE</button>
                 <button @click="showModal = false" class="w-full py-2 text-stone-400 font-bold text-sm">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60">
-        <div class="bg-white w-full max-w-sm p-8 rounded-[30px]">
-            <h3 class="font-black text-xl mb-4">Set Accommodation</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-black text-stone-400 ml-1">HOTEL NAME</label>
-                    <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none">
-                </div>
-                <div>
-                    <label class="text-[10px] font-black text-stone-400 ml-1">GOOGLE MAPS LINK</label>
-                    <input v-model="hotelForm.link" placeholder="Paste URL here" class="w-full p-4 bg-gray-50 rounded-xl font-bold outline-none text-blue-600 text-sm">
-                </div>
-                <button @click="saveHotel" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-lg">Confirm</button>
-                <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold text-sm">Cancel</button>
             </div>
         </div>
     </div>
@@ -148,16 +143,18 @@
             const form = ref({ id: null, name: '', time: '12:00', endTime: '', category: '', link: '', note: '', dayDate: '' });
             const hotelForm = ref({ name: '', link: '' });
 
+            const KEY_P = 'tiramisu_vF3_plans';
+            const KEY_H = 'tiramisu_vF3_hotels';
+
             onMounted(() => {
-                const savedPlans = localStorage.getItem('tiramisu_vF2_plans');
-                const savedHotels = localStorage.getItem('tiramisu_vF2_hotels');
-                if (savedPlans) itinerary.value = JSON.parse(savedPlans);
-                if (savedHotels) hotels.value = JSON.parse(savedHotels);
+                const p = localStorage.getItem(KEY_P);
+                const h = localStorage.getItem(KEY_H);
+                if (p) itinerary.value = JSON.parse(p);
+                if (h) hotels.value = JSON.parse(h);
             });
 
             const currentDayPlans = computed(() => {
-                const activeDate = days[selectedDayIndex.value].date;
-                return itinerary.value.filter(p => p.dayDate === activeDate).sort((a, b) => a.time.localeCompare(b.time));
+                return itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date).sort((a,b) => a.time.localeCompare(b.time));
             });
 
             const shouldShowHotel = computed(() => {
@@ -165,10 +162,24 @@
                 return d >= 15 && d <= 24;
             });
 
-            const currentDayHotel = computed(() => {
-                const activeDate = days[selectedDayIndex.value].date;
-                return hotels.value[activeDate] || { name: '', link: '' };
-            });
+            const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', link: '' });
+
+            const handleSave = () => {
+                if (!form.value.name) return;
+                if (isEditing.value) {
+                    const idx = itinerary.value.findIndex(p => p.id === form.value.id);
+                    itinerary.value[idx] = { ...form.value };
+                } else {
+                    itinerary.value.push({ ...form.value, id: Date.now() });
+                }
+                save();
+                showModal.value = false;
+            };
+
+            const save = () => {
+                localStorage.setItem(KEY_P, JSON.stringify(itinerary.value));
+                localStorage.setItem(KEY_H, JSON.stringify(hotels.value));
+            };
 
             const openAddModal = () => {
                 isEditing.value = false;
@@ -176,47 +187,37 @@
                 showModal.value = true;
             };
 
-            const editItem = (item) => {
-                isEditing.value = true;
-                form.value = { ...item };
-                showModal.value = true;
+            const editItem = (item) => { isEditing.value = true; form.value = { ...item }; showModal.value = true; };
+            const removeItem = (id) => { itinerary.value = itinerary.value.filter(p => p.id !== id); save(); };
+            const openHotelModal = () => { hotelForm.value = { ...currentDayHotel.value }; showHotelModal.value = true; };
+            const saveHotel = () => { hotels.value[days[selectedDayIndex.value].date] = { ...hotelForm.value }; save(); showHotelModal.value = false; };
+
+            // 同步功能：導出
+            const exportData = () => {
+                const data = { p: itinerary.value, h: hotels.value };
+                const blob = JSON.stringify(data);
+                navigator.clipboard.writeText(blob).then(() => {
+                    alert('All data copied! Send this code to your phone and paste it there.');
+                });
             };
 
-            const handleSave = () => {
-                if (!form.value.name) return;
-                if (isEditing.value) {
-                    const idx = itinerary.value.findIndex(p => p.id === form.value.id);
-                    if (idx !== -1) itinerary.value[idx] = { ...form.value };
-                } else {
-                    itinerary.value.push({ ...form.value, id: Date.now() });
+            // 同步功能：導入
+            const importData = () => {
+                const code = prompt('Please paste the data code here:');
+                if (code) {
+                    try {
+                        const data = JSON.parse(code);
+                        itinerary.value = data.p;
+                        hotels.value = data.h;
+                        save();
+                        alert('Sync Successful!');
+                    } catch (e) {
+                        alert('Invalid Code!');
+                    }
                 }
-                localStorage.setItem('tiramisu_vF2_plans', JSON.stringify(itinerary.value));
-                showModal.value = false;
             };
 
-            const removeItem = (id) => {
-                itinerary.value = itinerary.value.filter(p => p.id !== id);
-                localStorage.setItem('tiramisu_vF2_plans', JSON.stringify(itinerary.value));
-            };
-
-            const openHotelModal = () => {
-                hotelForm.value = { ...currentDayHotel.value };
-                showHotelModal.value = true;
-            };
-
-            const saveHotel = () => {
-                const activeDate = days[selectedDayIndex.value].date;
-                hotels.value[activeDate] = { ...hotelForm.value };
-                localStorage.setItem('tiramisu_vF2_hotels', JSON.stringify(hotels.value));
-                showHotelModal.value = false;
-            };
-
-            return { 
-                currentTab, days, selectedDayIndex, currentDayPlans, 
-                showModal, showHotelModal, form, hotelForm, isEditing,
-                shouldShowHotel, currentDayHotel, 
-                openAddModal, editItem, handleSave, removeItem, openHotelModal, saveHotel 
-            };
+            return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, showHotelModal, form, hotelForm, isEditing, shouldShowHotel, currentDayHotel, openAddModal, editItem, handleSave, removeItem, openHotelModal, saveHotel, exportData, importData };
         }
     }).mount('#app');
 </script>
