@@ -12,7 +12,7 @@
     <style>
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
-        body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
         .banner { height: 380px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 25px 60px 25px; }
         .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,0.7) 100%); }
@@ -29,7 +29,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .item-card { border-left: 4px solid var(--italy-gold); border-radius: 24px; background: #fff; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #F3F4F6; position: relative; }
         
-        /* 交通路徑視覺化 */
+        /* 交通導航視覺優化 */
         .transit-connector { margin: 6px 0 6px 40px; border-left: 2px dashed #E5E7EB; padding: 12px 0 12px 25px; position: relative; }
         .transit-connector::before { 
             content: '\f1b9'; 
@@ -126,13 +126,13 @@
                     </div>
 
                     <div v-if="shouldShowTransit(index)" class="transit-connector">
-                        <div @click="openRoute(item, currentDayPlans[index+1])" class="flex items-center justify-between bg-stone-50/80 rounded-2xl p-3 pr-4 border border-stone-100 active:bg-stone-100 transition-colors cursor-pointer">
+                        <div @click="openRoute(item, currentDayPlans[index+1])" class="flex items-center justify-between bg-white rounded-2xl p-4 pr-5 border border-stone-100 shadow-sm active:scale-95 transition-all">
                             <div class="flex flex-col">
-                                <div class="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-0.5">Precise Navigation</div>
-                                <div class="text-[11px] font-bold text-gray-500">Route from Link Locations</div>
+                                <div class="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-1">Navigation Helper</div>
+                                <div class="text-[12px] font-black text-gray-800">Route to Next Place</div>
                             </div>
-                            <div class="flex items-center gap-2 text-[10px] font-black text-blue-600 bg-white px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm">
-                                <i class="fa-solid fa-route"></i> DIRECTIONS
+                            <div class="flex items-center gap-2 text-[11px] font-black text-white bg-blue-500 px-4 py-2 rounded-xl shadow-md">
+                                <i class="fa-solid fa-diamond-turn-right"></i> DIRECTIONS
                             </div>
                         </div>
                     </div>
@@ -151,7 +151,7 @@
                 <div v-for="ex in expenses" :key="ex.id" class="flex justify-between items-center bg-white rounded-3xl p-5 border border-stone-100 shadow-sm">
                     <div class="flex items-center">
                         <div class="w-12 h-12 bg-stone-50 rounded-2xl flex items-center justify-center mr-4 text-stone-400"><i :class="getExpenseIcon(ex.category)"></i></div>
-                        <div><div class="font-black text-gray-800">{{ ex.name }}</div><div class="text-[10px] font-bold text-stone-400 uppercase">{{ ex.category }}</div></div>
+                        <div><div class="font-black text-gray-800 text-sm">{{ ex.name }}</div><div class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{{ ex.category }}</div></div>
                     </div>
                     <div class="text-right">
                         <div class="font-black text-[#8B0000]">{{ ex.currency }} {{ ex.amount }}</div>
@@ -167,9 +167,9 @@
 
     <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl">
-            <h3 class="font-black text-2xl mb-6">Set Accommodation</h3>
-            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none mb-4">
-            <input v-model="hotelForm.link" placeholder="Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none border-none text-blue-600 mb-6">
+            <h3 class="font-black text-2xl mb-6">Set Hotel</h3>
+            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none mb-4">
+            <input v-model="hotelForm.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-sm border-none text-blue-600 mb-6">
             <button @click="saveHotel" class="w-full bg-black text-white py-5 rounded-2xl font-black">CONFIRM</button>
             <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold mt-2">Cancel</button>
         </div>
@@ -208,7 +208,7 @@
                     </select>
                 </div>
                 <button @click="saveExpense" class="w-full bg-black text-white py-6 rounded-3xl font-black">ADD</button>
-                <button @click="showExpenseModal = false" class="w-full py-4 text-stone-400 font-bold text-xs text-center block">Cancel</button>
+                <button @click="showExpenseModal = false" class="w-full py-4 text-stone-400 font-bold text-xs text-center block text-center">Cancel</button>
             </div>
         </div>
     </div>
@@ -267,24 +267,27 @@
             const totalExpense = computed(() => expenses.value.reduce((sum, ex) => sum + (ex.amount * rates[ex.currency]), 0));
             const shouldShowHotel = computed(() => {
                 const d = parseInt(days[selectedDayIndex.value].date);
-                return d >= 15 && d <= 24;
+                return d >= 14 && d <= 25;
             });
             const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', link: '' });
 
             const shouldShowTransit = (index) => {
                 const current = currentDayPlans.value[index];
                 const next = currentDayPlans.value[index + 1];
-                return current && next && (current.link || current.name) && (next.link || next.name);
+                return current && next;
             };
 
-            // 關鍵修正：精確導航邏輯
+            // Final Solution: Google Maps Directions API 格式
             const openRoute = (from, to) => {
-                // 如果有 Link 就傳遞 Link，否則傳遞名稱
+                // 優先使用填寫的連結，如果沒填連結才用行程名稱
                 const origin = from.link ? from.link : from.name;
                 const destination = to.link ? to.link : to.name;
                 
-                // 使用 Google Maps Web 協議，這種方式最能相容長連結
-                const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+                // 這是 Google Maps 官方支持的最穩定的導航連結格式
+                // origin/destination 可以是「地址」、「經緯度」或「完整 Google 地圖連結」
+                const baseUrl = "https://www.google.com/maps/dir/?api=1";
+                const url = `${baseUrl}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+                
                 window.open(url, '_blank');
             };
 
