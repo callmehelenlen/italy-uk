@@ -11,10 +11,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         [v-cloak] { display: none !important; }
-        :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
-        body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
+        :root { --italy-red: #8B0000; --italy-gold: #C5A059; --transit-blue: #4F46E5; }
+        body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; color: #1F2937; }
         
-        .banner { height: 350px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 25px 60px 25px; }
+        .banner { height: 320px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 25px 60px 25px; }
         .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
         
         .main-card { margin-top: -40px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 25px 20px 120px 20px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
@@ -23,18 +23,22 @@
         .day-pill.active { background: var(--italy-red); color: white; box-shadow: 0 8px 15px rgba(139,0,0,0.25); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        .item-card { border-left: 4px solid var(--italy-gold); border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        
-        .transit-container { margin: 4px 0 4px 32px; padding: 4px 0 4px 20px; border-left: 2px dashed #F3F4F6; position: relative; min-height: 24px; display: flex; align-items: center; }
-        .transit-trigger { opacity: 0.15; color: #9CA3AF; font-size: 12px; cursor: pointer; transition: 0.3s; padding: 5px; }
-        .transit-text-badge { background: #F8FAFC; color: #64748b; padding: 6px 14px; border-radius: 12px; font-size: 11px; font-weight: 700; border: 1px solid #F1F5F9; display: flex; align-items: center; gap: 6px; }
-        .transit-link-btn { background: #EEF2FF; color: #4F46E5; padding: 8px 16px; border-radius: 14px; font-size: 10px; font-weight: 800; border: 1px solid #E0E7FF; display: flex; align-items: center; gap: 8px; }
+        .item-card { border-left: 4px solid var(--italy-gold); border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; transition: 0.2s; }
+        .item-card:active { transform: scale(0.98); background: #FAFAFA; }
+
+        /* Transit Styles */
+        .transit-container { margin: 8px 0 8px 35px; padding-left: 20px; border-left: 2px dashed #E5E7EB; display: flex; align-items: center; gap: 8px; min-height: 32px; }
+        .transit-info-badge { background: #F8FAFC; border: 1px solid #F1F5F9; padding: 6px 14px; border-radius: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; max-width: 80%; }
+        .transit-info-badge span { font-size: 11px; font-weight: 800; color: #64748B; text-transform: uppercase; }
+        .transit-view-btn { background: #EEF2FF; color: var(--transit-blue); width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid #E0E7FF; font-size: 14px; }
+        .transit-trigger { opacity: 0.2; color: #9CA3AF; font-size: 14px; cursor: pointer; padding: 5px; }
 
         .hotel-box { background: #FAF9F6; border: 1px dashed #E5E0D8; padding: 18px; border-radius: 25px; margin-bottom: 25px; cursor: pointer; }
         .fab { position: fixed; bottom: 30px; right: 25px; width: 64px; height: 64px; background: var(--italy-red); border-radius: 22px; color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; z-index: 100; box-shadow: 0 10px 25px rgba(139,0,0,0.3); border: none; }
         
-        .cat-chip { border: 2px solid #F3F4F6; transition: 0.2s; cursor: pointer; background: #fff; }
+        .cat-chip, .mode-btn { border: 2px solid #F3F4F6; transition: 0.2s; cursor: pointer; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .cat-chip.active { border-color: var(--italy-red); background: #FFF5F5; color: var(--italy-red); }
+        .mode-btn.active { border-color: var(--transit-blue); background: #F5F7FF; color: var(--transit-blue); }
     </style>
 </head>
 <body>
@@ -48,63 +52,62 @@
     </div>
 
     <div class="main-card">
-        <div v-if="currentTab === 'itinerary'">
-            <div class="flex space-x-3 overflow-x-auto mb-8 pb-2 no-scrollbar">
-                <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
-                     :class="['day-pill shrink-0 w-[54px] py-3.5 rounded-[20px] text-center cursor-pointer transition-all', selectedDayIndex === index ? 'active' : 'bg-[#F9F8F6] text-[#D1D5DB]']">
-                    <div class="text-[10px] font-bold opacity-60">{{ day.weekday }}</div>
-                    <div class="text-xl font-black">{{ day.date }}</div>
+        <div class="flex space-x-3 overflow-x-auto mb-8 pb-2 no-scrollbar">
+            <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
+                 :class="['day-pill shrink-0 w-[54px] py-3.5 rounded-[20px] text-center cursor-pointer transition-all', selectedDayIndex === index ? 'active' : 'bg-[#F9F8F6] text-[#D1D5DB]']">
+                <div class="text-[10px] font-bold opacity-60">{{ day.weekday }}</div>
+                <div class="text-xl font-black">{{ day.date }}</div>
+            </div>
+        </div>
+
+        <div v-if="!['14', '25'].includes(days[selectedDayIndex].date)" 
+             class="hotel-box flex items-center justify-between" @click="openHotelModal">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center mr-3 text-[#C5A059] shadow-sm"><i class="fa-solid fa-hotel"></i></div>
+                <div>
+                    <div class="text-[9px] font-bold text-stone-400 uppercase tracking-tighter">Stay at</div>
+                    <div class="font-bold text-gray-800 text-sm truncate max-w-[150px]">{{ currentDayHotel.name || 'Set Hotel' }}</div>
                 </div>
             </div>
+            <div class="w-8 h-8 bg-stone-100 text-stone-400 rounded-lg flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></div>
+        </div>
 
-            <div v-if="!['14', '25'].includes(days[selectedDayIndex].date)" 
-                 class="hotel-box flex items-center justify-between" @click="openHotelModal">
-                <div class="flex items-center">
-                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center mr-3 text-[#C5A059] shadow-sm"><i class="fa-solid fa-hotel"></i></div>
-                    <div>
-                        <div class="text-[9px] font-bold text-stone-400 uppercase tracking-tighter">Stay at</div>
-                        <div class="font-bold text-gray-800 text-sm truncate max-w-[150px]">{{ currentDayHotel.name || 'Set Hotel' }}</div>
-                    </div>
-                </div>
-                <div class="w-8 h-8 bg-stone-100 text-stone-400 rounded-lg flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></div>
-            </div>
-
-            <div class="space-y-0">
-                <template v-for="(item, index) in currentDayPlans" :key="item.id">
-                    <div @click="editItem(item)" class="item-card">
-                        <div class="flex justify-between items-start mb-3">
-                            <div class="flex gap-2 items-center">
-                                <span class="bg-stone-100 text-stone-600 px-3 py-1 rounded-full font-black text-[10px]">
-                                    {{ item.time }} <span v-if="item.endTime">- {{item.endTime}}</span>
-                                </span>
-                                <span v-if="item.category" class="text-[9px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-1">
-                                    <i :class="getCategoryIcon(item.category)"></i> {{ item.category }}
-                                </span>
-                            </div>
-                            <button @click.stop="removeItem(item.id)" class="text-stone-200"><i class="fa-solid fa-circle-xmark"></i></button>
+        <div class="space-y-0">
+            <template v-for="(item, index) in currentDayPlans" :key="item.id">
+                <div @click="editItem(item)" class="item-card">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex gap-2 items-center">
+                            <span class="bg-stone-100 text-stone-600 px-3 py-1 rounded-full font-black text-[10px]">
+                                {{ item.time }} <span v-if="item.endTime">- {{item.endTime}}</span>
+                            </span>
+                            <span v-if="item.category" class="text-[9px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-1">
+                                <i :class="getCategoryIcon(item.category)"></i> {{ item.category }}
+                            </span>
                         </div>
-                        <div class="font-black text-gray-800 text-lg mb-1">{{ item.name }}</div>
-                        <div v-if="item.note" class="text-gray-400 text-xs mb-3 whitespace-pre-line">{{ item.note }}</div>
-                        <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="inline-flex items-center gap-2 text-blue-600 font-bold text-[10px] bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 uppercase tracking-widest">
-                            <i class="fa-solid fa-location-dot"></i> Maps
+                        <button @click.stop="removeItem(item.id)" class="text-stone-200 hover:text-red-400"><i class="fa-solid fa-circle-xmark"></i></button>
+                    </div>
+                    <div class="font-black text-gray-800 text-lg mb-1">{{ item.name }}</div>
+                    <div v-if="item.note" class="text-gray-400 text-xs mb-3 whitespace-pre-line">{{ item.note }}</div>
+                    <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="inline-flex items-center gap-2 text-blue-600 font-bold text-[10px] bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 uppercase tracking-widest">
+                        <i class="fa-solid fa-location-dot"></i> Open Maps
+                    </a>
+                </div>
+
+                <div v-if="index < currentDayPlans.length - 1" class="transit-container">
+                    <div v-if="!item.transitRemark && !item.transitLink" @click="openTransitModal(item)" class="transit-trigger">
+                        <i class="fa-solid fa-plus-circle"></i>
+                    </div>
+                    <div v-else @click="openTransitModal(item)" class="flex items-center gap-2 w-full">
+                        <div class="transit-info-badge">
+                            <i :class="getTransitIcon(item.transitMode || 'walk')" class="text-slate-400"></i>
+                            <span class="truncate">{{ item.transitRemark || 'Route' }}</span>
+                        </div>
+                        <a v-if="item.transitLink" :href="item.transitLink" target="_blank" @click.stop class="transit-view-btn shadow-sm">
+                            <i class="fa-solid fa-location-arrow"></i>
                         </a>
                     </div>
-
-                    <div v-if="index < currentDayPlans.length - 1" class="transit-container">
-                        <div v-if="!item.transitInfo" @click="openTransitModal(item.id)" class="transit-trigger"><i class="fa-solid fa-plus"></i></div>
-                        <div v-else-if="isGoogleMapsLink(item.transitInfo)" class="flex gap-2 items-center">
-                            <a :href="item.transitInfo" target="_blank" class="transit-link-btn uppercase tracking-wider">
-                                <i class="fa-solid fa-directions"></i> View Route
-                            </a>
-                            <button @click="openTransitModal(item.id)" class="text-stone-300 text-[10px] ml-1"><i class="fa-solid fa-pen"></i></button>
-                        </div>
-                        <div v-else @click="openTransitModal(item.id)" class="transit-text-badge">
-                            <i class="fa-solid fa-route text-stone-300"></i>
-                            <span>{{ item.transitInfo }}</span>
-                        </div>
-                    </div>
-                </template>
-            </div>
+                </div>
+            </template>
         </div>
     </div>
 
@@ -113,36 +116,51 @@
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/60 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[95vh] overflow-y-auto">
             <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit Spot' : 'New Spot' }}</h3>
-            
             <div class="space-y-5">
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Category</label>
                     <div class="grid grid-cols-4 gap-2 mb-3">
                         <div v-for="cat in ['Spot', 'Food', 'Shop', 'Flight']" :key="cat"
                              @click="form.category = cat"
-                             :class="['cat-chip py-2.5 rounded-xl text-center', form.category === cat ? 'active shadow-sm' : 'text-gray-400']">
-                            <i :class="getCategoryIcon(cat)" class="block mb-1 text-xs"></i>
-                            <span class="text-[8px] font-black uppercase tracking-tighter">{{ cat }}</span>
+                             :class="['cat-chip py-3 rounded-2xl', form.category === cat ? 'active' : 'text-gray-400']">
+                            <i :class="getCategoryIcon(cat)" class="mb-1"></i>
+                            <span class="text-[8px] font-black uppercase">{{ cat }}</span>
                         </div>
                     </div>
-                    <input v-model="form.category" placeholder="Or type custom category (e.g. Drop Bag)" 
-                           class="w-full p-3 bg-gray-50 rounded-xl font-bold border-none outline-none text-sm placeholder:text-gray-300 text-stone-600 italic">
+                    <input v-model="form.category" placeholder="Custom category (e.g. Drop Bag)" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none text-sm italic">
                 </div>
-
                 <input v-model="form.name" placeholder="Place Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
-                
                 <div class="grid grid-cols-2 gap-3">
                     <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none">
                     <input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none">
                 </div>
-                
                 <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-blue-600 text-xs border-none">
-                
                 <textarea v-model="form.note" placeholder="Note..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 border-none outline-none text-sm"></textarea>
-                
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black text-lg">CONFIRM</button>
                 <button @click="showModal = false" class="w-full py-2 text-stone-300 font-bold mt-2">Cancel</button>
             </div>
+        </div>
+    </div>
+
+    <div v-if="showTransitModal" class="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
+        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl">
+            <h3 class="font-black text-xl mb-6">Route Details</h3>
+            <div class="grid grid-cols-5 gap-2 mb-6">
+                <div v-for="m in ['walk', 'bus', 'train', 'taxi', 'plane']" :key="m"
+                     @click="transitForm.mode = m"
+                     :class="['mode-btn py-3 rounded-xl', transitForm.mode === m ? 'active' : 'text-gray-400']">
+                    <i :class="getTransitIcon(m)"></i>
+                </div>
+            </div>
+            <label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Remark (e.g. 5 mins walk)</label>
+            <input v-model="transitForm.remark" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none mb-4 outline-none">
+            <label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Google Maps Link</label>
+            <input v-model="transitForm.link" class="w-full p-4 bg-gray-50 rounded-2xl text-xs text-blue-600 border-none mb-8 outline-none">
+            <div class="flex gap-2">
+                <button @click="saveTransit" class="flex-1 bg-black text-white py-4 rounded-2xl font-black">SAVE</button>
+                <button @click="showTransitModal = false" class="px-6 py-4 text-stone-400 font-bold">Close</button>
+            </div>
+            <button v-if="transitForm.remark || transitForm.link" @click="clearTransit" class="w-full mt-4 text-red-400 text-[10px] font-black uppercase">Clear All</button>
         </div>
     </div>
 
@@ -153,17 +171,6 @@
             <input v-model="hotelForm.link" placeholder="Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-xs border-none text-blue-600 mb-6">
             <button @click="saveHotel" class="w-full bg-black text-white py-4 rounded-2xl font-black">SAVE</button>
             <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold mt-2 text-xs">Cancel</button>
-        </div>
-    </div>
-
-    <div v-if="showTransitModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm p-8 rounded-[35px] shadow-2xl">
-            <h3 class="font-black text-xl mb-4">Route Details</h3>
-            <textarea v-model="transitText" placeholder="Paste Maps Link or type text..." class="w-full p-4 bg-gray-50 rounded-2xl h-32 border-none mb-4 font-bold text-sm outline-none"></textarea>
-            <div class="flex gap-2">
-                <button @click="saveTransit" class="flex-1 bg-black text-white py-4 rounded-2xl font-black">SAVE</button>
-                <button @click="showTransitModal = false" class="px-6 py-4 text-stone-400 font-bold">Close</button>
-            </div>
         </div>
     </div>
 </div>
@@ -185,12 +192,11 @@
     const { createApp, ref, computed, onMounted } = Vue;
     createApp({
         setup() {
-            const currentTab = ref('itinerary');
+            const selectedDayIndex = ref(0);
             const showModal = ref(false);
             const showHotelModal = ref(false);
             const showTransitModal = ref(false);
             const isEditing = ref(false);
-            const selectedDayIndex = ref(0);
             
             const days = [
                 { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' }, { date: '16', weekday: 'SAT' },
@@ -203,8 +209,8 @@
             const hotels = ref({});
             const form = ref({ id: null, name: '', time: '12:00', endTime: '', link: '', note: '', dayDate: '', category: 'Spot' });
             const hotelForm = ref({ name: '', link: '' });
-            const transitText = ref('');
-            const activeTransitId = ref(null);
+            const transitForm = ref({ mode: 'walk', remark: '', link: '' });
+            const activeTransitItem = ref(null);
 
             onMounted(() => {
                 db.ref('plans').on('value', s => itinerary.value = s.val() ? Object.values(s.val()) : []);
@@ -214,9 +220,7 @@
             const currentDayPlans = computed(() => {
                 return itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date).sort((a,b) => a.time.localeCompare(b.time));
             });
-
             const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', link: '' });
-            const isGoogleMapsLink = (text) => text && (text.includes('maps.google.com') || text.includes('goo.gl/maps') || text.includes('maps.app.goo.gl'));
 
             const openAddModal = () => {
                 isEditing.value = false;
@@ -232,16 +236,25 @@
 
             const editItem = (item) => { isEditing.value = true; form.value = { ...item, category: item.category || 'Spot' }; showModal.value = true; };
             const removeItem = (id) => { if(confirm('Delete?')) db.ref('plans/' + id).remove(); };
-            
-            const openTransitModal = (id) => {
-                activeTransitId.value = id;
-                const item = itinerary.value.find(p => p.id === id);
-                transitText.value = item.transitInfo || '';
+
+            const openTransitModal = (item) => {
+                activeTransitItem.ref = item;
+                transitForm.value = { mode: item.transitMode || 'walk', remark: item.transitRemark || '', link: item.transitLink || '' };
                 showTransitModal.value = true;
+                activeTransitItem.value = item;
             };
 
             const saveTransit = () => {
-                db.ref('plans/' + activeTransitId.value + '/transitInfo').set(transitText.value);
+                db.ref('plans/' + activeTransitItem.value.id).update({
+                    transitMode: transitForm.value.mode,
+                    transitRemark: transitForm.value.remark,
+                    transitLink: transitForm.value.link
+                });
+                showTransitModal.value = false;
+            };
+
+            const clearTransit = () => {
+                db.ref('plans/' + activeTransitItem.value.id).update({ transitMode: null, transitRemark: null, transitLink: null });
                 showTransitModal.value = false;
             };
 
@@ -251,19 +264,22 @@
                 showHotelModal.value = false;
             };
 
-            // 圖標自動匹配邏輯
             const getCategoryIcon = (cat) => {
                 if (!cat) return 'fa-solid fa-location-dot';
-                const lowerCat = cat.toLowerCase();
-                if (lowerCat.includes('food') || lowerCat.includes('eat') || lowerCat.includes('dinner')) return 'fa-solid fa-utensils';
-                if (lowerCat.includes('flight') || lowerCat.includes('fly') || lowerCat.includes('airport')) return 'fa-solid fa-plane';
-                if (lowerCat.includes('shop')) return 'fa-solid fa-bag-shopping';
-                if (lowerCat.includes('spot') || lowerCat.includes('visit')) return 'fa-solid fa-camera';
-                if (lowerCat.includes('bag') || lowerCat.includes('hotel') || lowerCat.includes('check')) return 'fa-solid fa-suitcase';
+                const c = cat.toLowerCase();
+                if (c.includes('food') || c.includes('eat')) return 'fa-solid fa-utensils';
+                if (c.includes('flight') || c.includes('airport')) return 'fa-solid fa-plane';
+                if (c.includes('shop')) return 'fa-solid fa-bag-shopping';
+                if (c.includes('spot') || c.includes('visit')) return 'fa-solid fa-camera';
                 return 'fa-solid fa-location-dot';
             };
 
-            return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, showHotelModal, showTransitModal, form, hotelForm, transitText, isEditing, currentDayHotel, openAddModal, handleSave, removeItem, editItem, openHotelModal, saveHotel, getCategoryIcon, openTransitModal, saveTransit, isGoogleMapsLink };
+            const getTransitIcon = (mode) => {
+                const icons = { walk: 'fa-solid fa-person-walking', bus: 'fa-solid fa-bus', train: 'fa-solid fa-train', taxi: 'fa-solid fa-taxi', plane: 'fa-solid fa-plane' };
+                return icons[mode] || icons.walk;
+            };
+
+            return { days, selectedDayIndex, currentDayPlans, showModal, showHotelModal, showTransitModal, form, hotelForm, transitForm, isEditing, currentDayHotel, openAddModal, handleSave, removeItem, editItem, openHotelModal, saveHotel, getCategoryIcon, openTransitModal, saveTransit, getTransitIcon, clearTransit };
         }
     }).mount('#app');
 </script>
