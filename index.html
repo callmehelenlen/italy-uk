@@ -98,6 +98,22 @@
             display: flex; align-items: center; justify-content: center; 
             font-size: 26px; box-shadow: 0 15px 35px rgba(139,0,0,0.3); z-index: 100;
         }
+
+        /* 地圖連結按鈕樣式 */
+        .map-link-btn {
+            background: #FDFBF7;
+            color: var(--italy-gold);
+            border: 1px solid #F3EFE7;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 800;
+            transition: all 0.2s;
+        }
+        .map-link-btn:active { transform: scale(0.95); background: #F3EFE7; }
     </style>
 </head>
 <body>
@@ -135,20 +151,29 @@
             </div>
 
             <template v-for="(item, idx) in filteredItinerary" :key="item.id">
-                <div @click="editItem(item, 'itinerary')" class="item-card p-6 border border-gray-100 flex justify-between items-start">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="bg-red-50 text-[#8B0000] px-3 py-1.5 rounded-xl font-black text-sm shadow-sm">
-                                {{ item.time }} <template v-if="item.endTime">- {{ item.endTime }}</template>
-                            </span>
-                            <span v-if="item.type" class="bg-stone-100 text-stone-500 px-3 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-wider">
-                                {{ item.type }}
-                            </span>
+                <div @click="editItem(item, 'itinerary')" class="item-card p-6 border border-gray-100 flex flex-col">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="bg-red-50 text-[#8B0000] px-3 py-1.5 rounded-xl font-black text-sm shadow-sm">
+                                    {{ item.time }} <template v-if="item.endTime">- {{ item.endTime }}</template>
+                                </span>
+                                <span v-if="item.type" class="bg-stone-100 text-stone-500 px-3 py-1.5 rounded-xl font-black text-[11px] uppercase tracking-wider">
+                                    {{ item.type }}
+                                </span>
+                            </div>
+                            <div class="font-black text-gray-900 text-xl leading-snug">{{ item.name }}</div>
                         </div>
-                        <div class="font-black text-gray-900 text-xl leading-snug">{{ item.name }}</div>
-                        <div v-if="item.note" class="text-sm text-gray-400 mt-2 font-medium">{{ item.note }}</div>
+                        <button @click.stop="removeItem(item.id)" class="text-gray-200 hover:text-red-500 p-2"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
                     </div>
-                    <button @click.stop="removeItem(item.id)" class="text-gray-200 hover:text-red-500 p-2"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
+                    
+                    <div v-if="item.note" class="text-sm text-gray-400 mb-4 font-medium">{{ item.note }}</div>
+                    
+                    <div v-if="item.googleLink" class="mt-2">
+                        <a :href="item.googleLink" target="_blank" @click.stop class="map-link-btn">
+                            <i class="fa-solid fa-map-pin"></i> Open in Maps
+                        </a>
+                    </div>
                 </div>
             </template>
 
@@ -207,8 +232,14 @@
                             <input v-model="form.endTime" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold">
                         </div>
                     </div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Category (e.g. Rent Car, Dining)</label>
-                    <input v-model="form.type" placeholder="Custom Category" class="w-full p-5 bg-gray-50 rounded-2xl font-bold">
+                    <div class="mb-5">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Category (e.g. Rent Car)</label>
+                        <input v-model="form.type" placeholder="Custom Category" class="w-full p-5 bg-gray-50 rounded-2xl font-bold">
+                    </div>
+                    <div class="mb-5">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block text-blue-500">Google Maps Link (Optional)</label>
+                        <input v-model="form.googleLink" placeholder="https://maps.google.com/..." class="w-full p-5 bg-blue-50/50 rounded-2xl font-medium text-blue-600 text-sm">
+                    </div>
                 </div>
 
                 <div v-if="currentTab === 'expense'" class="grid grid-cols-2 gap-4">
@@ -236,8 +267,8 @@
             const isEditing = ref(false);
             const selectedDayIndex = ref(0);
 
-            // 結構優化：加入 endTime
-            const form = ref({ id: null, name: '', time: '12:00', endTime: '', type: '', amount: '', currency: 'EUR', note: '' });
+            // 加入 googleLink 初始值
+            const form = ref({ id: null, name: '', time: '12:00', endTime: '', type: '', googleLink: '', amount: '', currency: 'EUR', note: '' });
 
             const days = [
                 { date: '14', weekday: 'THU' }, { date: '15', weekday: 'FRI' }, { date: '16', weekday: 'SAT' },
@@ -250,13 +281,14 @@
             const expenses = ref([]);
 
             onMounted(() => {
-                itinerary.value = JSON.parse(localStorage.getItem('italy_v6_itinerary')) || [];
-                expenses.value = JSON.parse(localStorage.getItem('italy_v6_expense')) || [];
+                // 更新版本號以確保結構同步
+                itinerary.value = JSON.parse(localStorage.getItem('italy_v7_itinerary')) || [];
+                expenses.value = JSON.parse(localStorage.getItem('italy_v7_expense')) || [];
             });
 
             watch([itinerary, expenses], () => {
-                localStorage.setItem('italy_v6_itinerary', JSON.stringify(itinerary.value));
-                localStorage.setItem('italy_v6_expense', JSON.stringify(expenses.value));
+                localStorage.setItem('italy_v7_itinerary', JSON.stringify(itinerary.value));
+                localStorage.setItem('italy_v7_expense', JSON.stringify(expenses.value));
             }, { deep: true });
 
             const filteredItinerary = computed(() => {
@@ -270,7 +302,7 @@
 
             const openAddModal = () => {
                 isEditing.value = false;
-                form.value = { id: null, name: '', time: '12:00', endTime: '', type: '', amount: '', currency: 'EUR', note: '' };
+                form.value = { id: null, name: '', time: '12:00', endTime: '', type: '', googleLink: '', amount: '', currency: 'EUR', note: '' };
                 showModal.value = true;
             };
 
