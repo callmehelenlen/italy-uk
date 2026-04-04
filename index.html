@@ -7,6 +7,8 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         [v-cloak] { display: none !important; }
         :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
@@ -22,8 +24,8 @@
         .item-card { border-left: 4px solid var(--italy-gold); border-radius: 20px; background: #fff; margin-bottom: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #F3F4F6; }
         .hotel-box { background: #F9F8F6; border: 1px dashed #E5E0D8; padding: 18px; border-radius: 25px; margin-bottom: 25px; cursor: pointer; }
         .fab { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: var(--italy-red); border-radius: 20px; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; border:none; box-shadow: 0 10px 20px rgba(139,0,0,0.3); }
-        .sync-bar { position: fixed; bottom: 35px; left: 25px; display: flex; gap: 10px; z-index: 90; }
-        .sync-btn { background: #1f1f1f; color: white; padding: 10px 15px; border-radius: 12px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .online { background: #10B981; box-shadow: 0 0 8px #10B981; }
     </style>
 </head>
 <body>
@@ -31,6 +33,10 @@
 <div id="app" v-cloak>
     <div class="banner">
         <div class="relative z-10">
+            <div class="flex items-center mb-1">
+                <span class="status-dot online"></span>
+                <span class="text-[8px] text-white/50 font-bold tracking-widest uppercase">Cloud Sync Active</span>
+            </div>
             <h1 class="text-white text-3xl font-black italic mb-1">Sweet as Tiramisu</h1>
             <p class="text-white/70 text-xs font-bold uppercase tracking-widest">Helen & Ryan’s 2026 Getaway</p>
         </div>
@@ -76,27 +82,22 @@
                     </div>
                     <div class="font-black text-gray-800 text-lg leading-tight">{{ item.name }}</div>
                     <div v-if="item.note" class="text-gray-400 text-xs mt-2">{{ item.note }}</div>
-                    <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="mt-4 inline-flex items-center gap-2 text-amber-600 font-bold text-[10px] bg-amber-50 px-3 py-1.5 rounded-lg">
+                    <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="mt-4 inline-flex items-center gap-2 text-amber-600 font-bold text-[10px] bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
                         <i class="fa-solid fa-location-dot"></i> GOOGLE MAPS
                     </a>
                 </div>
-                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 italic font-bold">No plans for today</div>
+                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 italic font-bold">No plans yet</div>
             </div>
         </div>
-    </div>
-
-    <div class="sync-bar">
-        <button @click="exportData" class="sync-btn"><i class="fa-solid fa-upload mr-1"></i> Copy Link</button>
-        <button @click="importData" class="sync-btn"><i class="fa-solid fa-download mr-1"></i> Paste</button>
     </div>
 
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
 
     <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60">
         <div class="bg-white w-full max-w-sm p-8 rounded-[30px]">
-            <h3 class="font-black text-xl mb-4">Set Accommodation</h3>
-            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-xl mb-4 font-bold outline-none border-none">
-            <input v-model="hotelForm.link" placeholder="Maps Link" class="w-full p-4 bg-gray-50 rounded-xl mb-4 text-sm outline-none border-none">
+            <h3 class="font-black text-xl mb-4 text-gray-800">Accommodation</h3>
+            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-xl mb-3 font-bold outline-none border-none">
+            <input v-model="hotelForm.link" placeholder="Google Maps URL" class="w-full p-4 bg-gray-50 rounded-xl mb-6 text-sm outline-none border-none">
             <button @click="saveHotel" class="w-full bg-black text-white py-4 rounded-xl font-black">Confirm</button>
             <button @click="showHotelModal = false" class="w-full py-2 mt-2 text-stone-400 font-bold text-sm">Cancel</button>
         </div>
@@ -111,7 +112,7 @@
                     <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
                     <input v-model="form.endTime" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
                 </div>
-                <input v-model="form.category" placeholder="Category" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
+                <input v-model="form.category" placeholder="Category (Flight, Food, etc)" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
                 <input v-model="form.link" placeholder="Google Maps URL" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none text-blue-600 text-sm">
                 <textarea v-model="form.note" placeholder="Notes..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none border-none"></textarea>
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-xl">SAVE</button>
@@ -122,6 +123,20 @@
 </div>
 
 <script>
+    // 你的 Firebase 配置
+    const firebaseConfig = {
+        apiKey: "AIzaSyBrFeReAOrWqTnGCfFRVjLM1dZ09ar-OyE",
+        authDomain: "italy-uk-trip.firebaseapp.com",
+        projectId: "italy-uk-trip",
+        storageBucket: "italy-uk-trip.firebasestorage.app",
+        messagingSenderId: "654719116102",
+        appId: "1:654719116102:web:54c767ec98d2577329fb47",
+        databaseURL: "https://italy-uk-trip-default-rtdb.firebaseio.com" // 手動補上 RTDB 網址
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const { createApp, ref, computed, onMounted } = Vue;
     createApp({
         setup() {
@@ -143,18 +158,21 @@
             const form = ref({ id: null, name: '', time: '12:00', endTime: '', category: '', link: '', note: '', dayDate: '' });
             const hotelForm = ref({ name: '', link: '' });
 
-            const KEY_P = 'tiramisu_vF3_plans';
-            const KEY_H = 'tiramisu_vF3_hotels';
-
+            // 即時監聽資料庫
             onMounted(() => {
-                const p = localStorage.getItem(KEY_P);
-                const h = localStorage.getItem(KEY_H);
-                if (p) itinerary.value = JSON.parse(p);
-                if (h) hotels.value = JSON.parse(h);
+                db.ref('plans').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    itinerary.value = data ? Object.values(data) : [];
+                });
+                db.ref('hotels').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    hotels.value = data || {};
+                });
             });
 
             const currentDayPlans = computed(() => {
-                return itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date).sort((a,b) => a.time.localeCompare(b.time));
+                const activeDate = days[selectedDayIndex.value].date;
+                return itinerary.value.filter(p => p.dayDate === activeDate).sort((a,b) => a.time.localeCompare(b.time));
             });
 
             const shouldShowHotel = computed(() => {
@@ -166,19 +184,9 @@
 
             const handleSave = () => {
                 if (!form.value.name) return;
-                if (isEditing.value) {
-                    const idx = itinerary.value.findIndex(p => p.id === form.value.id);
-                    itinerary.value[idx] = { ...form.value };
-                } else {
-                    itinerary.value.push({ ...form.value, id: Date.now() });
-                }
-                save();
+                const id = isEditing.value ? form.value.id : Date.now();
+                db.ref('plans/' + id).set({ ...form.value, id: id });
                 showModal.value = false;
-            };
-
-            const save = () => {
-                localStorage.setItem(KEY_P, JSON.stringify(itinerary.value));
-                localStorage.setItem(KEY_H, JSON.stringify(hotels.value));
             };
 
             const openAddModal = () => {
@@ -188,36 +196,15 @@
             };
 
             const editItem = (item) => { isEditing.value = true; form.value = { ...item }; showModal.value = true; };
-            const removeItem = (id) => { itinerary.value = itinerary.value.filter(p => p.id !== id); save(); };
+            const removeItem = (id) => { db.ref('plans/' + id).remove(); };
             const openHotelModal = () => { hotelForm.value = { ...currentDayHotel.value }; showHotelModal.value = true; };
-            const saveHotel = () => { hotels.value[days[selectedDayIndex.value].date] = { ...hotelForm.value }; save(); showHotelModal.value = false; };
-
-            // 同步功能：導出
-            const exportData = () => {
-                const data = { p: itinerary.value, h: hotels.value };
-                const blob = JSON.stringify(data);
-                navigator.clipboard.writeText(blob).then(() => {
-                    alert('All data copied! Send this code to your phone and paste it there.');
-                });
+            const saveHotel = () => {
+                const date = days[selectedDayIndex.value].date;
+                db.ref('hotels/' + date).set({ ...hotelForm.value });
+                showHotelModal.value = false;
             };
 
-            // 同步功能：導入
-            const importData = () => {
-                const code = prompt('Please paste the data code here:');
-                if (code) {
-                    try {
-                        const data = JSON.parse(code);
-                        itinerary.value = data.p;
-                        hotels.value = data.h;
-                        save();
-                        alert('Sync Successful!');
-                    } catch (e) {
-                        alert('Invalid Code!');
-                    }
-                }
-            };
-
-            return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, showHotelModal, form, hotelForm, isEditing, shouldShowHotel, currentDayHotel, openAddModal, editItem, handleSave, removeItem, openHotelModal, saveHotel, exportData, importData };
+            return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, showHotelModal, form, hotelForm, isEditing, shouldShowHotel, currentDayHotel, openAddModal, editItem, handleSave, removeItem, openHotelModal, saveHotel };
         }
     }).mount('#app');
 </script>
