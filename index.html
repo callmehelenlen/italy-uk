@@ -29,11 +29,10 @@
         
         .main-card { margin-top: -30px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 25px 20px; padding-bottom: 120px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
         
-        /* 將 Tab 按鈕移至右側垂直排列 */
         .tab-group {
             position: absolute;
             right: 20px;
-            top: -75px; /* 向上移動至 Banner 範圍內 */
+            top: -75px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -62,7 +61,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .item-card { border-left: 4px solid var(--italy-gold); border-radius: 24px; background: #fff; margin-bottom: 15px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #F3F4F6; }
         
-        .hotel-box { background: #FAF9F6; border: 1px dashed #E5E0D8; padding: 20px; border-radius: 28px; margin-bottom: 25px; cursor: pointer; }
+        .expense-card { background: #fff; border-radius: 22px; padding: 18px; margin-bottom: 12px; border: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center; }
         
         .fab { position: fixed; bottom: 35px; right: 25px; width: 64px; height: 64px; background: var(--italy-red); border-radius: 22px; color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; z-index: 100; border:none; box-shadow: 0 12px 24px rgba(139,0,0,0.3); }
         
@@ -75,12 +74,13 @@
 
 <div id="app" v-cloak>
     <div class="banner">
-        <div class="relative z-10 max-w-[70%]"> <div class="flex items-center mb-2">
+        <div class="relative z-10 max-w-[70%]">
+            <div class="flex items-center mb-2">
                 <span class="status-dot online"></span>
-                <span class="text-[9px] text-white/70 font-black tracking-[0.2em] uppercase text-shadow">Cloud Sync Active</span>
+                <span class="text-[9px] text-white/70 font-black tracking-[0.2em] uppercase">Cloud Sync Active</span>
             </div>
             <h1 class="text-white text-4xl font-black italic mb-2 tracking-tight">Sweet as Tiramisu</h1>
-            <p class="text-white/90 text-[10px] font-bold uppercase tracking-[0.2em] leading-relaxed">Helen & Ryan’s 2026 Getaway</p>
+            <p class="text-white/90 text-[10px] font-bold uppercase tracking-[0.2em]">Helen & Ryan’s 2026 Getaway</p>
         </div>
     </div>
 
@@ -103,89 +103,119 @@
                 </div>
             </div>
 
-            <div v-if="shouldShowHotel" class="hotel-box flex items-center justify-between shadow-sm" @click="openHotelModal">
+            <div v-if="shouldShowHotel" class="hotel-box flex items-center justify-between" @click="openHotelModal" style="background: #FAF9F6; border: 1px dashed #E5E0D8; padding: 20px; border-radius: 28px; margin-bottom: 25px;">
                 <div class="flex items-center flex-1 pr-4">
-                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mr-4 shadow-sm text-[#C5A059] border border-stone-100">
-                        <i class="fa-solid fa-hotel text-lg"></i>
-                    </div>
+                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mr-4 shadow-sm text-[#C5A059] border border-stone-100"><i class="fa-solid fa-hotel"></i></div>
                     <div class="overflow-hidden">
                         <div class="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-0.5">Accommodation</div>
                         <div class="font-bold text-gray-800 truncate text-base">{{ currentDayHotel.name || 'Set Hotel' }}</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3 text-stone-300">
-                    <i class="fa-solid fa-chevron-right text-xs"></i>
-                </div>
+                <i class="fa-solid fa-chevron-right text-stone-200 text-xs"></i>
             </div>
 
             <div class="space-y-4">
                 <div v-for="item in currentDayPlans" :key="item.id" @click="editItem(item)" class="item-card">
                     <div class="flex justify-between items-start mb-3">
-                        <div class="flex flex-wrap gap-2">
+                        <div class="flex gap-2">
                             <span class="bg-red-50 text-[#8B0000] px-3 py-1 rounded-full font-black text-[11px] border border-red-100/50">
-                                {{ item.time }} <template v-if="item.endTime"> - {{item.endTime}}</template>
+                                {{ item.time }} <template v-if="item.endTime">- {{item.endTime}}</template>
                             </span>
                             <span v-if="item.category" class="bg-stone-100 text-stone-500 px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-wider">{{ item.category }}</span>
                         </div>
-                        <button @click.stop="removeItem(item.id)" class="text-stone-200 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+                        <button @click.stop="removeItem(item.id)" class="text-stone-200"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <div class="font-black text-gray-800 text-xl leading-snug mb-2">{{ item.name }}</div>
-                    <div v-if="item.note" class="text-gray-400 text-xs leading-relaxed line-clamp-3">{{ item.note }}</div>
-                    
+                    <div v-if="item.note" class="text-gray-400 text-xs leading-relaxed">{{ item.note }}</div>
                     <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="mt-4 inline-flex items-center gap-2 text-amber-600 font-bold text-[11px] bg-amber-50 px-4 py-2 rounded-xl border border-amber-100">
                         <i class="fa-solid fa-location-dot"></i> GOOGLE MAPS
                     </a>
                 </div>
-                
-                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20 flex flex-col items-center">
-                    <i class="fa-solid fa-feather-pointed text-4xl mb-4"></i>
-                    <p class="italic font-bold tracking-widest uppercase">No plans for this day</p>
-                </div>
             </div>
         </div>
-        
-        <div v-if="currentTab === 'expense'" class="text-center py-20 opacity-30 italic font-bold">
-            Expense tracker coming soon...
+
+        <div v-if="currentTab === 'expense'">
+            <div class="bg-stone-900 rounded-[35px] p-8 mb-8 text-white shadow-2xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Total Estimated Spending</p>
+                    <h2 class="text-4xl font-black italic">HKD ${{ formatMoney(totalExpense) }}</h2>
+                </div>
+                <i class="fa-solid fa-coins absolute -right-4 -bottom-4 text-white/5 text-8xl"></i>
+            </div>
+
+            <div class="space-y-3">
+                <div v-for="ex in expenses" :key="ex.id" class="expense-card shadow-sm">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-stone-50 rounded-2xl flex items-center justify-center mr-4 text-stone-400">
+                            <i :class="getExpenseIcon(ex.category)"></i>
+                        </div>
+                        <div>
+                            <div class="font-black text-gray-800">{{ ex.name }}</div>
+                            <div class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{{ ex.category }}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-black text-[#8B0000]">{{ ex.currency }} {{ ex.amount }}</div>
+                        <div class="text-[10px] font-bold text-stone-300">≈ HKD {{ Math.round(ex.amount * rates[ex.currency]) }}</div>
+                    </div>
+                    <button @click="removeExpense(ex.id)" class="ml-4 text-stone-200"><i class="fa-solid fa-circle-xmark"></i></button>
+                </div>
+                <div v-if="expenses.length === 0" class="text-center py-20 opacity-20 italic font-bold uppercase tracking-widest">No expenses recorded</div>
+            </div>
         </div>
     </div>
 
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
 
-    <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl">
-            <h3 class="font-black text-2xl mb-6 text-gray-800">Accommodation</h3>
+    <div v-if="showExpenseModal" class="fixed inset-0 z-[200] flex items-end bg-black/70 backdrop-blur-sm">
+        <div class="bg-white w-full p-8 rounded-t-[50px] shadow-2xl">
+            <h3 class="font-black text-2xl mb-6 text-gray-800">Add Expense</h3>
             <div class="space-y-4">
-                <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none">
-                <input v-model="hotelForm.link" placeholder="Google Maps URL" class="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none border-none">
-                <button @click="saveHotel" class="w-full bg-black text-white py-5 rounded-2xl font-black mt-4 shadow-lg active:scale-95 transition-transform">CONFIRM</button>
-                <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold text-sm">Cancel</button>
+                <input v-model="exForm.name" placeholder="What did you buy?" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex bg-gray-50 rounded-2xl overflow-hidden">
+                        <select v-model="exForm.currency" class="bg-transparent p-5 font-black outline-none border-none text-[#8B0000]">
+                            <option>EUR</option>
+                            <option>GBP</option>
+                            <option>HKD</option>
+                        </select>
+                        <input v-model.number="exForm.amount" type="number" placeholder="0.00" class="w-full p-5 bg-transparent font-black outline-none border-none">
+                    </div>
+                    <select v-model="exForm.category" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none">
+                        <option>Food</option><option>Transport</option><option>Shopping</option><option>Hotel</option><option>Flight</option><option>Others</option>
+                    </select>
+                </div>
+                <button @click="saveExpense" class="w-full bg-black text-white py-6 rounded-3xl font-black shadow-xl mt-4">ADD EXPENSE</button>
+                <button @click="showExpenseModal = false" class="w-full py-4 text-stone-400 font-bold uppercase tracking-widest text-xs">Cancel</button>
             </div>
         </div>
     </div>
 
     <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/70 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[50px] max-h-[92vh] overflow-y-auto">
-            <div class="w-12 h-1.5 bg-stone-200 rounded-full mx-auto mb-8"></div>
             <h3 class="font-black text-2xl mb-8 text-gray-800">{{ isEditing ? 'Edit Activity' : 'New Activity' }}</h3>
             <div class="space-y-5">
                 <input v-model="form.name" placeholder="Where to go?" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none text-lg">
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-[10px] font-black text-stone-400 ml-2 mb-1 uppercase tracking-widest text-shadow">From</p>
-                        <input v-model="form.time" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none">
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-black text-stone-400 ml-2 mb-1 uppercase tracking-widest text-shadow">To (Optional)</p>
-                        <input v-model="form.endTime" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none">
-                    </div>
+                    <input v-model="form.time" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none">
+                    <input v-model="form.endTime" type="time" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none">
                 </div>
-                <input v-model="form.category" placeholder="Category (e.g. Dining, Flight)" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none border-none">
-                <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-5 bg-blue-50/50 rounded-2xl font-bold outline-none border-none text-blue-600 text-sm">
-                <textarea v-model="form.note" placeholder="Notes & Details..." class="w-full p-5 bg-gray-50 rounded-2xl h-32 outline-none border-none"></textarea>
-                
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-3xl font-black shadow-xl text-lg">SAVE PLAN</button>
+                <input v-model="form.category" placeholder="Category" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none">
+                <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-5 bg-gray-50 rounded-2xl font-bold outline-none text-blue-600">
+                <textarea v-model="form.note" placeholder="Notes..." class="w-full p-5 bg-gray-50 rounded-2xl h-32 outline-none"></textarea>
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-6 rounded-3xl font-black shadow-xl">SAVE PLAN</button>
                 <button @click="showModal = false" class="w-full py-4 text-stone-400 font-bold uppercase tracking-widest text-xs">Close</button>
             </div>
+        </div>
+    </div>
+
+    <div v-if="showHotelModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm p-8 rounded-[40px] shadow-2xl">
+            <h3 class="font-black text-2xl mb-6">Accommodation</h3>
+            <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none mb-4">
+            <input v-model="hotelForm.link" placeholder="Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none border-none mb-6">
+            <button @click="saveHotel" class="w-full bg-black text-white py-5 rounded-2xl font-black">CONFIRM</button>
+            <button @click="showHotelModal = false" class="w-full py-2 mt-2 text-stone-400 font-bold">Cancel</button>
         </div>
     </div>
 </div>
@@ -210,6 +240,7 @@
             const currentTab = ref('itinerary');
             const showModal = ref(false);
             const showHotelModal = ref(false);
+            const showExpenseModal = ref(false);
             const isEditing = ref(false);
             const selectedDayIndex = ref(1); 
             
@@ -222,23 +253,25 @@
 
             const itinerary = ref([]);
             const hotels = ref({});
+            const expenses = ref([]);
+            const rates = { 'EUR': 8.5, 'GBP': 10.0, 'HKD': 1.0 };
+
             const form = ref({ id: null, name: '', time: '12:00', endTime: '', category: '', link: '', note: '', dayDate: '' });
             const hotelForm = ref({ name: '', link: '' });
+            const exForm = ref({ id: null, name: '', amount: 0, currency: 'EUR', category: 'Food' });
 
             onMounted(() => {
-                db.ref('plans').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    itinerary.value = data ? Object.values(data) : [];
-                });
-                db.ref('hotels').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    hotels.value = data || {};
-                });
+                db.ref('plans').on('value', s => itinerary.value = s.val() ? Object.values(s.val()) : []);
+                db.ref('hotels').on('value', s => hotels.value = s.val() || {});
+                db.ref('expenses').on('value', s => expenses.value = s.val() ? Object.values(s.val()) : []);
             });
 
             const currentDayPlans = computed(() => {
-                const activeDate = days[selectedDayIndex.value].date;
-                return itinerary.value.filter(p => p.dayDate === activeDate).sort((a,b) => a.time.localeCompare(b.time));
+                return itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date).sort((a,b) => a.time.localeCompare(b.time));
+            });
+
+            const totalExpense = computed(() => {
+                return expenses.value.reduce((sum, ex) => sum + (ex.amount * rates[ex.currency]), 0);
             });
 
             const shouldShowHotel = computed(() => {
@@ -248,28 +281,46 @@
 
             const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', link: '' });
 
+            const openAddModal = () => {
+                if(currentTab.value === 'itinerary') {
+                    isEditing.value = false;
+                    form.value = { id: null, name: '', time: '12:00', endTime: '', category: '', link: '', note: '', dayDate: days[selectedDayIndex.value].date };
+                    showModal.value = true;
+                } else {
+                    exForm.value = { id: null, name: '', amount: 0, currency: 'EUR', category: 'Food' };
+                    showExpenseModal.value = true;
+                }
+            };
+
             const handleSave = () => {
-                if (!form.value.name) return;
                 const id = isEditing.value ? form.value.id : Date.now();
                 db.ref('plans/' + id).set({ ...form.value, id: id });
                 showModal.value = false;
             };
 
-            const openAddModal = () => {
-                isEditing.value = false;
-                form.value = { id: null, name: '', time: '12:00', endTime: '', category: '', link: '', note: '', dayDate: days[selectedDayIndex.value].date };
-                showModal.value = true;
+            const saveExpense = () => {
+                const id = Date.now();
+                db.ref('expenses/' + id).set({ ...exForm.value, id: id });
+                showExpenseModal.value = false;
             };
 
+            const removeExpense = (id) => db.ref('expenses/' + id).remove();
+            const removeItem = (id) => { if(confirm('Delete?')) db.ref('plans/' + id).remove(); };
             const editItem = (item) => { isEditing.value = true; form.value = { ...item }; showModal.value = true; };
-            const removeItem = (id) => { if(confirm('Delete this plan?')) db.ref('plans/' + id).remove(); };
             const openHotelModal = () => { hotelForm.value = { ...currentDayHotel.value }; showHotelModal.value = true; };
             const saveHotel = () => {
                 db.ref('hotels/' + days[selectedDayIndex.value].date).set({ ...hotelForm.value });
                 showHotelModal.value = false;
             };
 
-            return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, showHotelModal, form, hotelForm, isEditing, shouldShowHotel, currentDayHotel, openAddModal, editItem, handleSave, removeItem, openHotelModal, saveHotel };
+            const getExpenseIcon = (cat) => {
+                const icons = { 'Food': 'fa-solid fa-utensils', 'Transport': 'fa-solid fa-train', 'Shopping': 'fa-solid fa-bag-shopping', 'Hotel': 'fa-solid fa-bed', 'Flight': 'fa-solid fa-plane', 'Others': 'fa-solid fa-ellipsis' };
+                return icons[cat] || icons['Others'];
+            };
+
+            const formatMoney = (val) => Math.round(val).toLocaleString();
+
+            return { currentTab, days, selectedDayIndex, currentDayPlans, showModal, showHotelModal, showExpenseModal, form, hotelForm, exForm, expenses, totalExpense, rates, isEditing, shouldShowHotel, currentDayHotel, openAddModal, handleSave, removeItem, editItem, openHotelModal, saveHotel, saveExpense, removeExpense, getExpenseIcon, formatMoney };
         }
     }).mount('#app');
 </script>
