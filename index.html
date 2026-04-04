@@ -29,9 +29,21 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .item-card { border-left: 4px solid var(--italy-gold); border-radius: 24px; background: #fff; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #F3F4F6; position: relative; }
         
-        /* 交通路徑樣式 */
-        .transit-connector { margin: 8px 0 8px 40px; border-left: 2px dashed #E5E7EB; padding: 10px 0 10px 25px; position: relative; }
-        .transit-connector::before { content: '\f1b9'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: -11px; top: 50%; transform: translateY(-50%); background: white; padding: 4px 0; color: #D1D5DB; font-size: 14px; }
+        /* 交通路徑視覺化 */
+        .transit-connector { margin: 6px 0 6px 40px; border-left: 2px dashed #E5E7EB; padding: 12px 0 12px 25px; position: relative; }
+        .transit-connector::before { 
+            content: '\f1b9'; 
+            font-family: 'Font Awesome 6 Free'; 
+            font-weight: 900; 
+            position: absolute; 
+            left: -11px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            background: #FDFBF7; 
+            padding: 4px 0; 
+            color: #C5A059; 
+            font-size: 14px; 
+        }
         
         .hotel-box { background: #FAF9F6; border: 1px dashed #E5E0D8; padding: 20px; border-radius: 28px; margin-bottom: 25px; transition: 0.2s; }
         .fab { position: fixed; bottom: 35px; right: 25px; width: 64px; height: 64px; background: var(--italy-red); border-radius: 22px; color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; z-index: 100; box-shadow: 0 12px 24px rgba(139,0,0,0.3); border: none; }
@@ -114,13 +126,16 @@
                     </div>
 
                     <div v-if="shouldShowTransit(index)" class="transit-connector">
-                        <div class="flex items-center justify-between bg-stone-50/50 rounded-2xl p-3 pr-4 border border-stone-100/50">
-                            <div class="flex items-center gap-3">
-                                <div class="text-[10px] font-black text-stone-400 uppercase tracking-widest">Travel To Next</div>
+                        <div @click="openRoute(item, currentDayPlans[index+1])" class="flex items-center justify-between bg-stone-50/80 rounded-2xl p-3 pr-4 border border-stone-100 active:bg-stone-100 transition-colors cursor-pointer">
+                            <div class="flex flex-col">
+                                <div class="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-0.5">Route Guide</div>
+                                <div class="text-[11px] font-bold text-gray-500 flex items-center gap-1">
+                                    <span>Precise Link Navigation</span>
+                                </div>
                             </div>
-                            <button @click="openRoute(item, currentDayPlans[index+1])" class="flex items-center gap-2 text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 active:scale-95 transition-transform">
-                                <i class="fa-solid fa-route"></i> OPEN ROUTE
-                            </button>
+                            <div class="flex items-center gap-2 text-[10px] font-black text-blue-600 bg-white px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm">
+                                <i class="fa-solid fa-route"></i> DIRECTIONS
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -159,7 +174,7 @@
             <input v-model="hotelForm.name" placeholder="Hotel Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-none mb-4">
             <input v-model="hotelForm.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none border-none text-blue-600 mb-6">
             <button @click="saveHotel" class="w-full bg-black text-white py-5 rounded-2xl font-black">CONFIRM</button>
-            <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold text-sm mt-2">Cancel</button>
+            <button @click="showHotelModal = false" class="w-full py-2 text-stone-400 font-bold text-sm mt-2 text-center block">Cancel</button>
         </div>
     </div>
 
@@ -196,7 +211,7 @@
                     </select>
                 </div>
                 <button @click="saveExpense" class="w-full bg-black text-white py-6 rounded-3xl font-black">ADD</button>
-                <button @click="showExpenseModal = false" class="w-full py-4 text-stone-400 font-bold text-xs">Cancel</button>
+                <button @click="showExpenseModal = false" class="w-full py-4 text-stone-400 font-bold text-xs text-center block">Cancel</button>
             </div>
         </div>
     </div>
@@ -259,17 +274,20 @@
             });
             const currentDayHotel = computed(() => hotels.value[days[selectedDayIndex.value].date] || { name: '', link: '' });
 
-            // 判斷是否顯示交通銜接
             const shouldShowTransit = (index) => {
                 const current = currentDayPlans.value[index];
                 const next = currentDayPlans.value[index + 1];
-                return current && next && current.link && next.link;
+                return current && next && (current.link || current.name) && (next.link || next.name);
             };
 
-            // 打開 Google Maps 導航路線
+            // 精確導航邏輯：優先使用 Link
             const openRoute = (from, to) => {
-                // 從 Google Maps Link 中提取地點名稱或座標 (簡單處理直接使用名子或原始 link)
-                const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from.name)}&destination=${encodeURIComponent(to.name)}&travelmode=driving`;
+                const origin = from.link ? from.link : from.name;
+                const destination = to.link ? to.link : to.name;
+                
+                // Google Maps Directions URL
+                // 如果是網址，它會嘗試解析地點；如果是文字，它會搜尋
+                const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
                 window.open(url, '_blank');
             };
 
