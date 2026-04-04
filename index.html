@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Helen & Ryan's Italy-UK 2026</title>
+    <title>Helen & Ryan's Getaway</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -85,15 +85,14 @@
         <div v-if="currentTab === 'expense'">
             <div class="bg-stone-900 text-white p-8 rounded-[40px] mb-8 text-center">
                 <div class="flex justify-between mb-8 px-2 text-[9px] font-black uppercase text-white/40">
-                    <div>EUR Rate: <input v-model="rates.eur" class="bg-transparent border-b w-8 outline-none" @change="saveRates"></div>
-                    <div>GBP Rate: <input v-model="rates.gbp" class="bg-transparent border-b w-8 outline-none" @change="saveRates"></div>
+                    <div>EUR: {{rates.eur}}</div><div>GBP: {{rates.gbp}}</div>
                 </div>
                 <div class="text-4xl font-black italic">HK$ {{ totalSpentHKD }}</div>
             </div>
             <div class="space-y-4">
                 <div v-for="ex in expenses" :key="ex.id" class="item-card flex justify-between items-center">
                     <div><div class="font-black text-gray-800">{{ ex.name }}</div><div class="text-[10px] text-stone-400 font-bold uppercase">{{ getCurrencySymbol(ex.currency) }}{{ ex.amount }}</div></div>
-                    <div class="flex items-center gap-4"><div class="font-black text-emerald-600">≈ HK${{ convertToHKD(ex.amount, ex.currency) }}</div><button @click="removeItem(ex.id, 'expenses')" class="text-stone-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button></div>
+                    <div class="flex items-center gap-4"><div class="font-black text-emerald-600 text-lg">≈ HK${{ convertToHKD(ex.amount, ex.currency) }}</div><button @click="removeItem(ex.id, 'expenses')" class="text-stone-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button></div>
                 </div>
             </div>
         </div>
@@ -102,8 +101,8 @@
             <div class="flex gap-2 overflow-x-auto mb-6 no-scrollbar pb-2">
                 <div v-for="city in cities" @click="selectedCity = city" :class="['city-tag cursor-pointer', selectedCity === city ? 'active' : '']">{{ city }}</div>
             </div>
-            <div class="w-full aspect-square bg-gray-100 rounded-[30px] overflow-hidden border-4 border-white mb-6 shadow-inner relative">
-                <iframe :key="selectedCity" class="w-full h-full" :src="cityMapLinks[selectedCity]" frameborder="0" allowfullscreen="" loading="lazy"></iframe>
+            <div class="w-full aspect-square bg-gray-100 rounded-[30px] overflow-hidden border-4 border-white mb-6 shadow-inner">
+                <iframe :key="selectedCity" class="w-full h-full" :src="cityMapLinks[selectedCity]" frameborder="0"></iframe>
             </div>
         </div>
 
@@ -116,29 +115,25 @@
                     <div class="flex items-center gap-3"><i :class="['fa-regular text-xl', item.done ? 'fa-square-check text-emerald-500' : 'fa-square text-stone-300']"></i><span :class="{'line-through text-stone-400': item.done, 'font-bold text-gray-700': !item.done}">{{ item.text }}</span></div>
                     <button @click.stop="removeItem(item.id, 'checklist')" class="text-stone-300"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
-                <div class="flex gap-2 mt-6">
-                    <input v-model="newCheckItem" @keyup.enter="addCheckItem" placeholder="Add something..." class="flex-1 p-4 bg-white border border-gray-100 rounded-xl font-bold">
-                    <button @click="addCheckItem" class="bg-gray-900 text-white px-6 rounded-xl font-black">ADD</button>
-                </div>
             </div>
         </div>
     </div>
 
     <div v-if="showModal" class="fixed inset-0 z-[300] flex items-end bg-black/70 backdrop-blur-sm">
-        <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[85vh] overflow-y-auto pb-10">
+        <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[85vh] overflow-y-auto pb-10 shadow-2xl">
             <h3 class="font-black text-xl mb-6 text-center italic">Edit Details</h3>
             <div class="space-y-4">
                 <div class="grid grid-cols-6 gap-2 mb-4">
                     <div v-for="cat in ['Spot','Food','Shop','Flight','Stay','Train']" @click="form.category=cat" :class="['p-3 rounded-xl border-2 text-center', form.category===cat?'border-indigo-600 bg-indigo-50 text-indigo-600 font-black':'border-gray-50 text-gray-300']"><i :class="['fa-solid', getCategoryIcon(cat)]"></i></div>
                 </div>
-                <input v-model="form.category" placeholder="Custom Category" class="w-full p-4 bg-gray-50 rounded-xl font-bold border border-gray-100">
+                <input v-model="form.category" placeholder="Custom Category (e.g. Wedding)" class="w-full p-4 bg-gray-50 rounded-xl font-bold border border-gray-100">
                 <input v-model="form.name" placeholder="Title" class="w-full p-4 bg-gray-100 rounded-xl font-black outline-none border border-gray-200">
                 <div class="grid grid-cols-2 gap-4">
-                    <input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-xl font-black">
-                    <input v-model="form.endTime" type="time" class="p-4 bg-gray-50 rounded-xl font-black">
+                    <input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-xl font-black border border-gray-100">
+                    <input v-model="form.endTime" type="time" class="p-4 bg-gray-50 rounded-xl font-black border border-gray-100">
                 </div>
-                <input v-model="form.link" placeholder="Map Link" class="w-full p-4 bg-gray-50 rounded-xl text-xs border border-gray-100">
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-xl font-black shadow-lg mt-2">SAVE</button>
+                <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-xl text-xs border border-gray-100">
+                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-xl font-black shadow-lg mt-2 uppercase tracking-widest">Save Plan</button>
                 <button @click="showModal=false" class="w-full py-2 text-stone-300 font-bold text-center text-xs">CLOSE</button>
             </div>
         </div>
@@ -151,7 +146,7 @@
             <div class="flex justify-around mb-8">
                 <button v-for="m in ['walk', 'bus', 'train', 'taxi']" @click="transitForm.mode = m" :class="['w-14 h-14 rounded-full border-2 transition-all', transitForm.mode === m ? 'border-red-800 bg-red-50 text-red-800 shadow-md scale-110' : 'border-gray-50 text-gray-300']"><i :class="['fa-solid', getTransitIcon(m)]" class="text-xl"></i></button>
             </div>
-            <button @click="saveTransit" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-lg mb-3">UPDATE ROUTE</button>
+            <button @click="saveTransit" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-lg mb-3 uppercase">Update Route</button>
             <button @click="showTransitModal = false" class="w-full py-2 text-stone-300 font-black text-center text-xs">CANCEL</button>
         </div>
     </div>
@@ -177,22 +172,20 @@
             const itinerary = ref([]), expenses = ref([]), checklist = ref([]), activeTransitItem = ref(null);
             const form = ref({ id: null, name: '', time: '09:00', endTime: '', dayDate: '14', category: 'Spot', link: '' });
             const transitForm = ref({ mode: 'walk', remark: '' });
-            const times = ref({ hk:'--', it:'--', uk:'--' }), rates = ref({ eur: 8.5, gbp: 10.2 }), newCheckItem = ref('');
+            const times = ref({ hk:'--', it:'--', uk:'--' }), rates = ref({ eur: 8.5, gbp: 10.2 });
 
             const days = [{date:'14',weekday:'THU'},{date:'15',weekday:'FRI'},{date:'16',weekday:'SAT'},{date:'17',weekday:'SUN'},{date:'18',weekday:'MON'},{date:'19',weekday:'TUE'},{date:'20',weekday:'WED'},{date:'21',weekday:'THU'},{date:'22',weekday:'FRI'},{date:'23',weekday:'SAT'},{date:'24',weekday:'SUN'},{date:'25',weekday:'MON'}];
             const cities = ['Rome', 'Florence', 'Pisa', 'La Spezia', 'Cinque Terre', 'Milan', 'York', 'London'];
-            
-            // 重要：這裡請放你從 Google Maps 分享 -> 嵌入地圖中複製來的網址 (https://www.google.com/maps/embed?...)
-            const cityMapLinks = ref({
-                'Rome': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2969.886022567406!2d12.476!3d41.890!',
-                'Florence': 'https://www.google.com/maps/embed?pb=...',
-                'Pisa': 'https://www.google.com/maps/embed?pb=...',
-                'La Spezia': 'https://www.google.com/maps/embed?pb=...',
-                'Cinque Terre': 'https://www.google.com/maps/embed?pb=...',
-                'Milan': 'https://www.google.com/maps/embed?pb=...',
-                'York': 'https://www.google.com/maps/embed?pb=...',
-                'London': 'https://www.google.com/maps/embed?pb=...'
-            });
+            const cityMapLinks = {
+                'Rome': 'https://maps.app.goo.gl/PeMn1SyeFk61YcH58',
+                'Florence': 'https://maps.app.goo.gl/PeMn1SyeFk61YcH58',
+                'Pisa': 'https://maps.app.goo.gl/PeMn1SyeFk61YcH58',
+                'La Spezia': 'https://maps.app.goo.gl/H6Y6bnada9Q2zGBGA',
+                'Cinque Terre': 'https://maps.app.goo.gl/Xpfx7aRbxyu8BACd6',
+                'Milan': 'https://maps.app.goo.gl/xBNh38BGworn9CE69',
+                'York': 'https://maps.app.goo.gl/xBNh38BGworn9CE69',
+                'London': 'https://maps.app.goo.gl/nJfMNNgVn93bct158'
+            };
 
             onMounted(() => {
                 db.ref('plans').on('value', s => itinerary.value = s.val() ? Object.values(s.val()) : []);
@@ -211,7 +204,7 @@
             const convertToHKD = (a, c) => (c === 'HKD' ? a : (a * (c === 'EUR' ? rates.value.eur : rates.value.gbp))).toFixed(1);
 
             return {
-                currentTab, days, selectedDayIndex, activeUser, selectedCity, cities, cityMapLinks, showModal, showTransitModal, form, transitForm, times, checklist, expenses, rates, newCheckItem,
+                currentTab, days, selectedDayIndex, activeUser, selectedCity, cities, cityMapLinks, showModal, showTransitModal, form, transitForm, times, checklist, expenses, rates,
                 currentDayPlans: computed(() => itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date && p.category !== 'Stay').sort((a,b) => a.time.localeCompare(b.time))),
                 currentStay: computed(() => itinerary.value.find(p => p.dayDate === days[selectedDayIndex.value].date && p.category === 'Stay')),
                 totalSpentHKD: computed(() => expenses.value.reduce((sum, ex) => sum + parseFloat(convertToHKD(ex.amount, ex.currency)), 0).toFixed(0)),
@@ -221,8 +214,6 @@
                 saveTransit: () => { db.ref('plans/'+activeTransitItem.value.id).update({ transitMode: transitForm.value.mode, transitRemark: transitForm.value.remark }); showTransitModal.value = false; },
                 removeItem: (id, path) => { if(confirm('Delete?')) db.ref(`${path}/${id}`).remove(); },
                 toggleCheck: (id) => { const item = checklist.value.find(c => c.id === id); if(item) db.ref('checklist/'+id).update({ done: !item.done }); },
-                addCheckItem: () => { if(newCheckItem.value) { const id = Date.now(); db.ref('checklist/'+id).set({ id, text: newCheckItem.value, done: false, user: activeUser.value }); newCheckItem.value = ''; }},
-                saveRates: () => db.ref('rates').set(rates.value),
                 handleFabAction: () => { form.value={id:null, name:'', time:'09:00', endTime:'', dayDate:days[selectedDayIndex.value].date, category:'Spot', link:''}; showModal.value=true; },
                 getCategoryIcon: (c) => ({ Food:'fa-utensils', Flight:'fa-plane', Shop:'fa-bag-shopping', Spot:'fa-camera', Stay:'fa-hotel', Train:'fa-train' }[c] || 'fa-star'),
                 getCatClass: (c) => ({ Spot:'bg-orange-100 text-orange-600', Food:'bg-emerald-100 text-emerald-600', Shop:'bg-pink-100 text-pink-600', Flight:'bg-blue-100 text-blue-600', Stay:'bg-indigo-100 text-indigo-600', Train:'bg-amber-100 text-amber-600' }[c] || 'bg-gray-100 text-gray-500'),
