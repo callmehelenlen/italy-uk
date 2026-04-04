@@ -116,13 +116,10 @@
                 <div v-for="city in cities" :key="city" @click="selectedCity = city" :class="['city-tag', selectedCity === city ? 'active' : '']">{{ city }}</div>
             </div>
             <div class="w-full mb-6">
-                <div class="w-full h-64 bg-gray-100 rounded-[30px] overflow-hidden relative shadow-inner border-4 border-white mb-4">
-                    <iframe v-if="cityMapLinks[selectedCity]" class="w-full h-full" :src="cityMapLinks[selectedCity]" frameborder="0"></iframe>
+                <div class="w-full h-[400px] bg-gray-100 rounded-[30px] overflow-hidden relative shadow-inner border-4 border-white mb-4">
+                    <iframe v-if="cityMapLinks[selectedCity]" class="w-full h-full" :src="cityMapLinks[selectedCity]" frameborder="0" allowfullscreen="" loading="lazy"></iframe>
                     <div v-else class="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300 font-black text-[10px] text-center italic">Select city to view map</div>
                 </div>
-                <a :href="cityMapLinks[selectedCity]" target="_blank" class="w-full py-5 bg-blue-600 text-white rounded-[24px] font-black text-center block shadow-lg active:scale-95 transition-all text-sm uppercase">
-                    <i class="fa-solid fa-map-location-dot mr-2"></i> Open Google Maps
-                </a>
             </div>
             <div class="space-y-4">
                 <div v-for="bm in filteredBookmarks" :key="bm.id" class="item-card flex justify-between items-center">
@@ -163,7 +160,8 @@
                     <div class="grid grid-cols-6 gap-2">
                         <div v-for="cat in ['Spot', 'Food', 'Shop', 'Flight', 'Stay', 'Train']" :key="cat" @click="form.category = cat" :class="['p-3 rounded-xl border-2 text-center transition-all', form.category === cat ? 'border-indigo-600 bg-indigo-50 text-indigo-600 font-black' : 'border-gray-50 text-gray-300 font-bold']"><i :class="['fa-solid', getCategoryIcon(cat)]" class="text-lg"></i></div>
                     </div>
-                    <input v-model="form.category" placeholder="Custom category (e.g. Wedding)" class="w-full p-4 bg-gray-50 rounded-2xl text-xs font-black border border-gray-100 outline-none focus:border-indigo-300">
+                    <label class="text-[9px] font-black ml-2 text-gray-400 uppercase">Category Name (Tap above or type custom)</label>
+                    <input v-model="form.category" placeholder="e.g. Wedding, Museum, Sunset" class="w-full p-4 bg-gray-50 rounded-2xl text-sm font-black border border-gray-100 outline-none focus:border-indigo-300">
                 </div>
                 <input v-model="form.name" placeholder="Title" class="w-full p-5 bg-gray-100 rounded-2xl font-black outline-none border border-gray-200">
                 <div class="grid grid-cols-2 gap-4">
@@ -213,7 +211,7 @@
                 <select v-model="bookmarkForm.city" class="w-full p-5 bg-gray-100 rounded-2xl font-black border border-gray-200"><option v-for="c in cities" :key="c">{{c}}</option></select>
                 <input v-model="bookmarkForm.category" placeholder="Category (e.g. Shopping)" class="w-full p-5 bg-gray-100 rounded-2xl font-black border border-gray-200">
                 <input v-model="bookmarkForm.name" placeholder="Place Name" class="w-full p-5 bg-gray-100 rounded-2xl font-black border border-gray-200">
-                <input v-model="bookmarkForm.link" placeholder="Map Link" class="w-full p-5 bg-gray-100 rounded-2xl border border-gray-200">
+                <input v-model="bookmarkForm.link" placeholder="Map Link" class="w-full p-5 bg-gray-100 rounded-2xl border border-gray-100">
                 <button @click="saveBookmark" class="w-full bg-indigo-600 text-white py-6 rounded-2xl font-black shadow-xl">Add to Bookmark</button>
                 <button @click="showBookmarkModal = false" class="w-full py-2 text-stone-300 font-black text-center">Cancel</button>
             </div>
@@ -243,9 +241,16 @@
             const transitForm = ref({ mode: 'walk', remark: '', link: '' });
             const activeTransitItem = ref(null), newCheckItem = ref(''), times = ref({ hk:'--', it:'--', uk:'--' }), rates = ref({ eur: 8.5, gbp: 10.2 });
 
-            const cities = ['Rome', 'Florence', 'Pisa', 'Milan', 'London'];
+            const cities = ['Rome', 'Florence', 'Pisa', 'La Spezia', 'Cinque Terre', 'Milan', 'York', 'London'];
             const cityMapLinks = ref({
-                'Rome': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2881.082531398865!2d11.2558888!3d43.7731451!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132a54030635905d%3A0xe541604a8b8f2c69!2sCathedral%20of%20Santa%20Maria%20del%20Fiore!5e0!3m2!1sen!2shk!4v1712210000001!5m2!1sen!2shk4'
+                'Rome': 'https://maps.google.com/?cid=13335007891793735224&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ',
+                'Florence': 'https://maps.google.com/?cid=10652553637328792067&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ',
+                'Pisa': 'https://maps.google.com/?cid=12301599655036483784&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ',
+                'La Spezia': 'https://maps.google.com/?cid=3617102628508028800&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ',
+                'Cinque Terre': 'https://maps.google.com/?cid=18416853786127561900&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ',
+                'Milan': 'https://maps.google.com/?cid=4395457246154460813&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ',
+                'York': 'https://maps.google.com/?cid=5148928881211008209&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ',
+                'London': 'https://maps.google.com/?cid=5951008119559891609&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ'
             });
 
             onMounted(() => {
