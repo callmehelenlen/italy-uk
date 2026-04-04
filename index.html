@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sweet as Tiramisu</title>
+    <title>Sweet as Tiramisu - Final Fix</title>
     
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,16 +11,27 @@
 
     <style>
         [v-cloak] { display: none !important; }
-        :root { --italy-red: #8B0000; --italy-gold: #C5A059; }
+        :root { --italy-red: #8B0000; }
         body { background-color: #FDFBF7; font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 100px; }
-        .banner { height: 350px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 30px 80px 30px; }
-        .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
-        .main-card { margin-top: -50px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 10; padding: 20px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
-        .tab-btn { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: white; color: #ddd; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        .tab-btn.active { background: var(--italy-red); color: white; }
-        .day-pill { flex-shrink: 0; width: 52px; padding: 12px 0; border-radius: 18px; text-align: center; cursor: pointer; }
+        
+        /* 背景 Banner */
+        .banner { height: 320px; background-image: url('cover.jpg'); background-size: cover; background-position: center; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 25px 60px 25px; }
+        .banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%); }
+        
+        /* 主卡片 */
+        .main-card { margin-top: -40px; border-radius: 40px 40px 0 0; background: white; min-height: 80vh; position: relative; z-index: 10; padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); }
+        
+        /* 標籤按鈕 */
+        .tab-btn { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: white; color: #ddd; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; }
+        .tab-btn.active { background: var(--italy-red); color: white; transform: translateY(-3px); }
+        
+        /* 日期選擇 */
+        .day-pill { flex-shrink: 0; width: 52px; padding: 12px 0; border-radius: 18px; text-align: center; cursor: pointer; transition: 0.2s; }
         .day-pill.active { background: var(--italy-red); color: white; box-shadow: 0 8px 15px rgba(139,0,0,0.2); }
-        .item-card { border-left: 4px solid var(--italy-gold); border-radius: 20px; background: #fff; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        /* 行程卡片 */
+        .item-card { border-left: 4px solid #C5A059; border-radius: 15px; background: #fff; margin-bottom: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; }
+        
         .fab { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; background: var(--italy-red); border-radius: 20px; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; box-shadow: 0 10px 25px rgba(139,0,0,0.3); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
@@ -31,56 +42,52 @@
     <div class="banner">
         <div class="relative z-10">
             <h1 class="text-white text-3xl font-black italic mb-1">Sweet as Tiramisu</h1>
-            <p class="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Helen & Ryan’s 2026 Getaway</p>
+            <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest">Helen & Ryan’s 2026 Getaway</p>
         </div>
     </div>
 
     <div class="main-card">
         <div class="flex justify-center gap-6 -mt-10 mb-8 relative z-20">
-            <button @click="currentTab = 'itinerary'" :class="{active: currentTab === 'itinerary'}" class="tab-btn"><i class="fa-solid fa-map"></i></button>
-            <button @click="currentTab = 'expense'" :class="{active: currentTab === 'expense'}" class="tab-btn"><i class="fa-solid fa-wallet"></i></button>
+            <button @click="currentTab = 'itinerary'" :class="{active: currentTab === 'itinerary'}" class="tab-btn"><i class="fa-solid fa-map-location-dot"></i></button>
+            <button @click="currentTab = 'expense'" :class="{active: currentTab === 'expense'}" class="tab-btn"><i class="fa-solid fa-coins"></i></button>
         </div>
 
         <div v-if="currentTab === 'itinerary'">
-            <div class="flex space-x-3 overflow-x-auto mb-8 pb-2 no-scrollbar">
+            <div class="flex space-x-3 overflow-x-auto mb-6 pb-2 no-scrollbar">
                 <div v-for="(day, index) in days" :key="index" @click="selectedDayIndex = index" 
                      :class="['day-pill', selectedDayIndex === index ? 'active' : 'bg-stone-50 text-stone-300']">
-                    <div class="text-[8px] font-bold opacity-60">{{ day.weekday }}</div>
+                    <div class="text-[8px] font-bold">{{ day.weekday }}</div>
                     <div class="text-lg font-black">{{ day.date }}</div>
                 </div>
             </div>
 
-            <div v-for="item in itinerary" :key="item.id">
-                <div v-if="item.dayDate === days[selectedDayIndex].date" @click="editItem(item)" class="item-card p-5 border border-gray-50">
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex gap-2">
-                            <span class="bg-red-50 text-[#8B0000] px-2 py-0.5 rounded-lg font-black text-[10px]">
-                                {{ item.time }}
-                            </span>
-                            <span v-if="item.type" class="bg-stone-100 text-stone-500 px-2 py-0.5 rounded-lg font-bold text-[9px] uppercase tracking-wider">{{ item.type }}</span>
-                        </div>
-                        <button @click.stop="removeItem(item.id)" class="text-gray-200"><i class="fa-solid fa-circle-xmark"></i></button>
+            <div class="space-y-3">
+                <div v-for="item in currentDayPlans" :key="item.id" @click="editItem(item)" class="item-card">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="bg-red-50 text-[#8B0000] px-2 py-0.5 rounded-lg font-bold text-[10px]">{{ item.time }}</span>
+                        <button @click.stop="deleteItem(item.id)" class="text-stone-200 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="font-black text-gray-800 text-lg leading-tight">{{ item.name }}</div>
-                    <div v-if="item.note" class="text-gray-400 text-xs mt-2 italic">{{ item.note }}</div>
+                    <div class="font-bold text-gray-800 text-lg">{{ item.name }}</div>
+                    <div v-if="item.note" class="text-gray-400 text-xs mt-1">{{ item.note }}</div>
                 </div>
-            </div>
 
-            <div v-if="itinerary.filter(i => i.dayDate === days[selectedDayIndex].date).length === 0" class="text-center py-20 opacity-20 italic font-bold">
-                No plans for May {{ days[selectedDayIndex].date }}
+                <div v-if="currentDayPlans.length === 0" class="text-center py-20 opacity-20">
+                    <i class="fa-solid fa-feather-pointed text-4xl mb-2"></i>
+                    <p class="font-bold italic">No plans yet for May {{ days[selectedDayIndex].date }}</p>
+                </div>
             </div>
         </div>
 
         <div v-if="currentTab === 'expense'">
-            <div class="bg-stone-900 text-white p-8 rounded-[32px] mb-6 text-center">
-                <div class="text-[10px] uppercase tracking-[0.3em] opacity-40 mb-2 font-bold text-amber-400">Total</div>
-                <div class="text-4xl font-black mb-6">HK$ {{ totalHKD }}</div>
+            <div class="bg-stone-900 text-white p-6 rounded-3xl mb-6 text-center">
+                <p class="text-[10px] opacity-40 font-bold uppercase tracking-widest">Estimated Total</p>
+                <h2 class="text-3xl font-black">HK$ {{ totalHKD }}</h2>
             </div>
-            <div v-for="ex in expenses" :key="ex.id" class="bg-white p-5 rounded-2xl border border-gray-100 mb-3 flex justify-between items-center">
-                <div class="font-bold text-gray-800">{{ ex.name }}</div>
-                <div class="flex items-center gap-4">
-                    <div class="font-black text-gray-900">{{ ex.amount }} {{ ex.currency }}</div>
-                    <button @click="removeExpense(ex.id)" class="text-red-200"><i class="fa-solid fa-trash-can"></i></button>
+            <div v-for="ex in expenses" :key="ex.id" class="bg-white p-4 rounded-xl border border-gray-100 mb-3 flex justify-between items-center">
+                <div class="font-bold">{{ ex.name }}</div>
+                <div class="flex items-center gap-3">
+                    <span class="font-black">{{ ex.amount }} {{ ex.currency }}</span>
+                    <button @click="deleteExpense(ex.id)" class="text-red-200"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
         </div>
@@ -88,33 +95,38 @@
 
     <button class="fab" @click="openAddModal"><i class="fa-solid fa-plus"></i></button>
 
-    <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end bg-black/80 backdrop-blur-sm">
-        <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[90vh] overflow-y-auto">
-            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? 'Edit' : 'New Plan' }}</h3>
+    <div v-if="showModal" class="fixed inset-0 z-[1000] flex items-end bg-black/60 backdrop-blur-sm">
+        <div class="bg-white w-full p-8 rounded-t-[40px] shadow-2xl">
+            <h3 class="font-black text-2xl mb-6 text-gray-800">{{ isEditing ? '修改' : '新增' }}{{ currentTab === 'itinerary' ? '行程' : '預算' }}</h3>
+            
             <div class="space-y-4">
-                <input v-model="form.name" placeholder="Name / Location" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-stone-100">
+                <input v-model="form.name" placeholder="名稱 (地點)" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none focus:ring-2 focus:ring-red-100">
                 
                 <div v-if="currentTab === 'itinerary'" class="grid grid-cols-2 gap-3">
-                    <input v-model="form.time" type="time" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
-                    <input v-model="form.type" placeholder="Category" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
+                    <input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+                    <input v-model="form.type" placeholder="類別 (如: 交通)" class="p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
                 </div>
 
                 <div v-if="currentTab === 'expense'" class="grid grid-cols-2 gap-3">
-                    <input v-model="form.amount" type="number" placeholder="Amount" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none">
-                    <select v-model="form.currency" class="p-4 bg-gray-50 rounded-2xl font-bold outline-none">
+                    <input v-model="form.amount" type="number" placeholder="金額" class="p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+                    <select v-model="form.currency" class="p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none">
                         <option value="EUR">EUR (€)</option>
                         <option value="GBP">GBP (£)</option>
                     </select>
                 </div>
 
-                <textarea v-model="form.note" placeholder="Notes..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none"></textarea>
+                <textarea v-model="form.note" placeholder="備註..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 border-none outline-none"></textarea>
                 
-                <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-[22px] font-black shadow-lg">
-                    SAVE CHANGES
+                <button @click="saveData" class="w-full bg-[#8B0000] text-white py-5 rounded-[22px] font-black tracking-widest active:scale-95 transition-transform">
+                    儲存變更
                 </button>
-                <button @click="showModal = false" class="w-full py-4 text-gray-400 font-bold">CANCEL</button>
+                <button @click="showModal = false" class="w-full py-3 text-gray-400 font-bold text-sm">取消</button>
             </div>
         </div>
+    </div>
+
+    <div class="p-10 text-center">
+        <button @click="resetAllData" class="text-[10px] text-red-200 underline">RESET DATA (如果數據卡住請點我)</button>
     </div>
 </div>
 
@@ -139,18 +151,25 @@
             const expenses = ref([]);
             const form = ref({});
 
-            // New Key to clear old buggy data
-            const DB_KEY = 'italy_final_v99';
+            const KEY_I = 'italy_itinerary_vfinal';
+            const KEY_E = 'italy_expenses_vfinal';
 
             onMounted(() => {
-                itinerary.value = JSON.parse(localStorage.getItem(DB_KEY + '_i')) || [];
-                expenses.value = JSON.parse(localStorage.getItem(DB_KEY + '_e')) || [];
+                const savedI = localStorage.getItem(KEY_I);
+                const savedE = localStorage.getItem(KEY_E);
+                if (savedI) itinerary.value = JSON.parse(savedI);
+                if (savedE) expenses.value = JSON.parse(savedE);
+            });
+
+            const currentDayPlans = computed(() => {
+                const date = days[selectedDayIndex.value].date;
+                return itinerary.value.filter(p => p.dayDate === date).sort((a, b) => a.time.localeCompare(b.time));
             });
 
             const totalHKD = computed(() => {
                 const eur = expenses.value.filter(e => e.currency === 'EUR').reduce((s, i) => s + Number(i.amount || 0), 0);
                 const gbp = expenses.value.filter(e => e.currency === 'GBP').reduce((s, i) => s + Number(i.amount || 0), 0);
-                return (eur * 8.5 + gbp * 10.2).toFixed(0);
+                return Math.round(eur * 8.5 + gbp * 10.2);
             });
 
             const openAddModal = () => {
@@ -174,39 +193,44 @@
                 showModal.value = true;
             };
 
-            const handleSave = () => {
+            const saveData = () => {
                 if (!form.value.name) return;
-                
+
                 if (currentTab.value === 'itinerary') {
-                    const idx = itinerary.value.findIndex(i => i.id === form.value.id);
+                    const idx = itinerary.value.findIndex(p => p.id === form.value.id);
                     if (idx !== -1) itinerary.value[idx] = { ...form.value };
                     else itinerary.value.push({ ...form.value });
-                    localStorage.setItem(DB_KEY + '_i', JSON.stringify(itinerary.value));
+                    localStorage.setItem(KEY_I, JSON.stringify(itinerary.value));
                 } else {
-                    const idx = expenses.value.findIndex(i => i.id === form.value.id);
+                    const idx = expenses.value.findIndex(p => p.id === form.value.id);
                     if (idx !== -1) expenses.value[idx] = { ...form.value };
                     else expenses.value.push({ ...form.value });
-                    localStorage.setItem(DB_KEY + '_e', JSON.stringify(expenses.value));
+                    localStorage.setItem(KEY_E, JSON.stringify(expenses.value));
                 }
 
                 showModal.value = false;
-                // Force a hard refresh to make sure data is rendered
-                window.location.reload();
             };
 
-            const removeItem = (id) => {
-                itinerary.value = itinerary.value.filter(i => i.id !== id);
-                localStorage.setItem(DB_KEY + '_i', JSON.stringify(itinerary.value));
+            const deleteItem = (id) => {
+                itinerary.value = itinerary.value.filter(p => p.id !== id);
+                localStorage.setItem(KEY_I, JSON.stringify(itinerary.value));
             };
 
-            const removeExpense = (id) => {
+            const deleteExpense = (id) => {
                 expenses.value = expenses.value.filter(e => e.id !== id);
-                localStorage.setItem(DB_KEY + '_e', JSON.stringify(expenses.value));
+                localStorage.setItem(KEY_E, JSON.stringify(expenses.value));
+            };
+
+            const resetAllData = () => {
+                if (confirm('確定要清空所有數據嗎？此動作無法復原。')) {
+                    localStorage.clear();
+                    location.reload();
+                }
             };
 
             return {
                 currentTab, days, selectedDayIndex, itinerary, expenses, showModal, isEditing, form,
-                totalHKD, openAddModal, editItem, handleSave, removeItem, removeExpense
+                currentDayPlans, totalHKD, openAddModal, editItem, saveData, deleteItem, deleteExpense, resetAllData
             };
         }
     }).mount('#app');
