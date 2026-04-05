@@ -14,32 +14,35 @@
         :root { --italy-red: #8B0000; }
         body { background-color: #FDFBF7; font-family: -apple-system, sans-serif; color: #1F2937; overflow-x: hidden; }
         
+        /* Banner & Tabs */
         .banner { 
             min-height: 380px; 
             background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%), 
                         url('./cover.jpg') center center / cover no-repeat;
             position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; background-color: #2c2c2c;
         }
-        
         .tz-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 8px 12px; display: inline-flex; gap: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .tz-time { font-size: 11px; font-weight: 800; color: white; font-variant-numeric: tabular-nums; }
         .tab-btn { padding: 12px 14px; border-radius: 16px; font-weight: 800; font-size: 9px; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); border: none; white-space: nowrap; text-transform: uppercase; }
         .tab-btn.active { background: white; color: var(--italy-red); transform: scale(1.05); }
         
+        /* Main Card */
         .main-card { margin-top: -35px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 20; padding: 25px 20px 120px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
         .day-pill.active { background: var(--italy-red); color: white; }
         .city-tag { padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 800; background: #F3F4F6; color: #9CA3AF; flex-shrink: 0; }
         .city-tag.active { background: #1F2937; color: white; }
         
+        /* Item Cards */
         .item-card { border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 15px; position: relative; }
         .cat-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
         .transit-container { margin-left: 35px; border-left: 2px dashed #E5E7EB; padding: 12px 0 12px 25px; margin-top: -5px; margin-bottom: 10px; }
         
-        .fab { position: fixed; bottom: 30px; right: 25px; width: 68px; height: 68px; background: var(--italy-red); border-radius: 24px; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 100; box-shadow: 0 12px 30px rgba(139,0,0,0.4); }
-        .rate-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 6px; width: 45px; text-align: center; color: white; font-weight: 900; outline: none; }
-        
+        /* Special Styles */
         .birthday-card { background: linear-gradient(135deg, #FFF5F5 0%, #FFF 100%) !important; border: 2px solid #FEB2B2 !important; }
         .stay-card { border: 3px solid var(--italy-red) !important; box-shadow: 0 8px 25px rgba(139,0,0,0.2) !important; }
+        
+        .fab { position: fixed; bottom: 30px; right: 25px; width: 68px; height: 68px; background: var(--italy-red); border-radius: 24px; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 100; box-shadow: 0 12px 30px rgba(139,0,0,0.4); }
+        .rate-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 6px; width: 45px; text-align: center; color: white; font-weight: 900; outline: none; }
         
         input, textarea, select { -webkit-appearance: none; border-radius: 12px; outline: none; }
     </style>
@@ -79,11 +82,13 @@
                             <div v-else class="h-6"></div>
                             <button @click.stop="removeItem(item.id, 'plans')" class="text-stone-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
                         </div>
-                        <div :class="['cat-badge', getCatClass(item.category)]"><i :class="['fa-solid', getCategoryIcon(item.category)]"></i> {{ item.category }}</div>
+                        <div :class="['cat-badge', getCatClass(item.category)]">
+                            <i :class="['fa-solid', getCategoryIcon(item.category)]"></i> {{ item.category }}
+                        </div>
                         <div class="font-black text-gray-800 text-xl leading-tight">
                             <i v-if="item.name.includes('Birthday')" class="fa-solid fa-cake-candles text-red-500 mr-2"></i>{{ item.name }}
                         </div>
-                        <p v-if="item.remark" class="text-[11px] text-stone-400 font-bold mt-1.5 leading-relaxed">{{ item.remark }}</p>
+                        <p v-if="item.remark" class="text-[11px] text-stone-400 font-bold mt-1.5 leading-relaxed whitespace-pre-wrap">{{ item.remark }}</p>
                         <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="inline-flex items-center gap-2 text-blue-600 font-black text-[10px] mt-3.5 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100 uppercase italic">
                             <i class="fa-solid fa-location-dot"></i> Google Map
                         </a>
@@ -137,7 +142,6 @@
                     <p v-if="bm.remark" class="text-xs text-gray-400 font-bold mt-1">{{ bm.remark }}</p>
                     <a v-if="bm.link" :href="bm.link" target="_blank" @click.stop class="inline-block mt-3 text-blue-600 font-black text-[10px] underline uppercase italic">Open Maps</a>
                 </div>
-                <div v-if="currentCityBookmarks.length === 0" class="text-center py-20 text-stone-300 font-bold italic text-sm">No bookmarks for {{ selectedCity }}</div>
             </div>
         </div>
 
@@ -153,27 +157,36 @@
                     </div>
                     <button @click.stop="removeItem(item.id, 'checklist')" class="text-stone-200"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
-                <div class="flex gap-2 mt-8"><input v-model="newCheckItem" @keyup.enter="addCheckItem" placeholder="Add items..." class="flex-1 p-4 bg-gray-50 border-none rounded-2xl font-bold"><button @click="addCheckItem" class="bg-gray-900 text-white px-6 rounded-2xl font-black">ADD</button></div>
+                <div class="flex gap-2 mt-8"><input v-model="newCheckItem" @keyup.enter="addCheckItem" placeholder="Add..." class="flex-1 p-4 bg-gray-50 border-none rounded-2xl font-bold"><button @click="addCheckItem" class="bg-gray-900 text-white px-6 rounded-2xl font-black">ADD</button></div>
             </div>
         </div>
     </div>
 
     <div v-if="showModal" class="fixed inset-0 z-[300] flex items-end bg-black/70 backdrop-blur-sm">
         <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[95vh] overflow-y-auto pb-12 shadow-2xl">
-            <h3 class="font-black text-xl mb-6 text-center italic">Details ({{ currentTab === 'bookmark' ? 'Bookmark' : 'Itinerary' }})</h3>
-            <div class="space-y-4">
+            <h3 class="font-black text-xl mb-6 text-center italic text-stone-400 uppercase tracking-widest">Settings</h3>
+            <div class="space-y-5">
                 <div class="grid grid-cols-3 gap-2">
                     <button v-for="c in ['Spot','Food','Stay','Shop','Flight','Train']" @click="form.category=c" :class="['p-3 rounded-xl border-2 font-black text-[10px] uppercase transition-all', form.category===c?'border-indigo-600 bg-indigo-50 text-indigo-600':'border-gray-100 text-gray-300']">{{c}}</button>
                 </div>
+                <div>
+                    <label class="text-[9px] font-black uppercase text-gray-400 ml-1">Custom Category (手動輸入)</label>
+                    <input v-model="form.category" placeholder="e.g. Ticket / Relax / Photo" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-none mt-1">
+                </div>
+
                 <input v-model="form.name" placeholder="Title / Name" class="w-full p-4 bg-gray-100 rounded-xl font-black border-none text-lg">
                 
                 <div v-if="currentTab !== 'bookmark' && form.category !== 'Stay'" class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col"><label class="text-[8px] font-black text-gray-400 mb-1 ml-2 uppercase">Start</label><input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-xl font-black border-none"></div>
-                    <div class="flex flex-col"><label class="text-[8px] font-black text-gray-400 mb-1 ml-2 uppercase">End</label><input v-model="form.endTime" type="time" class="p-4 bg-gray-50 rounded-xl font-black border-none"></div>
+                    <div class="flex flex-col"><label class="text-[8px] font-black text-gray-400 mb-1 ml-2 uppercase">Start Time</label><input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-xl font-black border-none"></div>
+                    <div class="flex flex-col"><label class="text-[8px] font-black text-gray-400 mb-1 ml-2 uppercase">End Time</label><input v-model="form.endTime" type="time" class="p-4 bg-gray-50 rounded-xl font-black border-none"></div>
                 </div>
 
-                <div><label class="text-[9px] font-black uppercase text-gray-400 ml-1">Remark</label><textarea v-model="form.remark" placeholder="Notes..." class="w-full p-4 bg-gray-50 rounded-xl font-bold border-none mt-1" rows="2"></textarea></div>
-                <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-xl text-xs font-bold border-none">
+                <div>
+                    <label class="text-[9px] font-black uppercase text-gray-400 ml-1">Remark / Note (備註)</label>
+                    <textarea v-model="form.remark" placeholder="Write notes here..." class="w-full p-4 bg-gray-50 rounded-xl font-bold border-none mt-1" rows="3"></textarea>
+                </div>
+
+                <input v-model="form.link" placeholder="Google Maps Link" class="w-full p-4 bg-gray-50 rounded-xl text-xs font-bold border-none mt-1">
                 
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-lg uppercase mt-4">Save Information</button>
                 <button @click="showModal=false" class="w-full py-2 text-stone-300 font-bold text-xs uppercase text-center">Cancel</button>
@@ -245,10 +258,9 @@
                 addExpense: () => { if(!newEx.value.name) return; const id = Date.now(); db.ref(`expenses/${id}`).set({...newEx.value, id}); newEx.value = { name: '', amount: 0, currency: 'EUR' }; },
                 handleSave: () => { 
                     const id = form.value.id || Date.now(); 
-                    // 🔧 核心修正：根據 Tab 決定存入路徑
                     const path = currentTab.value === 'bookmark' ? 'bookmarks' : 'plans';
                     db.ref(`${path}/${id}`).set({...form.value, id}); 
-                    showModal.value=false; 
+                    showModal.value = false; 
                 },
                 openTransitModal: (item) => { activeTransitItem.value = item; transitForm.value = { mode: item.transitMode || 'walk', remark: item.transitRemark || '', link: item.transitLink || '' }; showTransitModal.value = true; },
                 saveTransit: () => { db.ref('plans/'+activeTransitItem.value.id).update({ transitMode: transitForm.value.mode, transitRemark: transitForm.value.remark, transitLink: transitForm.value.link }); showTransitModal.value = false; },
@@ -256,14 +268,13 @@
                 toggleCheck: (id) => { const item = checklist.value.find(c => c.id === id); if(item) db.ref(`checklist/${id}`).update({ done: !item.done }); },
                 handleFabAction: () => { 
                     if(currentTab.value === 'expense' || currentTab.value === 'checklist') return; 
-                    // 🔧 核心修正：開啟 Modal 時自動綁定當前城市
-                    form.value={id:null, name:'', time:'09:00', endTime:'', dayDate:days[selectedDayIndex.value].date, category:'Spot', link:'', remark:'', city: selectedCity.value}; 
-                    showModal.value=true; 
+                    form.value = { id: null, name: '', time: '09:00', endTime: '', dayDate: days[selectedDayIndex.value].date, category: 'Spot', link: '', remark: '', city: selectedCity.value }; 
+                    showModal.value = true; 
                 },
-                editItem: (item, path) => { form.value = {...item}; showModal.value = true; },
+                editItem: (item, path) => { form.value = { ...item }; showModal.value = true; },
                 removeItem: (id, path) => { if(confirm('Delete?')) db.ref(`${path}/${id}`).remove(); },
-                getCategoryIcon: (c) => ({ Food:'fa-utensils', Flight:'fa-plane', Shop:'fa-bag-shopping', Spot:'fa-camera', Stay:'fa-hotel', Train:'fa-train' }[c] || 'fa-star'),
-                getCatClass: (c) => ({ Spot:'bg-orange-100 text-orange-600', Food:'bg-emerald-100 text-emerald-600', Shop:'bg-pink-100 text-pink-600', Flight:'bg-blue-100 text-blue-600', Stay:'bg-indigo-100 text-indigo-600', Train:'bg-amber-100 text-amber-600' }[c] || 'bg-gray-100 text-gray-500'),
+                getCategoryIcon: (c) => ({ Food:'fa-utensils', Flight:'fa-plane', Shop:'fa-bag-shopping', Spot:'fa-camera', Stay:'fa-hotel', Train:'fa-train' }[c] || 'fa-tag'),
+                getCatClass: (c) => ({ Spot:'bg-orange-100 text-orange-600', Food:'bg-emerald-100 text-emerald-600', Shop:'bg-pink-100 text-pink-600', Flight:'bg-blue-100 text-blue-600', Stay:'bg-indigo-100 text-indigo-600', Train:'bg-amber-100 text-amber-600' }[c] || 'bg-gray-100 text-gray-400'),
                 getTransitIcon: (m) => ({ walk:'fa-person-walking', bus:'fa-bus', train:'fa-train-subway', taxi:'fa-taxi' }[m] || 'fa-person-walking'),
                 getCurrencySymbol: (c) => ({ HKD: 'HK$', EUR: '€', GBP: '£' }[c]),
                 convertToHKD: (a, c) => (c === 'HKD' ? a : (a * (c === 'EUR' ? rates.value.eur : rates.value.gbp))).toFixed(1)
