@@ -15,12 +15,7 @@
         body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: #1F2937; overflow-x: hidden; }
         
         /* Banner */
-        .banner { 
-            min-height: 380px; 
-            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%), 
-                        url('./cover.jpg') center center / cover no-repeat;
-            position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; background-color: #2c2c2c;
-        }
+        .banner { min-height: 380px; background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%), url('./cover.jpg') center center / cover no-repeat; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; background-color: #2c2c2c; }
         .tz-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 8px 12px; display: inline-flex; gap: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .tz-time { font-size: 11px; font-weight: 800; color: white; font-variant-numeric: tabular-nums; }
         .tab-btn { padding: 12px 14px; border-radius: 16px; font-weight: 800; font-size: 9px; color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); border: none; white-space: nowrap; text-transform: uppercase; }
@@ -30,21 +25,18 @@
         .main-card { margin-top: -35px; border-radius: 40px 40px 0 0; background: white; min-height: 100vh; position: relative; z-index: 20; padding: 25px 20px 120px; box-shadow: 0 -15px 40px rgba(0,0,0,0.1); }
         .day-pill.active { background: var(--italy-red); color: white; }
         
-        /* Item Card Styles */
+        /* Item Cards */
         .item-card { border-radius: 24px; background: #fff; padding: 20px; border: 1px solid #F3F4F6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 15px; position: relative; }
-        
-        /* 🎨 視覺修正：調大標籤字體 */
         .time-tag { background-color: #F3F4F6; color: #4B5563; padding: 6px 14px; border-radius: 12px; font-size: 13px !important; font-weight: 800; }
-        .booking-badge { font-size: 11px !important; font-weight: 900; padding: 5px 12px; border-radius: 10px; text-transform: uppercase; margin-left: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .booking-badge { font-size: 11px !important; font-weight: 900; padding: 5px 12px; border-radius: 10px; text-transform: uppercase; margin-left: 5px; }
         .cat-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; }
         
-        /* 特殊狀態顏色 */
+        /* 特殊樣式：Stay 紅框, Birthday 粉底 */
         .stay-card { border: 3px solid var(--italy-red) !important; box-shadow: 0 8px 25px rgba(139,0,0,0.15) !important; }
         .birthday-card { background: linear-gradient(135deg, #FFF5F5 0%, #FFF 100%) !important; border: 2px solid #FEB2B2 !important; }
         
         .fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: var(--italy-red); border-radius: 22px; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 100; box-shadow: 0 10px 25px rgba(139,0,0,0.3); }
         .rate-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 2px 6px; width: 42px; text-align: center; color: white; font-weight: 900; outline: none; }
-        
         .transit-container { margin-left: 35px; border-left: 2px dashed #E5E7EB; padding: 12px 0 12px 25px; margin-top: -5px; margin-bottom: 10px; }
     </style>
 </head>
@@ -79,34 +71,23 @@
                     <div @click="editItem(item, 'plans')" :class="['item-card', item.category === 'Stay' ? 'stay-card' : '', item.name.includes('Birthday') ? 'birthday-card' : '']">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center flex-wrap gap-2">
-                                <span v-if="item.category !== 'Stay'" class="time-tag">
-                                    {{ item.time }} <span v-if="item.endTime" class="opacity-40"> - {{ item.endTime }}</span>
-                                </span>
-                                <span v-if="item.bookingStatus && item.bookingStatus !== 'none'" :class="['booking-badge', getBookingClass(item.bookingStatus)]">
-                                    {{ getBookingText(item.bookingStatus) }}
-                                </span>
+                                <span v-if="item.category !== 'Stay'" class="time-tag">{{ item.time }} <span v-if="item.endTime" class="opacity-40"> - {{ item.endTime }}</span></span>
+                                <span v-if="item.bookingStatus && item.bookingStatus !== 'none'" :class="['booking-badge', getBookingClass(item.bookingStatus)]">{{ getBookingText(item.bookingStatus) }}</span>
                             </div>
                             <button @click.stop="removeItem(item.id, 'plans')" class="text-gray-200"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
                         </div>
-
-                        <div :class="['cat-badge', getCatClass(item.category)]">
-                            <i :class="['fa-solid', getCategoryIcon(item.category)]"></i> {{ item.category }}
-                        </div>
-                        
-                        <div class="font-black text-gray-800 text-xl leading-tight">
-                            <i v-if="item.name.includes('Birthday')" class="fa-solid fa-cake-candles text-red-500 mr-2"></i>{{ item.name }}
-                        </div>
-
+                        <div :class="['cat-badge', getCatClass(item.category)]"><i :class="['fa-solid', getCategoryIcon(item.category)]"></i> {{ item.category }}</div>
+                        <div class="font-black text-gray-800 text-xl leading-tight"><i v-if="item.name.includes('Birthday')" class="fa-solid fa-cake-candles text-red-500 mr-2"></i>{{ item.name }}</div>
                         <p v-if="item.remark" class="text-[12px] text-gray-400 font-bold mt-2 leading-relaxed italic border-l-2 border-gray-100 pl-3 whitespace-pre-wrap">{{ item.remark }}</p>
-                        
-                        <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="inline-flex items-center gap-2 text-blue-600 font-black text-[9px] mt-4 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100 uppercase">
-                            <i class="fa-solid fa-map-location-dot"></i> Google Map
-                        </a>
+                        <a v-if="item.link" :href="item.link" target="_blank" @click.stop class="inline-flex items-center gap-2 text-blue-600 font-black text-[9px] mt-4 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100 uppercase"><i class="fa-solid fa-map-location-dot"></i> Google Map</a>
                     </div>
 
                     <div v-if="index < currentDayPlans.length - 1" class="transit-container">
-                        <div @click="openTransitModal(item)" class="bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl text-[9px] font-bold text-slate-400 inline-flex items-center gap-2 cursor-pointer">
-                            <i :class="['fa-solid', getTransitIcon(item.transitMode || 'walk')]"></i> {{ item.transitRemark || 'Route Info' }}
+                        <div class="flex items-center gap-2">
+                            <div @click="openTransitModal(item)" class="bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl text-[9px] font-bold text-slate-400 inline-flex items-center gap-2 cursor-pointer">
+                                <i :class="['fa-solid', getTransitIcon(item.transitMode || 'walk')]"></i> {{ item.transitRemark || 'Route Info' }}
+                            </div>
+                            <a v-if="item.transitLink" :href="item.transitLink" target="_blank" @click.stop class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shadow-sm active:scale-95"><i class="fa-solid fa-location-arrow text-[10px]"></i></a>
                         </div>
                     </div>
                 </template>
@@ -123,23 +104,18 @@
             </div>
             <div class="bg-gray-50 p-6 rounded-3xl mb-6 border-2 border-dashed border-gray-200">
                 <div class="grid grid-cols-2 gap-2 mb-2">
-                    <input v-model="newEx.name" placeholder="Item Name" class="p-4 bg-white rounded-xl font-bold text-sm">
-                    <input v-model.number="newEx.amount" type="number" placeholder="Amount" class="p-4 bg-white rounded-xl font-bold text-sm">
+                    <input v-model="newEx.name" placeholder="Item Name" class="p-4 bg-white rounded-xl font-bold text-sm border-none">
+                    <input v-model.number="newEx.amount" type="number" placeholder="Amount" class="p-4 bg-white rounded-xl font-bold text-sm border-none">
                 </div>
                 <div class="flex gap-2">
-                    <select v-model="newEx.currency" class="p-4 bg-white rounded-xl font-bold text-xs flex-1">
-                        <option>EUR</option><option>GBP</option><option>HKD</option>
-                    </select>
+                    <select v-model="newEx.currency" class="p-4 bg-white rounded-xl font-bold text-xs flex-1 border-none"><option>EUR</option><option>GBP</option><option>HKD</option></select>
                     <button @click="addExpense" class="bg-black text-white px-8 rounded-xl font-black text-xs uppercase">Add</button>
                 </div>
             </div>
             <div class="space-y-3">
                 <div v-for="ex in expenses" :key="ex.id" class="item-card flex justify-between items-center p-5">
                     <div><div class="font-black text-gray-800">{{ ex.name }}</div><div class="text-[9px] text-gray-400 font-black">{{ getCurrencySymbol(ex.currency) }}{{ ex.amount }}</div></div>
-                    <div class="flex items-center gap-4">
-                        <div class="font-black text-emerald-600">HK${{ convertToHKD(ex.amount, ex.currency) }}</div>
-                        <button @click="removeItem(ex.id, 'expenses')" class="text-gray-200"><i class="fa-solid fa-circle-xmark"></i></button>
-                    </div>
+                    <div class="flex items-center gap-4"><div class="font-black text-emerald-600">HK${{ convertToHKD(ex.amount, ex.currency) }}</div><button @click="removeItem(ex.id, 'expenses')" class="text-gray-200"><i class="fa-solid fa-circle-xmark"></i></button></div>
                 </div>
             </div>
         </div>
@@ -150,16 +126,10 @@
             </div>
             <div class="space-y-4">
                 <div v-for="bm in currentCityBookmarks" :key="bm.id" @click="editItem(bm, 'bookmarks')" class="item-card">
-                    <div class="flex justify-between items-start mb-2">
-                        <div :class="['cat-badge', getCatClass(bm.category)]">{{ bm.category }}</div>
-                        <button @click.stop="removeItem(bm.id, 'bookmarks')" class="text-gray-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
-                    </div>
+                    <div class="flex justify-between items-start mb-2"><div :class="['cat-badge', getCatClass(bm.category)]">{{ bm.category }}</div><button @click.stop="removeItem(bm.id, 'bookmarks')" class="text-gray-200"><i class="fa-solid fa-circle-xmark text-lg"></i></button></div>
                     <div class="font-black text-gray-800 text-xl leading-tight">{{ bm.name }}</div>
                     <p v-if="bm.remark" class="text-xs text-gray-400 mt-2 font-bold italic">{{ bm.remark }}</p>
-                    
-                    <a v-if="bm.link" :href="bm.link" target="_blank" @click.stop class="inline-flex items-center gap-2 text-blue-600 font-black text-[9px] mt-4 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100 uppercase">
-                        <i class="fa-solid fa-location-dot text-[11px]"></i> Open Map
-                    </a>
+                    <a v-if="bm.link" :href="bm.link" target="_blank" @click.stop class="inline-flex items-center gap-2 text-blue-600 font-black text-[9px] mt-4 bg-blue-50 px-3 py-2 rounded-xl border border-blue-100 uppercase"><i class="fa-solid fa-location-dot"></i> Open Map</a>
                 </div>
             </div>
         </div>
@@ -170,10 +140,7 @@
             </div>
             <div class="space-y-2">
                 <div v-for="item in currentUserChecklist" @click="toggleCheck(item.id)" class="flex items-center justify-between p-5 bg-white rounded-2xl border border-gray-100">
-                    <div class="flex items-center gap-4">
-                        <i :class="['fa-regular text-2xl', item.done ? 'fa-square-check text-emerald-500' : 'fa-square text-gray-200']"></i>
-                        <span :class="['font-bold text-sm', item.done ? 'line-through text-gray-300' : 'text-gray-700']">{{ item.text }}</span>
-                    </div>
+                    <div class="flex items-center gap-4"><i :class="['fa-regular text-2xl', item.done ? 'fa-square-check text-emerald-500' : 'fa-square text-gray-200']"></i><span :class="['font-bold text-sm', item.done ? 'line-through text-gray-300' : 'text-gray-700']">{{ item.text }}</span></div>
                     <button @click.stop="removeItem(item.id, 'checklist')" class="text-gray-200"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
                 <div class="flex gap-2 mt-8"><input v-model="newCheckItem" @keyup.enter="addCheckItem" placeholder="New Item..." class="flex-1 p-4 bg-gray-50 rounded-2xl font-bold"><button @click="addCheckItem" class="bg-gray-900 text-white px-6 rounded-2xl font-black">ADD</button></div>
@@ -185,32 +152,21 @@
         <div class="bg-white w-full p-8 rounded-t-[40px] max-h-[90vh] overflow-y-auto pb-12">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
             <div class="space-y-5">
-                <div class="grid grid-cols-3 gap-2">
-                    <button v-for="c in ['Spot','Food','Stay','Shop','Flight','Train']" @click="form.category=c" :class="['p-3 rounded-xl border-2 font-black text-[9px] uppercase', form.category===c?'border-indigo-600 bg-indigo-50 text-indigo-600':'border-gray-100 text-gray-300']">{{c}}</button>
-                </div>
-                <input v-model="form.category" placeholder="Custom Category (手填)" class="w-full p-4 bg-gray-50 rounded-xl font-bold">
-
+                <div class="grid grid-cols-3 gap-2"><button v-for="c in ['Spot','Food','Stay','Shop','Flight','Train']" @click="form.category=c" :class="['p-3 rounded-xl border-2 font-black text-[9px] uppercase', form.category===c?'border-indigo-600 bg-indigo-50 text-indigo-600':'border-gray-100 text-gray-300']">{{c}}</button></div>
+                <input v-model="form.category" placeholder="Custom Category..." class="w-full p-4 bg-gray-50 rounded-xl font-bold border-none">
+                
                 <div v-if="currentTab !== 'bookmark'">
-                    <label class="text-[9px] font-black uppercase text-gray-400 ml-1">Booking Status (English)</label>
-                    <div class="grid grid-cols-2 gap-2 mt-1">
-                        <button v-for="status in [{v:'none',t:'None'},{v:'booked',t:'Booked'},{v:'deposit',t:'Deposit'},{v:'paid',t:'Full Paid'}]" 
-                                @click="form.bookingStatus = status.v" 
-                                :class="['p-3 rounded-xl border font-bold text-xs', form.bookingStatus === status.v ? 'bg-gray-800 text-white' : 'bg-gray-50 text-gray-400 border-transparent']">
-                            {{ status.t }}
-                        </button>
-                    </div>
+                    <label class="text-[9px] font-black uppercase text-gray-400 ml-1">Booking Status</label>
+                    <div class="grid grid-cols-2 gap-2 mt-1"><button v-for="status in [{v:'none',t:'None'},{v:'booked',t:'Booked'},{v:'deposit',t:'Deposit'},{v:'paid',t:'Full Paid'}]" @click="form.bookingStatus = status.v" :class="['p-3 rounded-xl border font-bold text-xs', form.bookingStatus === status.v ? 'bg-gray-800 text-white' : 'bg-gray-50 text-gray-400 border-transparent']">{{ status.t }}</button></div>
                 </div>
-
                 <input v-model="form.name" placeholder="Name" class="w-full p-4 bg-gray-100 rounded-xl font-black border-none text-lg">
-                
                 <div v-if="currentTab !== 'bookmark' && form.category !== 'Stay'" class="grid grid-cols-2 gap-4">
-                    <input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-xl font-black">
-                    <input v-model="form.endTime" type="time" class="p-4 bg-gray-50 rounded-xl font-black">
+                    <input v-model="form.time" type="time" class="p-4 bg-gray-50 rounded-xl font-black border-none">
+                    <input v-model="form.endTime" type="time" class="p-4 bg-gray-50 rounded-xl font-black border-none">
                 </div>
 
-                <textarea v-model="form.remark" placeholder="Remark / Notes..." class="w-full p-4 bg-gray-50 rounded-xl font-bold" rows="3"></textarea>
-                <input v-model="form.link" placeholder="Map Link (Google地圖連結)" class="w-full p-4 bg-gray-50 rounded-xl text-xs font-bold">
-                
+                <textarea v-model="form.remark" placeholder="Remark / Notes..." class="w-full p-4 bg-gray-50 rounded-xl font-bold border-none" rows="3"></textarea>
+                <input v-model="form.link" placeholder="Map Link" class="w-full p-4 bg-gray-50 rounded-xl text-xs font-bold border-none">
                 <button @click="handleSave" class="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-lg uppercase">Save</button>
                 <button @click="showModal=false" class="w-full py-2 text-gray-300 font-bold text-xs text-center">CANCEL</button>
             </div>
@@ -219,7 +175,7 @@
 
     <div v-if="showTransitModal" class="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-black/80">
         <div class="bg-white w-full max-w-sm p-8 rounded-[40px]">
-            <h3 class="font-black text-xl mb-6 text-center italic text-red-900">Transit Info</h3>
+            <h3 class="font-black text-xl mb-6 text-center italic">Transit Info</h3>
             <div class="space-y-4">
                 <input v-model="transitForm.remark" placeholder="Bus 45 / Walk 10min" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none">
                 <input v-model="transitForm.link" placeholder="Directions Link" class="w-full p-4 bg-blue-50 text-blue-700 rounded-2xl text-[9px] font-bold border-none">
@@ -266,34 +222,22 @@
 
             return {
                 currentTab, days, selectedDayIndex, times, showModal, showTransitModal, form, transitForm, rates, activeUser, checklist, newCheckItem, cities, selectedCity, bookmarks, expenses, newEx,
-                currentDayPlans: computed(() => {
-                    return itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date)
-                        .sort((a, b) => {
-                            const getScore = (i) => i.category === 'Stay' ? 0 : (i.name.toLowerCase().includes('birthday') ? 1 : 2);
-                            const sA = getScore(a), sB = getScore(b);
-                            return sA !== sB ? sA - sB : (a.time || "00:00").localeCompare(b.time || "00:00");
-                        });
-                }),
+                currentDayPlans: computed(() => itinerary.value.filter(p => p.dayDate === days[selectedDayIndex.value].date).sort((a, b) => {
+                    const getScore = (i) => i.category === 'Stay' ? 0 : (i.name.toLowerCase().includes('birthday') ? 1 : 2);
+                    const sA = getScore(a), sB = getScore(b);
+                    return sA !== sB ? sA - sB : (a.time || "00:00").localeCompare(b.time || "00:00");
+                })),
                 currentCityBookmarks: computed(() => bookmarks.value.filter(b => b.city === selectedCity.value)),
                 currentUserChecklist: computed(() => checklist.value.filter(c => c.user === activeUser.value)),
                 totalSpentHKD: computed(() => expenses.value.reduce((sum, ex) => sum + parseFloat(ex.amount * (ex.currency === 'EUR' ? rates.value.eur : (ex.currency === 'GBP' ? rates.value.gbp : 1))), 0).toFixed(0)),
                 saveRates: () => db.ref('rates').set(rates.value),
                 addExpense: () => { if(!newEx.value.name) return; const id = Date.now(); db.ref(`expenses/${id}`).set({...newEx.value, id}); newEx.value = { name: '', amount: 0, currency: 'EUR' }; },
-                handleSave: () => { 
-                    const id = form.value.id || Date.now(); 
-                    const path = currentTab.value === 'bookmark' ? 'bookmarks' : 'plans';
-                    db.ref(`${path}/${id}`).set({...form.value, id}); 
-                    showModal.value = false; 
-                },
+                handleSave: () => { const id = form.value.id || Date.now(); const path = currentTab.value === 'bookmark' ? 'bookmarks' : 'plans'; db.ref(`${path}/${id}`).set({...form.value, id}); showModal.value = false; },
                 openTransitModal: (item) => { activeTransitItem.value = item; transitForm.value = { mode: item.transitMode || 'walk', remark: item.transitRemark || '', link: item.transitLink || '' }; showTransitModal.value = true; },
                 saveTransit: () => { db.ref('plans/'+activeTransitItem.value.id).update({ transitMode: transitForm.value.mode, transitRemark: transitForm.value.remark, transitLink: transitForm.value.link }); showTransitModal.value = false; },
                 addCheckItem: () => { if(!newCheckItem.value) return; const id = Date.now(); db.ref(`checklist/${id}`).set({ id, text: newCheckItem.value, done: false, user: activeUser.value }); newCheckItem.value = ''; },
                 toggleCheck: (id) => { const item = checklist.value.find(c => c.id === id); if(item) db.ref(`checklist/${id}`).update({ done: !item.done }); },
-                handleFabAction: () => { 
-                    if(currentTab.value === 'expense' || currentTab.value === 'checklist') return; 
-                    form.value = { id: null, name: '', time: '09:00', endTime: '', dayDate: days[selectedDayIndex.value].date, category: 'Spot', link: '', remark: '', city: selectedCity.value, bookingStatus: 'none' }; 
-                    showModal.value = true; 
-                },
+                handleFabAction: () => { if(currentTab.value === 'expense' || currentTab.value === 'checklist') return; form.value = { id: null, name: '', time: '09:00', endTime: '', dayDate: days[selectedDayIndex.value].date, category: 'Spot', link: '', remark: '', city: selectedCity.value, bookingStatus: 'none' }; showModal.value = true; },
                 editItem: (item, path) => { form.value = { ...item }; showModal.value = true; },
                 removeItem: (id, path) => { if(confirm('Delete?')) db.ref(`${path}/${id}`).remove(); },
                 getCategoryIcon: (c) => ({ Food:'fa-utensils', Flight:'fa-plane', Shop:'fa-bag-shopping', Spot:'fa-camera', Stay:'fa-hotel', Train:'fa-train' }[c] || 'fa-tag'),
