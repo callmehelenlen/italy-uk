@@ -230,22 +230,26 @@
     const loginBtn = document.getElementById('login-btn');
     const loginError = document.getElementById('login-error');
 
-    loginBtn.addEventListener('click', async () => {
-        const email = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value;
+loginBtn.addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
 
-        loginError.classList.add('hidden');
-        loginError.textContent = '';
+    loginError.classList.add('hidden');
+    loginError.textContent = '';
 
-        try {
-            await auth.signInWithEmailAndPassword(email, password);
-        } catch (error) {
-            loginError.textContent = '登入失敗：' + error.message;
-            loginError.classList.remove('hidden');
-        }
-    });
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+    } catch (error) {
+        loginError.textContent = '登入失敗：' + error.message;
+        loginError.classList.remove('hidden');
+    }
+});
 
-    let appMounted = false;
+let appMounted = false;
+
+const { createApp, ref, computed, onMounted } = Vue;
+
+const vueApp = createApp({
 
     const { createApp, ref, computed, onMounted } = Vue;
 
